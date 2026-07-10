@@ -70,7 +70,7 @@ class _QuillEditorWidgetState extends State<QuillEditorWidget> {
           child: QuillEditor.basic(
             controller: _controller,
             config: QuillEditorConfig(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 24),
               placeholder: 'Start writing your chapter...',
             ),
           ),

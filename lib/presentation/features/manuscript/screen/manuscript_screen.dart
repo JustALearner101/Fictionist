@@ -9,7 +9,10 @@ import 'package:fictionist/presentation/common/widget/empty_state.dart';
 import 'package:fictionist/presentation/common/widget/loading_indicator.dart';
 import 'package:fictionist/presentation/features/entity/widget/entity_peek_sheet.dart';
 import 'package:fictionist/presentation/features/manuscript/provider/manuscript_provider.dart';
+import 'package:fictionist/presentation/features/manuscript/provider/writing_preferences_provider.dart';
+import 'package:fictionist/presentation/features/manuscript/widget/chapter_sidebar.dart';
 import 'package:fictionist/presentation/features/manuscript/widget/quill_editor_widget.dart';
+import 'package:fictionist/presentation/features/manuscript/widget/writing_stats_bar.dart';
 import 'package:fictionist/data/compiler/manuscript_compiler.dart';
 import 'package:fictionist/domain/manuscript/compile_format.dart';
 import 'package:share_plus/share_plus.dart';
@@ -27,6 +30,7 @@ class _ManuscriptScreenState extends ConsumerState<ManuscriptScreen> {
   final _titleController = TextEditingController();
   String? _editingChapterId;
   String _currentContent = '';
+  DateTime? _lastEdited;
   bool _showPreview = false;
   bool _showCodexDrawer = false;
 
@@ -42,6 +46,7 @@ class _ManuscriptScreenState extends ConsumerState<ManuscriptScreen> {
     _editingChapterId = id;
     _titleController.text = chapter.title;
     _currentContent = chapter.content;
+    _lastEdited = chapter.updatedAt;
     ref.read(manuscriptNotifierProvider.notifier).selectChapter(id);
   }
 
@@ -275,31 +280,259 @@ class _ManuscriptScreenState extends ConsumerState<ManuscriptScreen> {
     }
 
     if (isMobile) {
-      return _buildMobileChapterList(context, state);
+      return _buildMobileLayout(context, state);
     } else {
       return _buildDesktopLayout(context, state);
     }
   }
 
-  Widget _buildMobileChapterList(BuildContext context, ManuscriptState state) {
+  /// Shared editor column used by both desktop and mobile layouts.
+  Widget _buildEditorArea(BuildContext context) {
+    final wordCount =
+        _currentContent.split(RegExp(r'\s+')).where((w) => w.isNotEmpty).length;
+    return Column(
+      children: [
+        // Title
+        TextField(
+          controller: _titleController,
+          style: Theme.of(context).textTheme.headlineMedium!.copyWith(
+            fontFamily: 'Lora',
+            fontSize: 22,
+          ),
+          decoration: const InputDecoration(
+            hintText: 'Chapter Title',
+            border: InputBorder.none,
+          ),
+          onChanged: (_) => _saveCurrentChapter(),
+        ),
+        const SizedBox(height: 16),
+        WritingStatsBar(
+          wordCount: wordCount,
+          charCount: _currentContent.length,
+          lastEdited: _lastEdited,
+        ),
+        const SizedBox(height: 12),
+        // Content
+        Expanded(
+          child: _showPreview
+              ? VisualBookPagePreview(
+                  title: _titleController.text.isNotEmpty
+                      ? _titleController.text
+                      : 'Chapter Untitled',
+                  content: _currentContent,
+                )
+              : _editingChapterId != null
+                  ? QuillEditorWidget(
+                      key: ValueKey(_editingChapterId),
+                      initialContent: _currentContent,
+                      onContentChanged: (content) {
+                        _currentContent = content;
+                        _saveCurrentChapter();
+                      },
+                    )
+                  : Center(
+                      child: Text('Select a chapter to start writing'),
+                    ),
+        ),
+        if (_editingChapterId != null && !_showPreview) ...[
+          const SizedBox(height: 8),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              Text(
+                'Words: $wordCount   |   Characters: ${_currentContent.length}',
+                style: Theme.of(context).textTheme.labelMedium!.copyWith(
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ],
+    );
+  }
+
+  void _showChapterSheet() {
+    final state = ref.read(manuscriptNotifierProvider);
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) {
+        return DraggableScrollableSheet(
+          initialChildSize: 0.6,
+          minChildSize: 0.3,
+          maxChildSize: 0.9,
+          expand: false,
+          builder: (ctx, scrollController) {
+            return Container(
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.surface,
+                borderRadius: const BorderRadius.only(
+                  topLeft: Radius.circular(20),
+                  topRight: Radius.circular(20),
+                ),
+              ),
+              child: Column(
+                children: [
+                  // Handle
+                  Container(
+                    margin: const EdgeInsets.only(top: 12, bottom: 8),
+                    width: 40,
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: Theme.of(context)
+                          .colorScheme
+                          .onSurfaceVariant
+                          .withOpacity(0.3),
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  ),
+                  // Header
+                  Padding(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Chapters',
+                          style:
+                              Theme.of(context).textTheme.titleMedium!.copyWith(
+                                    fontFamily: 'Lora',
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                        ),
+                        TextButton.icon(
+                          icon: const Icon(Icons.add, size: 18),
+                          label: const Text('New'),
+                          onPressed: () {
+                            Navigator.pop(ctx);
+                            _createChapter();
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+                  const Divider(),
+                  // Chapter list
+                  Expanded(
+                    child: ListView.builder(
+                      controller: scrollController,
+                      itemCount: state.chapters.length,
+                      itemBuilder: (ctx, index) {
+                        final ch = state.chapters[index];
+                        final wordCount = ch.content
+                            .split(RegExp(r'\s+'))
+                            .where((w) => w.isNotEmpty)
+                            .length;
+                        final isSelected = ch.id == _editingChapterId;
+                        return ListTile(
+                          selected: isSelected,
+                          selectedTileColor: Theme.of(context)
+                              .colorScheme
+                              .primary
+                              .withOpacity(0.08),
+                          leading: CircleAvatar(
+                            backgroundColor: isSelected
+                                ? Theme.of(context).colorScheme.primary
+                                : Theme.of(context)
+                                    .colorScheme
+                                    .primary
+                                    .withOpacity(0.1),
+                            child: Text(
+                              '${index + 1}',
+                              style: TextStyle(
+                                color: isSelected
+                                    ? Theme.of(context).colorScheme.onPrimary
+                                    : Theme.of(context).colorScheme.primary,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                          title: Text(
+                            ch.title,
+                            style: Theme.of(context)
+                                .textTheme
+                                .titleMedium!
+                                .copyWith(
+                                  fontFamily: 'Lora',
+                                  fontWeight: FontWeight.w600,
+                                ),
+                          ),
+                          subtitle: Text(
+                            '$wordCount words',
+                            style: Theme.of(context).textTheme.labelMedium,
+                          ),
+                          trailing: IconButton(
+                            icon: Icon(
+                              Icons.delete_outline,
+                              color: Theme.of(context).colorScheme.error,
+                            ),
+                            onPressed: () {
+                              Navigator.pop(ctx);
+                              _deleteChapter(ch.id, ch.title);
+                            },
+                          ),
+                          onTap: () {
+                            _saveCurrentChapter();
+                            _selectChapter(ch.id);
+                            Navigator.pop(ctx);
+                          },
+                        );
+                      },
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  Widget _buildMobileLayout(BuildContext context, ManuscriptState state) {
+    // Auto-select first chapter if none selected
+    if (_editingChapterId == null && state.chapters.isNotEmpty) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _selectChapter(state.chapters.first.id);
+      });
+    }
+
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.surface,
         elevation: 0,
+        leading: IconButton(
+          icon: Icon(Icons.list_alt,
+              color: Theme.of(context).colorScheme.primary),
+          tooltip: 'Chapters',
+          onPressed: _showChapterSheet,
+        ),
         title: Text(
-          'Manuscript',
-          style: Theme.of(context).textTheme.headlineMedium!.copyWith(
-            fontFamily: 'Lora',
-            color: Theme.of(context).colorScheme.primary,
-            fontWeight: FontWeight.bold,
-          ),
+          _editingChapterId != null && _titleController.text.isNotEmpty
+              ? _titleController.text
+              : 'Manuscript',
+          style: Theme.of(context).textTheme.titleMedium!.copyWith(
+                fontFamily: 'Lora',
+                fontWeight: FontWeight.bold,
+                color: Theme.of(context).colorScheme.primary,
+              ),
+          overflow: TextOverflow.ellipsis,
         ),
         actions: [
           IconButton(
-            icon: Icon(Icons.add, color: Theme.of(context).colorScheme.primary),
-            tooltip: 'New Chapter',
-            onPressed: _createChapter,
+            icon: Icon(
+              _showPreview ? Icons.visibility : Icons.edit_outlined,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+            ),
+            tooltip: _showPreview ? 'Edit' : 'Preview',
+            onPressed: () {
+              _saveCurrentChapter();
+              setState(() => _showPreview = !_showPreview);
+            },
           ),
           IconButton(
             icon: Icon(Icons.file_download_outlined,
@@ -309,86 +542,45 @@ class _ManuscriptScreenState extends ConsumerState<ManuscriptScreen> {
           ),
         ],
       ),
-      body: ReorderableListView.builder(
-        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
-        itemCount: state.chapters.length,
-        onReorder: (oldIndex, newIndex) {
-          ref.read(manuscriptNotifierProvider.notifier).reorderChapters(oldIndex, newIndex);
-        },
-        itemBuilder: (context, index) {
-          final ch = state.chapters[index];
-          final wordCount = ch.content.split(RegExp(r'\s+')).where((w) => w.isNotEmpty).length;
-
-          return Card(
-            key: ValueKey(ch.id),
-            margin: const EdgeInsets.only(bottom: 8),
-            child: ListTile(
-              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              leading: CircleAvatar(
-                backgroundColor: Theme.of(context).colorScheme.primary.withOpacity(0.1),
-                child: Text(
-                  '${index + 1}',
-                  style: TextStyle(
-                    color: Theme.of(context).colorScheme.primary,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-              title: Text(
-                ch.title,
-                style: Theme.of(context).textTheme.titleMedium!.copyWith(
-                  fontFamily: 'Lora',
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-              subtitle: Text(
-                '$wordCount words',
-                style: Theme.of(context).textTheme.labelMedium,
-              ),
-              trailing: Row(
-                mainAxisSize: MainAxisSize.min,
+      body: _editingChapterId == null
+          ? Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  IconButton(
-                    icon: Icon(
-                      Icons.delete_outline,
-                      color: Theme.of(context).colorScheme.error,
-                    ),
-                    onPressed: () => _deleteChapter(ch.id, ch.title),
+                  Icon(
+                    Icons.auto_stories_outlined,
+                    size: 64,
+                    color: Theme.of(context)
+                        .colorScheme
+                        .primary
+                        .withOpacity(0.3),
                   ),
-                  const Icon(Icons.drag_handle, color: Colors.grey),
+                  const SizedBox(height: 16),
+                  Text(
+                    'Select a chapter',
+                    style: Theme.of(context).textTheme.titleMedium,
+                  ),
+                  const SizedBox(height: 24),
+                  FilledButton.icon(
+                    icon: const Icon(Icons.list_alt),
+                    label: const Text('Open Chapters'),
+                    onPressed: _showChapterSheet,
+                  ),
                 ],
               ),
-              onTap: () {
-                _selectChapter(ch.id);
-                Navigator.push(
-                  context,
-                  PageRouteBuilder(
-                    pageBuilder: (context, animation, secondaryAnimation) =>
-                        ManuscriptEditorScreen(chapterId: ch.id),
-                    transitionsBuilder: (context, animation, secondaryAnimation, child) {
-                      const begin = Offset(1.0, 0.0);
-                      const end = Offset.zero;
-                      const curve = Curves.easeInOut;
-                      var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
-                      return SlideTransition(
-                        position: animation.drive(tween),
-                        child: child,
-                      );
-                    },
-                  ),
-                );
-              },
+            )
+          : Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: _buildEditorArea(context),
             ),
-          );
-        },
-      ),
     );
   }
 
   Widget _buildDesktopLayout(BuildContext context, ManuscriptState state) {
+    final prefs = ref.watch(writingPreferencesProvider);
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
-      appBar: AppBar(
+      appBar: prefs.distractionFree ? null : AppBar(
         backgroundColor: Theme.of(context).colorScheme.surface,
         elevation: 0,
         title: Text(
@@ -438,145 +630,62 @@ class _ManuscriptScreenState extends ConsumerState<ManuscriptScreen> {
             tooltip: 'Compile & Export',
             onPressed: _compileAndExport,
           ),
+          // Fullscreen toggle
+          IconButton(
+            icon: Icon(
+              prefs.distractionFree ? Icons.fullscreen_exit : Icons.fullscreen,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+            ),
+            tooltip: prefs.distractionFree ? 'Exit Focus Mode' : 'Focus Mode',
+            onPressed: () {
+              ref.read(writingPreferencesProvider.notifier).update(
+                (p) => p.copyWith(
+                  distractionFree: !p.distractionFree,
+                  sidebarCollapsed: !p.distractionFree ? true : p.sidebarCollapsed,
+                ),
+              );
+            },
+          ),
         ],
       ),
       body: Row(
         children: [
-          // Chapter list sidebar
-          SizedBox(
-            width: 200,
-            child: Container(
-              color: Theme.of(context).colorScheme.surface,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Padding(
-                    padding: EdgeInsets.all(12),
-                    child: Text(
-                      'Chapters',
-                      style: Theme.of(context).textTheme.titleMedium!.copyWith(
-                        color: Theme.of(context).colorScheme.primary,
-                        fontSize: 14,
-                      ),
-                    ),
-                  ),
-                  Expanded(
-                    child: ReorderableListView.builder(
-                      itemCount: state.chapters.length,
-                      onReorder: (oldIndex, newIndex) {
-                        ref
-                            .read(manuscriptNotifierProvider.notifier)
-                            .reorderChapters(oldIndex, newIndex);
-                      },
-                      itemBuilder: (context, index) {
-                        final ch = state.chapters[index];
-                        final isSelected =
-                            ch.id == state.selectedChapterId;
-                        return ListTile(
-                          key: ValueKey(ch.id),
-                          selected: isSelected,
-                          selectedTileColor:
-                              Theme.of(context).colorScheme.primary.withOpacity(0.1),
-                          dense: true,
-                          title: Text(
-                            ch.title,
-                            style: Theme.of(context).textTheme.bodyLarge!.copyWith(
-                              fontSize: 13,
-                              fontWeight: isSelected
-                                  ? FontWeight.bold
-                                  : FontWeight.normal,
-                              color: isSelected
-                                  ? Theme.of(context).colorScheme.primary
-                                  : Theme.of(context).colorScheme.onSurface,
-                            ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                          trailing: IconButton(
-                            icon: Icon(
-                              Icons.delete_outline,
-                              size: 16,
-                              color: Theme.of(context).colorScheme.error,
-                            ),
-                            onPressed: () =>
-                                _deleteChapter(ch.id, ch.title),
-                          ),
-                          onTap: () {
-                            _saveCurrentChapter();
-                            _selectChapter(ch.id);
-                          },
-                        );
-                      },
-                    ),
-                  ),
-                ],
-              ),
-            ),
+          if (!prefs.distractionFree)
+            ChapterSidebar(
+            chapters: state.chapters,
+            selectedChapterId: state.selectedChapterId,
+            onChapterSelected: (id) {
+              _saveCurrentChapter();
+              _selectChapter(id);
+            },
+            onChapterDeleted: (id, title) {
+              _deleteChapter(id, title);
+            },
+            onReorder: (oldIndex, newIndex) {
+              ref
+                  .read(manuscriptNotifierProvider.notifier)
+                  .reorderChapters(oldIndex, newIndex);
+            },
           ),
-          // Divider
-          Container(width: 1, color: Theme.of(context).colorScheme.outline),
           // Editor area
           Expanded(
-            child: Padding(
-              padding: EdgeInsets.all(20),
-              child: Column(
-                children: [
-                  // Title
-                  TextField(
-                    controller: _titleController,
-                    style: Theme.of(context).textTheme.headlineMedium!.copyWith(
-                      fontFamily: 'Lora',
-                      fontSize: 22,
+            child: prefs.distractionFree
+                ? Center(
+                    child: ConstrainedBox(
+                      constraints: const BoxConstraints(maxWidth: 700),
+                      child: Padding(
+                        padding: const EdgeInsets.all(20),
+                        child: _buildEditorArea(context),
+                      ),
                     ),
-                    decoration: const InputDecoration(
-                      hintText: 'Chapter Title',
-                      border: InputBorder.none,
-                    ),
-                    onChanged: (_) => _saveCurrentChapter(),
+                  )
+                : Padding(
+                    padding: const EdgeInsets.all(20),
+                    child: _buildEditorArea(context),
                   ),
-                  const SizedBox(height: 16),
-                  // Content
-                  Expanded(
-                    child: _showPreview
-                        ? VisualBookPagePreview(
-                            title: _titleController.text.isNotEmpty
-                                ? _titleController.text
-                                : 'Chapter Untitled',
-                            content: _currentContent,
-                          )
-                        : _editingChapterId != null
-                            ? QuillEditorWidget(
-                                key: ValueKey(_editingChapterId),
-                                initialContent: _currentContent,
-                                onContentChanged: (content) {
-                                  _currentContent = content;
-                                  _saveCurrentChapter();
-                                },
-                              )
-                            : Center(
-                                child: Text('Select a chapter to start writing'),
-                              ),
-                  ),
-                  if (_editingChapterId != null && !_showPreview) ...[
-                    const SizedBox(height: 8),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        Text(
-                          'Words: ${_currentContent.split(RegExp(r'\s+')).where((w) => w.isNotEmpty).length}   |   Characters: ${_currentContent.length}',
-                          style: Theme.of(context).textTheme.labelMedium!.copyWith(
-                            color: Theme.of(context).colorScheme.onSurfaceVariant,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ],
-              ),
-            ),
           ),
           // Codex drawer
-          if (_showCodexDrawer) ...[
+          if (_showCodexDrawer && !prefs.distractionFree) ...[
             Container(width: 1, color: Theme.of(context).colorScheme.outline),
             SizedBox(
               width: 280,
