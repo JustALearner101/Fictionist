@@ -12,6 +12,7 @@ import 'package:fictionist/presentation/features/manuscript/provider/manuscript_
 import 'package:fictionist/presentation/features/manuscript/provider/writing_preferences_provider.dart';
 import 'package:fictionist/presentation/features/manuscript/widget/chapter_sidebar.dart';
 import 'package:fictionist/presentation/features/manuscript/widget/quill_editor_widget.dart';
+import 'package:fictionist/presentation/features/manuscript/widget/editor_status_bar.dart';
 import 'package:fictionist/presentation/features/manuscript/widget/writing_stats_bar.dart';
 import 'package:fictionist/data/compiler/manuscript_compiler.dart';
 import 'package:fictionist/domain/manuscript/compile_format.dart';
@@ -28,6 +29,7 @@ class ManuscriptScreen extends ConsumerStatefulWidget {
 
 class _ManuscriptScreenState extends ConsumerState<ManuscriptScreen> {
   final _titleController = TextEditingController();
+  final _synopsisController = TextEditingController();
   String? _editingChapterId;
   String _currentContent = '';
   DateTime? _lastEdited;
@@ -37,6 +39,7 @@ class _ManuscriptScreenState extends ConsumerState<ManuscriptScreen> {
   @override
   void dispose() {
     _titleController.dispose();
+    _synopsisController.dispose();
     super.dispose();
   }
 
@@ -45,6 +48,7 @@ class _ManuscriptScreenState extends ConsumerState<ManuscriptScreen> {
     final chapter = state.chapters.firstWhere((c) => c.id == id);
     _editingChapterId = id;
     _titleController.text = chapter.title;
+    _synopsisController.text = chapter.synopsis ?? '';
     _currentContent = chapter.content;
     _lastEdited = chapter.updatedAt;
     ref.read(manuscriptNotifierProvider.notifier).selectChapter(id);
@@ -120,6 +124,15 @@ class _ManuscriptScreenState extends ConsumerState<ManuscriptScreen> {
     ref.read(manuscriptNotifierProvider.notifier).updateChapterTitle(
       _editingChapterId!,
       _titleController.text,
+    );
+  }
+
+  void _saveSynopsis() {
+    if (_editingChapterId == null) return;
+    final synopsis = _synopsisController.text.trim();
+    ref.read(manuscriptNotifierProvider.notifier).updateChapterSynopsis(
+      _editingChapterId!,
+      synopsis.isEmpty ? null : synopsis,
     );
   }
 
@@ -288,6 +301,7 @@ class _ManuscriptScreenState extends ConsumerState<ManuscriptScreen> {
 
   /// Shared editor column used by both desktop and mobile layouts.
   Widget _buildEditorArea(BuildContext context) {
+    final prefs = ref.watch(writingPreferencesProvider);
     final wordCount =
         _currentContent.split(RegExp(r'\s+')).where((w) => w.isNotEmpty).length;
     return Column(
@@ -304,6 +318,27 @@ class _ManuscriptScreenState extends ConsumerState<ManuscriptScreen> {
             border: InputBorder.none,
           ),
           onChanged: (_) => _saveCurrentChapter(),
+        ),
+        const SizedBox(height: 8),
+        // Synopsis
+        TextField(
+          controller: _synopsisController,
+          style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+            fontStyle: FontStyle.italic,
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
+          ),
+          decoration: InputDecoration(
+            hintText: 'Add a brief synopsis...',
+            hintStyle: Theme.of(context).textTheme.bodyMedium!.copyWith(
+              fontStyle: FontStyle.italic,
+              color: Theme.of(context).colorScheme.onSurfaceVariant.withOpacity(0.4),
+            ),
+            border: InputBorder.none,
+            isDense: true,
+            contentPadding: EdgeInsets.zero,
+          ),
+          maxLines: 2,
+          onChanged: (_) => _saveSynopsis(),
         ),
         const SizedBox(height: 16),
         WritingStatsBar(
@@ -325,6 +360,7 @@ class _ManuscriptScreenState extends ConsumerState<ManuscriptScreen> {
                   ? QuillEditorWidget(
                       key: ValueKey(_editingChapterId),
                       initialContent: _currentContent,
+                      typewriterMode: prefs.typewriterMode,
                       onContentChanged: (content) {
                         _currentContent = content;
                         _saveCurrentChapter();
@@ -334,20 +370,14 @@ class _ManuscriptScreenState extends ConsumerState<ManuscriptScreen> {
                       child: Text('Select a chapter to start writing'),
                     ),
         ),
-        if (_editingChapterId != null && !_showPreview) ...[
-          const SizedBox(height: 8),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              Text(
-                'Words: $wordCount   |   Characters: ${_currentContent.length}',
-                style: Theme.of(context).textTheme.labelMedium!.copyWith(
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
-                ),
-              ),
-            ],
+        if (_editingChapterId != null)
+          EditorStatusBar(
+            wordCount: wordCount,
+            charCount: _currentContent.length,
+            chapterTitle: _titleController.text.isNotEmpty
+                ? _titleController.text
+                : null,
           ),
-        ],
       ],
     );
   }
@@ -617,6 +647,19 @@ class _ManuscriptScreenState extends ConsumerState<ManuscriptScreen> {
             onPressed: () {
               _saveCurrentChapter();
               setState(() => _showPreview = !_showPreview);
+            },
+          ),
+          // Typewriter mode toggle
+          IconButton(
+            icon: Icon(
+              prefs.typewriterMode ? Icons.format_align_center : Icons.format_align_left,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+            ),
+            tooltip: prefs.typewriterMode ? 'Typewriter Mode: ON' : 'Typewriter Mode: OFF',
+            onPressed: () {
+              ref.read(writingPreferencesProvider.notifier).update(
+                (p) => p.copyWith(typewriterMode: !p.typewriterMode),
+              );
             },
           ),
           IconButton(

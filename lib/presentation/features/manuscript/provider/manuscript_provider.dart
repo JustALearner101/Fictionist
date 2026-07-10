@@ -190,4 +190,26 @@ class ManuscriptNotifier extends _$ManuscriptNotifier {
       (_) {},
     );
   }
+
+  Future<void> updateChapterSynopsis(String id, String? synopsis) async {
+    final useCase = getIt<UpdateChapterUseCase>();
+    final chapter = state.chapters.firstWhere((c) => c.id == id);
+
+    // Optimistic update
+    final updatedChapters = state.chapters.map((c) {
+      return c.id == id ? c.copyWith(synopsis: synopsis) : c;
+    }).toList();
+    state = state.copyWith(chapters: updatedChapters);
+
+    final result = await useCase(UpdateChapterParams(
+      chapter: chapter.copyWith(synopsis: synopsis),
+    ));
+    result.fold(
+      (failure) {
+        state = state.copyWith(errorMessage: failure.message);
+        _loadChapters();
+      },
+      (_) {},
+    );
+  }
 }

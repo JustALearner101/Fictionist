@@ -253,6 +253,19 @@ class _ExpandedChapterList extends StatelessWidget {
                               fontSize: 10,
                             ),
                           ),
+                          if (ch.synopsis != null && ch.synopsis!.isNotEmpty) ...[
+                            const SizedBox(height: 2),
+                            Text(
+                              ch.synopsis!,
+                              style: theme.textTheme.labelSmall?.copyWith(
+                                color: theme.colorScheme.onSurfaceVariant.withOpacity(0.5),
+                                fontSize: 10,
+                                fontStyle: FontStyle.italic,
+                              ),
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ],
                         ],
                       ),
                     ),

@@ -8,6 +8,7 @@ class ManuscriptChapters extends Table {
   IntColumn get sortOrder => integer().withDefault(const Constant(0))();
   TextColumn get dateLabel => text().nullable()();
   TextColumn get eraLabel => text().nullable()();
+  TextColumn get synopsis => text().nullable()();
   BoolColumn get isDeleted =>
       boolean().withDefault(const Constant(false))();
   DateTimeColumn get createdAt => dateTime()();

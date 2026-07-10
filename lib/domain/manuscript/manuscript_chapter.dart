@@ -13,6 +13,7 @@ abstract class ManuscriptChapter with _$ManuscriptChapter {
     @Default(0) int sortOrder,
     String? dateLabel,
     String? eraLabel,
+    @Default(null) String? synopsis,
     @Default(false) bool isDeleted,
     required DateTime createdAt,
     required DateTime updatedAt,
