@@ -1,0 +1,24 @@
+{
+  "archetypes": {
+    "Elven": {
+      "prefixes": ["Ael", "Mith", "Hae", "Gala", "Thran", "Celeb", "Elran", "Lega", "Syl", "Vael", "Eld", "Lor", "Quel", "Anc", "Ilph", "Lith", "Nim", "Tin", "Fin", "Oro"],
+      "suffixes": ["on", "an", "ndir", "ra", "dor", "las", "riel", "wen", "val", "ion", "ael", "wyn", "nor", "mir", "il", "uin", "as", "eth", "is", "el"],
+      "patterns": ["prefix+suffix", "prefix+prefix+suffix"]
+    },
+    "Dwarven": {
+      "prefixes": ["Thor", "Bal", "Glo", "Dwa", "Gim", "Dur", "Bof", "Thra", "Kil", "Bru", "Mor", "Far", "Gar", "Nor", "Bom", "Horn", "Dain", "Fund", "Nain", "Grim"],
+      "suffixes": ["in", "ur", "li", "grim", "ak", "gar", "thor", "dur", "oak", "dan", "bar", "bor", "rin", "rum", "dal", "gil", "nir", "ik", "um", "ir"],
+      "patterns": ["prefix+suffix"]
+    },
+    "Nordic": {
+      "prefixes": ["Ragnar", "Bjorn", "Sig", "Val", "Tor", "Har", "Olaf", "Eri", "Ivar", "Gunn", "Hak", "Leif", "Sten", "Ulf", "As", "Frey", "Odin", "Sven", "Tyr", "Vidar"],
+      "suffixes": ["g", "vald", "gard", "stein", "son", "sen", "mund", "rik", "thor", "olf", "ar", "bjorn", "hild", "run", "borg", "frid", "heid", "ny", "vor", "veig"],
+      "patterns": ["prefix+suffix"]
+    },
+    "Fantasy": {
+      "prefixes": ["Za", "Kra", "Xy", "Va", "Ry", "Maly", "Geth", "Ky", "Sarg", "Ar", "Kael", "Jax", "Ura", "Nox", "Py", "Quin", "Threx", "Vel", "Zor", "Oss"],
+      "suffixes": ["ra", "os", "ix", "an", "eth", "ul", "ar", "on", "yx", "im", "or", "ex", "al", "is", "ur", "ok", "en", "ar", "ith", "ion"],
+      "patterns": ["prefix+suffix", "prefix+prefix+suffix"]
+    }
+  }
+}

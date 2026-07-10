@@ -1,0 +1,5 @@
+{
+  "adjectives": ["Iron", "Sun", "Obsidian", "Ash", "Crimson", "Storm", "Frost", "Shadow", "Ember", "Silver", "Thunder", "Void", "Golden", "Sapphire", "Jade", "Crystal", "Dark", "Radiant", "Steel", "Bone"],
+  "nouns": ["Vanguard", "Covenant", "Compact", "Legion", "Order", "Circle", "Alliance", "Syndicate", "Consortium", "Clan", "Horde", "Ascendancy", "Dominion", "Enclave", "Council", "Sentinel", "Watch", "Guild", "Tribunal", "Marauders"],
+  "templates": ["The {adjective} {noun}", "{noun} of the {adjective}"]
+}

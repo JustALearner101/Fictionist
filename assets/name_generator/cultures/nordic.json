@@ -1,0 +1,18 @@
+{
+  "name": "Nordic",
+  "description": "Strong, rugged names inspired by Norse and Viking traditions, with bold consonant clusters.",
+  "consonants": ["b", "d", "f", "g", "h", "j", "k", "l", "m", "n", "r", "s", "t", "v", "th", "sk", "st", "bj"],
+  "vowels": ["a", "e", "i", "o", "u", "y", "ae", "oe", "aa"],
+  "syllablePatterns": ["CV", "CVC", "CCV"],
+  "patternWeights": [0.35, 0.45, 0.2],
+  "forbiddenClusters": [],
+  "minSyllables": 1,
+  "maxSyllables": 3,
+  "factionPrefixes": ["Storm", "Frost", "Wolf", "Blood", "Shield", "Sea"],
+  "factionSuffixes": ["born", "heim", "gard", "fjord", "mar", "vik"],
+  "artifactPrefixes": ["Storm", "Frost", "Wolf", "Blood", "Rune", "Thunder"],
+  "artifactSuffixes": ["fang", "edge", "rend", "claw", "sigil", "blade"],
+  "locationPrefixes": ["Storm", "Frost", "Wolf", "White", "North", "Ice"],
+  "locationSuffixes": ["gard", "heim", "vik", "fjord", "dal", "mark"],
+  "epithets": ["the Stormborn", "of the Frozen Sea", "Wolfheart", "the Shieldbreaker", "of Thunder Peak", "Bloodfang"]
+}

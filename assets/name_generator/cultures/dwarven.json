@@ -1,0 +1,18 @@
+{
+  "name": "Dwarven",
+  "description": "Hard, consonant-heavy names echoing forge-hammers and mountain halls.",
+  "consonants": ["k", "d", "r", "g", "n", "z", "kh", "rk", "dr", "gr"],
+  "vowels": ["a", "o", "u", "ar", "or", "ur"],
+  "syllablePatterns": ["CVC", "CVCC", "VC"],
+  "patternWeights": [0.5, 0.3, 0.2],
+  "forbiddenClusters": ["rkg", "drz", "grk"],
+  "minSyllables": 1,
+  "maxSyllables": 3,
+  "factionPrefixes": ["Iron", "Stone", "Forge", "Deep", "Bronze", "Hammer"],
+  "factionSuffixes": ["Clan", "Hold", "Guard", "Anvil", "Shield", "Mountain"],
+  "artifactPrefixes": ["Iron", "Forge", "Rune", "Deep", "Hammer", "Stone"],
+  "artifactSuffixes": ["breaker", "keeper", "shaper", "guard", "cleaver", "brand"],
+  "locationPrefixes": ["Iron", "Stone", "Deep", "Forge", "Bronze", "Khaz"],
+  "locationSuffixes": ["hold", "kar", "del", "bar", "dun", "grim"],
+  "epithets": ["the Unbroken", "of the Deep Forge", "Stoneheart", "the Anvilborn", "of Iron Peak", "the Hammer's Wrath"]
+}

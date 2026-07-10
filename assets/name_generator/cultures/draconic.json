@@ -1,0 +1,18 @@
+{
+  "name": "Draconic",
+  "description": "Ancient, rumbling names evoking dragons, scale and flame, with harsh consonant clusters.",
+  "consonants": ["d", "r", "g", "n", "k", "s", "x", "z", "v", "th", "dr", "gr", "str", "rth"],
+  "vowels": ["a", "o", "u", "aa", "oo", "au"],
+  "syllablePatterns": ["CVC", "CVVC", "CVCC"],
+  "patternWeights": [0.4, 0.3, 0.3],
+  "forbiddenClusters": [],
+  "minSyllables": 2,
+  "maxSyllables": 4,
+  "factionPrefixes": ["Flame", "Scale", "Dread", "Wyrm", "Ash", "Ember"],
+  "factionSuffixes": ["Flight", "Brood", "Maw", "Clutch", "Roost", "Covenant"],
+  "artifactPrefixes": ["Dragon", "Flame", "Wyrm", "Dread", "Scale", "Ash"],
+  "artifactSuffixes": ["tooth", "claw", "wing", "breath", "eye", "heart"],
+  "locationPrefixes": ["Dragon", "Wyrm", "Flame", "Ember", "Ash", "Spire"],
+  "locationSuffixes": ["peak", "roost", "lair", "crag", "maw", "spine"],
+  "epithets": ["the Dreadflame", "of the First Brood", "Ash-Scale", "the Wyrmborn", "of the Burning Skies", "Scaleheart"]
+}

@@ -1,0 +1,5 @@
+{
+  "ancientNouns": ["Soul", "Doom", "Star", "Void", "Fate", "Dawn", "Hope", "Death", "Twilight", "Eclipse", "Rune", "Spirit", "Shadow", "Flame", "Winter", "Storm", "Eternity", "Chaos", "Night", "Wrath"],
+  "weapons": ["Brand", "Cleaver", "Grimoire", "Relic", "Edge", "Fang", "Talon", "Shard", "Scepter", "Blade", "Crown", "Heart", "Claw", "Veil", "Mantle", "Sigil", "Orb", "Gauntlet", "Horn", "Lance"],
+  "templates": ["{ancientNoun}{weapon}", "{ancientNoun}'s {weapon}"]
+}

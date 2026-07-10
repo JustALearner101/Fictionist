@@ -1,0 +1,18 @@
+{
+  "name": "Elemental",
+  "description": "Primal names channeling raw elemental forces — magma, tempest, crystal, and void.",
+  "consonants": ["r", "n", "k", "t", "s", "z", "x", "v", "g", "m", "kr", "tr", "st"],
+  "vowels": ["a", "o", "u", "i", "aa", "oo"],
+  "syllablePatterns": ["CVC", "CV", "CVCC"],
+  "patternWeights": [0.45, 0.3, 0.25],
+  "forbiddenClusters": [],
+  "minSyllables": 1,
+  "maxSyllables": 3,
+  "factionPrefixes": ["Tempest", "Magma", "Tide", "Zephyr", "Crystal", "Void"],
+  "factionSuffixes": ["Conflux", "Elemental", "Shard", "Core", "Nexus", "Collective"],
+  "artifactPrefixes": ["Tempest", "Magma", "Tide", "Zephyr", "Crystal", "Void"],
+  "artifactSuffixes": ["essence", "core", "shard", "heart", "wrath", "soul"],
+  "locationPrefixes": ["Tempest", "Magma", "Crystal", "Void", "Tide", "Zephyr"],
+  "locationSuffixes": ["rift", "crater", "vault", "depth", "spire", "flow"],
+  "epithets": ["the Everflame", "of the Eternal Storm", "Crystalheart", "the Voidtouched", "of the Prime Conflux", "Tidesoul"]
+}

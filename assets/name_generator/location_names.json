@@ -1,0 +1,5 @@
+{
+  "prefixes": ["Thorn", "Ember", "Storm", "Raven", "Silver", "Iron", "Ash", "Frost", "Oak", "Shadow", "Crystal", "Dragon", "Sun", "Moon", "Wolf", "Star", "Deep", "High", "Green", "Red"],
+  "suffixes": ["haven", "moor", "keep", "dale", "watch", "fell", "hold", "march", "rest", "gate", "shire", "wood", "forge", "mire", "hollow", "crest", "peak", "vale", "field", "harbor"],
+  "templates": ["{prefix}{suffix}", "{prefix}{suffix}"]
+}

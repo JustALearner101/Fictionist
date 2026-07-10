@@ -1,0 +1,18 @@
+{
+  "name": "Elven",
+  "description": "Graceful and melodic names with flowing vowel combinations, inspired by woodland and high-elf aesthetics.",
+  "consonants": ["l", "r", "th", "s", "n", "m", "v", "w", "sh", "lh"],
+  "vowels": ["a", "e", "i", "ae", "ei", "ia", "ie"],
+  "syllablePatterns": ["CV", "CVC", "VC"],
+  "patternWeights": [0.5, 0.35, 0.15],
+  "forbiddenClusters": ["thl", "shl", "lhw"],
+  "minSyllables": 2,
+  "maxSyllables": 4,
+  "factionPrefixes": ["Silver", "Moon", "Star", "Dawn", "Crystal", "Shadow"],
+  "factionSuffixes": ["Council", "Enclave", "Host", "Blade", "Song", "Weave"],
+  "artifactPrefixes": ["Moon", "Star", "Dream", "Silk", "Crystal", "Thorn"],
+  "artifactSuffixes": ["blade", "whisper", "song", "weave", "light", "shadow"],
+  "locationPrefixes": ["Silver", "Moon", "Star", "Dawn", "Green", "Fair"],
+  "locationSuffixes": ["haven", "dale", "mere", "glen", "vale", "wood"],
+  "epithets": ["the Timeless", "of the First Light", "the Starborn", "of Eldergrove", "the Unseen", "of the Silver Dawn"]
+}

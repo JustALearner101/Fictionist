@@ -1,0 +1,18 @@
+{
+  "name": "Fae",
+  "description": "Whimsical, airy names borne on whispers and starlight, with soft consonant glides.",
+  "consonants": ["l", "f", "w", "s", "sh", "th", "z", "v", "n", "m", "gl", "fl", "wh"],
+  "vowels": ["i", "e", "a", "ae", "oe", "ia", "io"],
+  "syllablePatterns": ["CV", "CVV", "VC"],
+  "patternWeights": [0.5, 0.3, 0.2],
+  "forbiddenClusters": ["glf", "flw"],
+  "minSyllables": 2,
+  "maxSyllables": 4,
+  "factionPrefixes": ["Petal", "Dew", "Glimmer", "Thorn", "Whisper", "Briar"],
+  "factionSuffixes": ["Court", "Ring", "Weald", "Copse", "Thicket", "Dell"],
+  "artifactPrefixes": ["Dew", "Glimmer", "Petal", "Thorn", "Fae", "Whisper"],
+  "artifactSuffixes": ["bloom", "light", "shard", "weave", "dust", "song"],
+  "locationPrefixes": ["Fae", "Glimmer", "Whisper", "Dew", "Thorn", "Elder"],
+  "locationSuffixes": ["grove", "glade", "weald", "dell", "ring", "copse"],
+  "epithets": ["the Everbloom", "of the Whispering Glade", "Dewborne", "the Fae-Touched", "of the First Petal", "Starlight"]
+}
