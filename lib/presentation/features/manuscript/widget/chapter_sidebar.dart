@@ -139,6 +139,18 @@ class _SidebarHeader extends StatelessWidget {
   }
 }
 
+/// Returns a color for the given chapter status.
+Color _statusColor(ChapterStatus status) {
+  switch (status) {
+    case ChapterStatus.draft:
+      return Colors.grey;
+    case ChapterStatus.revising:
+      return Colors.amber;
+    case ChapterStatus.done:
+      return Colors.green;
+  }
+}
+
 class _CollapsedChapterList extends StatelessWidget {
   final List<ManuscriptChapter> chapters;
   final String? selectedChapterId;
@@ -269,16 +281,32 @@ class _ExpandedChapterList extends StatelessWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
-                            ch.title,
-                            style: theme.textTheme.bodyMedium?.copyWith(
-                              fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
-                              color: isSelected
-                                  ? theme.colorScheme.onSurface
-                                  : theme.colorScheme.onSurfaceVariant,
-                            ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
+                          Row(
+                            children: [
+                              // Status dot
+                              Container(
+                                width: 8,
+                                height: 8,
+                                margin: const EdgeInsets.only(right: 6),
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: _statusColor(ch.status),
+                                ),
+                              ),
+                              Expanded(
+                                child: Text(
+                                  ch.title,
+                                  style: theme.textTheme.bodyMedium?.copyWith(
+                                    fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
+                                    color: isSelected
+                                        ? theme.colorScheme.onSurface
+                                        : theme.colorScheme.onSurfaceVariant,
+                                  ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                            ],
                           ),
                           const SizedBox(height: 2),
                           Text(

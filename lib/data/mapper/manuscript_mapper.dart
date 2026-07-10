@@ -14,8 +14,16 @@ class ManuscriptMapper {
       eraLabel: row.eraLabel,
       synopsis: row.synopsis,
       isDeleted: row.isDeleted,
+      status: _parseStatus(row.status),
       createdAt: row.createdAt,
       updatedAt: row.updatedAt,
+    );
+  }
+
+  static ChapterStatus _parseStatus(String status) {
+    return ChapterStatus.values.firstWhere(
+      (s) => s.name == status,
+      orElse: () => ChapterStatus.draft,
     );
   }
 
@@ -29,6 +37,7 @@ class ManuscriptMapper {
       eraLabel: Value(chapter.eraLabel),
       synopsis: Value(chapter.synopsis),
       isDeleted: Value(chapter.isDeleted),
+      status: Value(chapter.status.name),
       createdAt: Value(chapter.createdAt),
       updatedAt: Value(chapter.updatedAt),
     );

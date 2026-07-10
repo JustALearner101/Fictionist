@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:fictionist/domain/entity/entity.dart';
@@ -16,8 +17,12 @@ import 'package:fictionist/presentation/features/manuscript/widget/editor_status
 import 'package:fictionist/presentation/features/manuscript/widget/writing_stats_bar.dart';
 import 'package:fictionist/presentation/features/manuscript/widget/template_picker.dart';
 import 'package:fictionist/presentation/features/manuscript/widget/global_search_sheet.dart';
+import 'package:fictionist/presentation/features/manuscript/widget/snapshot_history_sheet.dart';
+import 'package:fictionist/presentation/features/manuscript/provider/snapshot_provider.dart';
+import 'package:fictionist/presentation/features/manuscript/widget/dashboard_view.dart';
 import 'package:fictionist/data/compiler/manuscript_compiler.dart';
 import 'package:fictionist/domain/manuscript/compile_format.dart';
+import 'package:fictionist/domain/manuscript/manuscript_chapter.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:flutter_quill/flutter_quill.dart' hide Text;
@@ -38,6 +43,14 @@ class _ManuscriptScreenState extends ConsumerState<ManuscriptScreen> {
   bool _showPreview = false;
   bool _showCodexDrawer = false;
 
+  // --- Auto-save tracking ---
+  bool _isSaving = false;
+  bool _hasUnsavedChanges = false;
+
+  // --- Local undo stack (plain-text snapshots, max 50) ---
+  final List<String> _undoStack = [];
+  int _editorVersion = 0;
+
   @override
   void dispose() {
     _titleController.dispose();
@@ -53,6 +66,11 @@ class _ManuscriptScreenState extends ConsumerState<ManuscriptScreen> {
     _synopsisController.text = chapter.synopsis ?? '';
     _currentContent = chapter.content;
     _lastEdited = chapter.updatedAt;
+    // Reset undo stack and save state for new chapter
+    _undoStack.clear();
+    _editorVersion = 0;
+    _isSaving = false;
+    _hasUnsavedChanges = false;
     ref.read(manuscriptNotifierProvider.notifier).selectChapter(id);
   }
 
@@ -94,6 +112,8 @@ class _ManuscriptScreenState extends ConsumerState<ManuscriptScreen> {
   void _saveCurrentChapter() {
     if (_editingChapterId == null) return;
     final content = _currentContent;
+    _isSaving = true;
+    _hasUnsavedChanges = false;
     ref.read(manuscriptNotifierProvider.notifier).updateChapterContent(
       _editingChapterId!,
       content,
@@ -102,6 +122,7 @@ class _ManuscriptScreenState extends ConsumerState<ManuscriptScreen> {
       _editingChapterId!,
       _titleController.text,
     );
+    _isSaving = false;
   }
 
   void _saveSynopsis() {
@@ -111,6 +132,52 @@ class _ManuscriptScreenState extends ConsumerState<ManuscriptScreen> {
       _editingChapterId!,
       synopsis.isEmpty ? null : synopsis,
     );
+  }
+
+  ChapterStatus _currentChapterStatus() {
+    if (_editingChapterId == null) return ChapterStatus.draft;
+    final state = ref.read(manuscriptNotifierProvider);
+    final chapter = state.chapters.firstWhere(
+      (c) => c.id == _editingChapterId,
+      orElse: () => state.chapters.first,
+    );
+    return chapter.status;
+  }
+
+  void _cycleStatus() {
+    if (_editingChapterId == null) return;
+    final current = _currentChapterStatus();
+    final next = ChapterStatus.values[
+        (current.index + 1) % ChapterStatus.values.length];
+    ref.read(manuscriptNotifierProvider.notifier)
+        .updateChapterStatus(_editingChapterId!, next);
+  }
+
+  /// Undo the last content change by restoring the previous snapshot.
+  /// Pushes the current content onto the stack so re-undo keeps cycling.
+  void _performUndo() {
+    if (_undoStack.isEmpty) return;
+    final previousContent = _undoStack.removeLast();
+    // Push current content so user can re-undo
+    if (_currentContent.isNotEmpty && _currentContent != previousContent) {
+      _undoStack.add(_currentContent);
+    }
+    _currentContent = previousContent;
+    _editorVersion++;
+    _hasUnsavedChanges = true;
+    _saveCurrentChapter();
+    setState(() {});
+  }
+
+  /// Push the current content to the undo stack before it changes.
+  void _pushUndoState() {
+    if (_currentContent.isEmpty) return;
+    // Don't push duplicates
+    if (_undoStack.isNotEmpty && _undoStack.last == _currentContent) return;
+    _undoStack.add(_currentContent);
+    if (_undoStack.length > 50) {
+      _undoStack.removeAt(0);
+    }
   }
 
   void _showSearchSheet() {
@@ -124,6 +191,28 @@ class _ManuscriptScreenState extends ConsumerState<ManuscriptScreen> {
       },
       onReplaceAll: (query, replacement) async {
         await ref.read(manuscriptNotifierProvider.notifier).replaceAll(query, replacement);
+      },
+    );
+  }
+
+  Future<void> _showSnapshotHistory() async {
+    if (_editingChapterId == null) return;
+    _saveCurrentChapter();
+
+    final snapshots = await loadSnapshots(_editingChapterId!);
+    if (!mounted) return;
+
+    SnapshotHistorySheet.show(
+      context,
+      snapshots: snapshots,
+      onRestore: (snapshot) {
+        _currentContent = snapshot.content;
+        _titleController.text = ''; // Title stays unchanged on restore
+        ref.read(manuscriptNotifierProvider.notifier).updateChapterContent(
+          _editingChapterId!,
+          snapshot.content,
+        );
+        setState(() {});
       },
     );
   }
@@ -268,6 +357,12 @@ class _ManuscriptScreenState extends ConsumerState<ManuscriptScreen> {
           ),
           actions: [
             IconButton(
+              icon: Icon(Icons.dashboard_outlined,
+                  color: Theme.of(context).colorScheme.primary),
+              tooltip: 'Dashboard',
+              onPressed: () => showDashboardSheet(context, ref),
+            ),
+            IconButton(
               icon: Icon(Icons.add, color: Theme.of(context).colorScheme.primary),
               tooltip: 'New Chapter',
               onPressed: _createChapter,
@@ -298,18 +393,30 @@ class _ManuscriptScreenState extends ConsumerState<ManuscriptScreen> {
         _currentContent.split(RegExp(r'\s+')).where((w) => w.isNotEmpty).length;
     return Column(
       children: [
-        // Title
-        TextField(
-          controller: _titleController,
-          style: Theme.of(context).textTheme.headlineMedium!.copyWith(
-            fontFamily: 'Lora',
-            fontSize: 22,
-          ),
-          decoration: const InputDecoration(
-            hintText: 'Chapter Title',
-            border: InputBorder.none,
-          ),
-          onChanged: (_) => _saveCurrentChapter(),
+        // Title + Status
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Expanded(
+              child: TextField(
+                controller: _titleController,
+                style: Theme.of(context).textTheme.headlineMedium!.copyWith(
+                  fontFamily: 'Lora',
+                  fontSize: 22,
+                ),
+                decoration: const InputDecoration(
+                  hintText: 'Chapter Title',
+                  border: InputBorder.none,
+                ),
+                onChanged: (_) => _saveCurrentChapter(),
+              ),
+            ),
+            if (_editingChapterId != null)
+              _StatusCycleButton(
+                status: _currentChapterStatus(),
+                onTap: _cycleStatus,
+              ),
+          ],
         ),
         const SizedBox(height: 8),
         // Synopsis
@@ -350,11 +457,13 @@ class _ManuscriptScreenState extends ConsumerState<ManuscriptScreen> {
                 )
               : _editingChapterId != null
                   ? QuillEditorWidget(
-                      key: ValueKey(_editingChapterId),
+                      key: ValueKey('${_editingChapterId}_v$_editorVersion'),
                       initialContent: _currentContent,
                       typewriterMode: prefs.typewriterMode,
                       onContentChanged: (content) {
+                        _pushUndoState();
                         _currentContent = content;
+                        _hasUnsavedChanges = true;
                         _saveCurrentChapter();
                       },
                     )
@@ -369,6 +478,8 @@ class _ManuscriptScreenState extends ConsumerState<ManuscriptScreen> {
             chapterTitle: _titleController.text.isNotEmpty
                 ? _titleController.text
                 : null,
+            isSaving: _isSaving,
+            hasUnsavedChanges: _hasUnsavedChanges,
           ),
       ],
     );
@@ -557,6 +668,18 @@ class _ManuscriptScreenState extends ConsumerState<ManuscriptScreen> {
             },
           ),
           IconButton(
+            icon: Icon(Icons.dashboard_outlined,
+                color: Theme.of(context).colorScheme.onSurfaceVariant),
+            tooltip: 'Dashboard',
+            onPressed: () => showDashboardSheet(context, ref),
+          ),
+          IconButton(
+            icon: Icon(Icons.history,
+                color: Theme.of(context).colorScheme.onSurfaceVariant),
+            tooltip: 'Version History',
+            onPressed: _showSnapshotHistory,
+          ),
+          IconButton(
             icon: Icon(Icons.file_download_outlined,
                 color: Theme.of(context).colorScheme.secondary),
             tooltip: 'Compile & Export',
@@ -564,37 +687,42 @@ class _ManuscriptScreenState extends ConsumerState<ManuscriptScreen> {
           ),
         ],
       ),
-      body: _editingChapterId == null
-          ? Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    Icons.auto_stories_outlined,
-                    size: 64,
-                    color: Theme.of(context)
-                        .colorScheme
-                        .primary
-                        .withOpacity(0.3),
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    'Select a chapter',
-                    style: Theme.of(context).textTheme.titleMedium,
-                  ),
-                  const SizedBox(height: 24),
-                  FilledButton.icon(
-                    icon: const Icon(Icons.list_alt),
-                    label: const Text('Open Chapters'),
-                    onPressed: _showChapterSheet,
-                  ),
-                ],
+      body: CallbackShortcuts(
+        bindings: {
+          const SingleActivator(LogicalKeyboardKey.keyZ, control: true): _performUndo,
+        },
+        child: _editingChapterId == null
+            ? Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.auto_stories_outlined,
+                      size: 64,
+                      color: Theme.of(context)
+                          .colorScheme
+                          .primary
+                          .withOpacity(0.3),
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      'Select a chapter',
+                      style: Theme.of(context).textTheme.titleMedium,
+                    ),
+                    const SizedBox(height: 24),
+                    FilledButton.icon(
+                      icon: const Icon(Icons.list_alt),
+                      label: const Text('Open Chapters'),
+                      onPressed: _showChapterSheet,
+                    ),
+                  ],
+                ),
+              )
+            : Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: _buildEditorArea(context),
               ),
-            )
-          : Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: _buildEditorArea(context),
-            ),
+      ),
     );
   }
 
@@ -640,6 +768,31 @@ class _ManuscriptScreenState extends ConsumerState<ManuscriptScreen> {
               _saveCurrentChapter();
               setState(() => _showPreview = !_showPreview);
             },
+          ),
+          // Undo
+          IconButton(
+            icon: Icon(
+              Icons.undo,
+              color: _undoStack.isNotEmpty
+                  ? Theme.of(context).colorScheme.onSurfaceVariant
+                  : Theme.of(context).colorScheme.onSurfaceVariant.withOpacity(0.3),
+            ),
+            tooltip: 'Undo (Ctrl+Z)',
+            onPressed: _undoStack.isNotEmpty ? _performUndo : null,
+          ),
+          // History
+          IconButton(
+            icon: Icon(Icons.history,
+                color: Theme.of(context).colorScheme.onSurfaceVariant),
+            tooltip: 'Version History',
+            onPressed: _showSnapshotHistory,
+          ),
+          // Dashboard
+          IconButton(
+            icon: Icon(Icons.dashboard_outlined,
+                color: Theme.of(context).colorScheme.onSurfaceVariant),
+            tooltip: 'Dashboard',
+            onPressed: () => showDashboardSheet(context, ref),
           ),
           // Typewriter mode toggle
           IconButton(
@@ -688,7 +841,11 @@ class _ManuscriptScreenState extends ConsumerState<ManuscriptScreen> {
           ),
         ],
       ),
-      body: Row(
+      body: CallbackShortcuts(
+        bindings: {
+          const SingleActivator(LogicalKeyboardKey.keyZ, control: true): _performUndo,
+        },
+        child: Row(
         children: [
           if (!prefs.distractionFree)
             ChapterSidebar(
@@ -740,6 +897,7 @@ class _ManuscriptScreenState extends ConsumerState<ManuscriptScreen> {
             ),
           ],
         ],
+      ),
       ),
     );
   }
@@ -1211,6 +1369,72 @@ class _ManuscriptEditorScreenState
               ),
             )
           : null,
+    );
+  }
+}
+
+/// A tappable button that shows the current chapter status and
+/// cycles to the next status on tap (draft → revising → done → draft).
+class _StatusCycleButton extends StatelessWidget {
+  final ChapterStatus status;
+  final VoidCallback onTap;
+
+  const _StatusCycleButton({
+    required this.status,
+    required this.onTap,
+  });
+
+  Color get _color {
+    switch (status) {
+      case ChapterStatus.draft:
+        return Colors.grey;
+      case ChapterStatus.revising:
+        return Colors.amber.shade700;
+      case ChapterStatus.done:
+        return Colors.green;
+    }
+  }
+
+  IconData get _icon {
+    switch (status) {
+      case ChapterStatus.draft:
+        return Icons.circle_outlined;
+      case ChapterStatus.revising:
+        return Icons.edit_note;
+      case ChapterStatus.done:
+        return Icons.check_circle;
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Tooltip(
+      message: 'Status: ${status.label} (tap to cycle)',
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(16),
+          onTap: onTap,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(_icon, size: 16, color: _color),
+                const SizedBox(width: 4),
+                Text(
+                  status.label,
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                    color: _color,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
     );
   }
 }

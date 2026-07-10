@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -6,6 +8,8 @@ import 'package:fictionist/domain/use_case/manuscript/manuscript_use_cases.dart'
 import 'package:fictionist/domain/use_case/entity/list_entities_use_case.dart';
 import 'package:fictionist/domain/wikilink/wikilink_engine.dart';
 import 'package:fictionist/injection.dart';
+
+import 'snapshot_provider.dart';
 
 part 'manuscript_provider.g.dart';
 
@@ -110,6 +114,14 @@ class ManuscriptNotifier extends _$ManuscriptNotifier {
     final useCase = getIt<UpdateChapterUseCase>();
     final chapter = state.chapters.firstWhere((c) => c.id == id);
 
+    // Auto-create a snapshot of the current content before updating
+    if (chapter.content.isNotEmpty) {
+      unawaited(createSnapshot(
+        chapterId: id,
+        content: chapter.content,
+      ));
+    }
+
     // Optimistic update
     final updatedChapters = state.chapters.map((c) {
       return c.id == id ? c.copyWith(content: content) : c;
@@ -203,6 +215,28 @@ class ManuscriptNotifier extends _$ManuscriptNotifier {
 
     final result = await useCase(UpdateChapterParams(
       chapter: chapter.copyWith(synopsis: synopsis),
+    ));
+    result.fold(
+      (failure) {
+        state = state.copyWith(errorMessage: failure.message);
+        _loadChapters();
+      },
+      (_) {},
+    );
+  }
+
+  Future<void> updateChapterStatus(String id, ChapterStatus status) async {
+    final useCase = getIt<UpdateChapterUseCase>();
+    final chapter = state.chapters.firstWhere((c) => c.id == id);
+
+    // Optimistic update
+    final updatedChapters = state.chapters.map((c) {
+      return c.id == id ? c.copyWith(status: status) : c;
+    }).toList();
+    state = state.copyWith(chapters: updatedChapters);
+
+    final result = await useCase(UpdateChapterParams(
+      chapter: chapter.copyWith(status: status),
     ));
     result.fold(
       (failure) {

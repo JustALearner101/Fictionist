@@ -14,11 +14,13 @@ import '../dao/tag_dao.dart';
 import '../dao/template_dao.dart';
 import '../dao/timeline_dao.dart';
 import '../dao/entity_version_dao.dart';
+import '../dao/snapshot_dao.dart';
 
 import 'tables/entity_table.dart';
 import 'tables/entity_tag_table.dart';
 import 'tables/entity_version_table.dart';
 import 'tables/manuscript_chapter_table.dart';
+import 'tables/chapter_snapshot_table.dart';
 import 'tables/map_pin_table.dart';
 import 'tables/plot_tables.dart';
 import 'tables/quick_capture_table.dart';
@@ -42,6 +44,7 @@ part 'app_database.g.dart';
     Templates,
     QuickCaptures,
     ManuscriptChapters,
+    ChapterSnapshots,
     PlotCards,
     PlotConnections,
     WorldMaps,
@@ -57,6 +60,7 @@ part 'app_database.g.dart';
     QuickCaptureDao,
     MapDao,
     ManuscriptDao,
+    SnapshotDao,
     PlotDao,
   ],
 )
@@ -66,7 +70,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.forTesting(QueryExecutor e) : super(e);
 
   @override
-  int get schemaVersion => 3;
+  int get schemaVersion => 4;
 
   @override
   MigrationStrategy get migration {
@@ -109,6 +113,9 @@ class AppDatabase extends _$AppDatabase {
         if (from < 3) {
           await m.createTable(plotCards);
           await m.createTable(plotConnections);
+        }
+        if (from < 4) {
+          await m.createTable(chapterSnapshots);
         }
       },
       beforeOpen: (details) async {

@@ -227,13 +227,20 @@ class _CorkboardCard extends StatelessWidget {
                       ],
                     ),
                     const SizedBox(height: 4),
-                    // Word count
-                    Text(
-                      '$wordCount words',
-                      style: theme.textTheme.labelSmall?.copyWith(
-                        color: theme.colorScheme.onSurfaceVariant.withOpacity(0.5),
-                        fontSize: 10,
-                      ),
+                    // Status badge
+                    Row(
+                      children: [
+                        _StatusBadge(status: chapter.status),
+                        const Spacer(),
+                        // Word count
+                        Text(
+                          '$wordCount words',
+                          style: theme.textTheme.labelSmall?.copyWith(
+                            color: theme.colorScheme.onSurfaceVariant.withOpacity(0.5),
+                            fontSize: 10,
+                          ),
+                        ),
+                      ],
                     ),
                     const Spacer(),
                     // Synopsis (1 line italic, truncated)
@@ -394,5 +401,43 @@ class _ReorderableWrapState extends State<ReorderableWrap> {
 
     final target = row * colsPerRow + col;
     return target.clamp(0, widget.children.length - 1);
+  }
+}
+
+/// A small colored badge showing the chapter status.
+class _StatusBadge extends StatelessWidget {
+  final ChapterStatus status;
+
+  const _StatusBadge({required this.status});
+
+  Color get _color {
+    switch (status) {
+      case ChapterStatus.draft:
+        return Colors.grey;
+      case ChapterStatus.revising:
+        return Colors.amber;
+      case ChapterStatus.done:
+        return Colors.green;
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+      decoration: BoxDecoration(
+        color: _color.withOpacity(0.15),
+        borderRadius: BorderRadius.circular(4),
+        border: Border.all(color: _color.withOpacity(0.4), width: 0.5),
+      ),
+      child: Text(
+        status.label,
+        style: TextStyle(
+          fontSize: 9,
+          fontWeight: FontWeight.w600,
+          color: _color,
+        ),
+      ),
+    );
   }
 }

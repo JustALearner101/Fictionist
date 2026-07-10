@@ -9,6 +9,7 @@ class ManuscriptChapters extends Table {
   TextColumn get dateLabel => text().nullable()();
   TextColumn get eraLabel => text().nullable()();
   TextColumn get synopsis => text().nullable()();
+  TextColumn get status => text().withDefault(const Constant('draft'))();
   BoolColumn get isDeleted =>
       boolean().withDefault(const Constant(false))();
   DateTimeColumn get createdAt => dateTime()();
