@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fictionist/domain/manuscript/manuscript_chapter.dart';
 import 'package:fictionist/presentation/features/manuscript/provider/writing_preferences_provider.dart';
+import 'package:fictionist/presentation/features/manuscript/widget/corkboard_view.dart';
 
 class ChapterSidebar extends ConsumerWidget {
   final List<ManuscriptChapter> chapters;
@@ -44,11 +45,16 @@ class ChapterSidebar extends ConsumerWidget {
           children: [
             // Header with collapse toggle
             _SidebarHeader(collapsed: collapsed),
-            // Chapter list
+            // Chapter list or corkboard
             Expanded(child: collapsed ? _CollapsedChapterList(
               chapters: chapters,
               selectedChapterId: selectedChapterId,
               onChapterSelected: onChapterSelected,
+            ) : prefs.corkboardView ? CorkboardView(
+              chapters: chapters,
+              selectedChapterId: selectedChapterId,
+              onChapterSelected: onChapterSelected,
+              onReorder: onReorder,
             ) : _ExpandedChapterList(
               chapters: chapters,
               selectedChapterId: selectedChapterId,
@@ -81,22 +87,51 @@ class _SidebarHeader extends StatelessWidget {
               letterSpacing: 1.2,
             )),
             const Spacer(),
-          ],
-          Consumer(
-            builder: (context, ref, _) => IconButton(
-              icon: Icon(
-                collapsed ? Icons.chevron_right : Icons.chevron_left,
-                size: 20,
-                color: theme.colorScheme.onSurfaceVariant,
-              ),
-              tooltip: collapsed ? 'Expand sidebar' : 'Collapse sidebar',
-              onPressed: () {
-                ref.read(writingPreferencesProvider.notifier).update(
-                  (p) => p.copyWith(sidebarCollapsed: !p.sidebarCollapsed),
+            // List / Grid toggle button
+            Consumer(
+              builder: (context, ref, _) {
+                final corkboard = ref.watch(writingPreferencesProvider).corkboardView;
+                return IconButton(
+                  icon: Icon(
+                    corkboard ? Icons.list : Icons.grid_view_rounded,
+                    size: 20,
+                    color: theme.colorScheme.onSurfaceVariant,
+                  ),
+                  tooltip: corkboard ? 'List view' : 'Corkboard view',
+                  onPressed: () {
+                    ref.read(writingPreferencesProvider.notifier).update(
+                      (p) => p.copyWith(corkboardView: !p.corkboardView),
+                    );
+                  },
+                  visualDensity: VisualDensity.compact,
                 );
               },
-              visualDensity: VisualDensity.compact,
             ),
+          ],
+          Consumer(
+            builder: (context, ref, _) {
+              final prefsCollapsed =
+                  ref.watch(writingPreferencesProvider).sidebarCollapsed;
+              return IconButton(
+                icon: Icon(
+                  prefsCollapsed
+                      ? Icons.chevron_right
+                      : Icons.chevron_left,
+                  size: 20,
+                  color: theme.colorScheme.onSurfaceVariant,
+                ),
+                tooltip: prefsCollapsed
+                    ? 'Expand sidebar'
+                    : 'Collapse sidebar',
+                onPressed: () {
+                  ref.read(writingPreferencesProvider.notifier).update(
+                    (p) => p.copyWith(
+                        sidebarCollapsed: !p.sidebarCollapsed),
+                  );
+                },
+                visualDensity: VisualDensity.compact,
+              );
+            },
           ),
         ],
       ),

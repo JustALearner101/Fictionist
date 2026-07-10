@@ -212,4 +212,27 @@ class ManuscriptNotifier extends _$ManuscriptNotifier {
       (_) {},
     );
   }
+
+  Future<void> replaceAll(String query, String replacement) async {
+    if (query.isEmpty) return;
+    final useCase = getIt<UpdateChapterUseCase>();
+    final affected = <ManuscriptChapter>[];
+
+    for (final chapter in state.chapters) {
+      if (chapter.content.contains(query)) {
+        final updated = chapter.copyWith(
+          content: chapter.content.replaceAll(query, replacement),
+        );
+        affected.add(updated);
+
+        // Optimistic update
+        final updatedChapters = state.chapters.map((c) {
+          return c.id == chapter.id ? updated : c;
+        }).toList();
+        state = state.copyWith(chapters: updatedChapters);
+
+        await useCase(UpdateChapterParams(chapter: updated));
+      }
+    }
+  }
 }

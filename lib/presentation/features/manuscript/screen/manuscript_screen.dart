@@ -14,6 +14,8 @@ import 'package:fictionist/presentation/features/manuscript/widget/chapter_sideb
 import 'package:fictionist/presentation/features/manuscript/widget/quill_editor_widget.dart';
 import 'package:fictionist/presentation/features/manuscript/widget/editor_status_bar.dart';
 import 'package:fictionist/presentation/features/manuscript/widget/writing_stats_bar.dart';
+import 'package:fictionist/presentation/features/manuscript/widget/template_picker.dart';
+import 'package:fictionist/presentation/features/manuscript/widget/global_search_sheet.dart';
 import 'package:fictionist/data/compiler/manuscript_compiler.dart';
 import 'package:fictionist/domain/manuscript/compile_format.dart';
 import 'package:share_plus/share_plus.dart';
@@ -55,47 +57,22 @@ class _ManuscriptScreenState extends ConsumerState<ManuscriptScreen> {
   }
 
   Future<void> _createChapter() async {
-    final title = await showDialog<String>(
-      context: context,
-      builder: (ctx) {
-        final controller = TextEditingController();
-        return AlertDialog(
-          backgroundColor: Theme.of(context).colorScheme.surface,
-          title: Text(
-            'New Chapter',
-            style: Theme.of(context).textTheme.titleMedium!.copyWith(
-              color: Theme.of(context).colorScheme.primary,
-            ),
-          ),
-          content: TextField(
-            controller: controller,
-            autofocus: true,
-            style: Theme.of(context).textTheme.bodyLarge!,
-            decoration: const InputDecoration(
-              hintText: 'Chapter title...',
-              border: OutlineInputBorder(),
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(ctx),
-              child: const Text('Cancel'),
-            ),
-            FilledButton(
-              onPressed: () => Navigator.pop(ctx, controller.text),
-              child: const Text('Create'),
-            ),
-          ],
-        );
-      },
-    );
+    final titles = await showTemplatePicker(context);
+    if (titles == null || !mounted) return;
 
-    if (title != null && title.trim().isNotEmpty && mounted) {
-      await ref.read(manuscriptNotifierProvider.notifier).createChapter(title);
-      final state = ref.read(manuscriptNotifierProvider);
-      if (state.selectedChapterId != null) {
-        _selectChapter(state.selectedChapterId!);
-      }
+    final notifier = ref.read(manuscriptNotifierProvider.notifier);
+    final originalCount = ref.read(manuscriptNotifierProvider).chapters.length;
+
+    for (final title in titles) {
+      if (title.trim().isEmpty) continue;
+      await notifier.createChapter(title.trim());
+    }
+
+    // Select the first chapter from the newly created batch
+    final state = ref.read(manuscriptNotifierProvider);
+    if (originalCount < state.chapters.length) {
+      final firstNewChapter = state.chapters[originalCount];
+      _selectChapter(firstNewChapter.id);
     }
   }
 
@@ -133,6 +110,21 @@ class _ManuscriptScreenState extends ConsumerState<ManuscriptScreen> {
     ref.read(manuscriptNotifierProvider.notifier).updateChapterSynopsis(
       _editingChapterId!,
       synopsis.isEmpty ? null : synopsis,
+    );
+  }
+
+  void _showSearchSheet() {
+    _saveCurrentChapter();
+    final state = ref.read(manuscriptNotifierProvider);
+    GlobalSearchSheet.show(
+      context,
+      chapters: state.chapters,
+      onChapterSelected: (chapterId) {
+        _selectChapter(chapterId);
+      },
+      onReplaceAll: (query, replacement) async {
+        await ref.read(manuscriptNotifierProvider.notifier).replaceAll(query, replacement);
+      },
     );
   }
 
@@ -661,6 +653,11 @@ class _ManuscriptScreenState extends ConsumerState<ManuscriptScreen> {
                 (p) => p.copyWith(typewriterMode: !p.typewriterMode),
               );
             },
+          ),
+          IconButton(
+            icon: Icon(Icons.search, color: Theme.of(context).colorScheme.onSurfaceVariant),
+            tooltip: 'Search All Chapters',
+            onPressed: _showSearchSheet,
           ),
           IconButton(
             icon: Icon(Icons.add, color: Theme.of(context).colorScheme.primary),
