@@ -24,6 +24,8 @@ abstract class ManuscriptChapter with _$ManuscriptChapter {
     String? dateLabel,
     String? eraLabel,
     @Default(null) String? synopsis,
+    @Default(null) String? povCharacterId,
+    @Default(null) String? locationId,
     @Default(false) bool isDeleted,
     @Default(ChapterStatus.draft) ChapterStatus status,
     required DateTime createdAt,

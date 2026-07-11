@@ -1,23 +1,23 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'quick_capture.dart';
+part of 'chapter_snapshot.dart';
 
 // **************************************************************************
 // JsonSerializableGenerator
 // **************************************************************************
 
-_QuickCapture _$QuickCaptureFromJson(Map<String, dynamic> json) =>
-    _QuickCapture(
+_ChapterSnapshot _$ChapterSnapshotFromJson(Map<String, dynamic> json) =>
+    _ChapterSnapshot(
       id: json['id'] as String,
-      rawText: json['rawText'] as String,
-      isProcessed: json['isProcessed'] as bool? ?? false,
+      chapterId: json['chapterId'] as String,
+      content: json['content'] as String,
       createdAt: DateTime.parse(json['createdAt'] as String),
     );
 
-Map<String, dynamic> _$QuickCaptureToJson(_QuickCapture instance) =>
+Map<String, dynamic> _$ChapterSnapshotToJson(_ChapterSnapshot instance) =>
     <String, dynamic>{
       'id': instance.id,
-      'rawText': instance.rawText,
-      'isProcessed': instance.isProcessed,
+      'chapterId': instance.chapterId,
+      'content': instance.content,
       'createdAt': instance.createdAt.toIso8601String(),
     };

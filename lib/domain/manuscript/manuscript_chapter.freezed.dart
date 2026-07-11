@@ -20,7 +20,11 @@ mixin _$ManuscriptChapter {
   int get sortOrder;
   String? get dateLabel;
   String? get eraLabel;
+  String? get synopsis;
+  String? get povCharacterId;
+  String? get locationId;
   bool get isDeleted;
+  ChapterStatus get status;
   DateTime get createdAt;
   DateTime get updatedAt;
 
@@ -49,8 +53,15 @@ mixin _$ManuscriptChapter {
                 other.dateLabel == dateLabel) &&
             (identical(other.eraLabel, eraLabel) ||
                 other.eraLabel == eraLabel) &&
+            (identical(other.synopsis, synopsis) ||
+                other.synopsis == synopsis) &&
+            (identical(other.povCharacterId, povCharacterId) ||
+                other.povCharacterId == povCharacterId) &&
+            (identical(other.locationId, locationId) ||
+                other.locationId == locationId) &&
             (identical(other.isDeleted, isDeleted) ||
                 other.isDeleted == isDeleted) &&
+            (identical(other.status, status) || other.status == status) &&
             (identical(other.createdAt, createdAt) ||
                 other.createdAt == createdAt) &&
             (identical(other.updatedAt, updatedAt) ||
@@ -59,12 +70,25 @@ mixin _$ManuscriptChapter {
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(runtimeType, id, title, content, sortOrder,
-      dateLabel, eraLabel, isDeleted, createdAt, updatedAt);
+  int get hashCode => Object.hash(
+      runtimeType,
+      id,
+      title,
+      content,
+      sortOrder,
+      dateLabel,
+      eraLabel,
+      synopsis,
+      povCharacterId,
+      locationId,
+      isDeleted,
+      status,
+      createdAt,
+      updatedAt);
 
   @override
   String toString() {
-    return 'ManuscriptChapter(id: $id, title: $title, content: $content, sortOrder: $sortOrder, dateLabel: $dateLabel, eraLabel: $eraLabel, isDeleted: $isDeleted, createdAt: $createdAt, updatedAt: $updatedAt)';
+    return 'ManuscriptChapter(id: $id, title: $title, content: $content, sortOrder: $sortOrder, dateLabel: $dateLabel, eraLabel: $eraLabel, synopsis: $synopsis, povCharacterId: $povCharacterId, locationId: $locationId, isDeleted: $isDeleted, status: $status, createdAt: $createdAt, updatedAt: $updatedAt)';
   }
 }
 
@@ -81,7 +105,11 @@ abstract mixin class $ManuscriptChapterCopyWith<$Res> {
       int sortOrder,
       String? dateLabel,
       String? eraLabel,
+      String? synopsis,
+      String? povCharacterId,
+      String? locationId,
       bool isDeleted,
+      ChapterStatus status,
       DateTime createdAt,
       DateTime updatedAt});
 }
@@ -105,7 +133,11 @@ class _$ManuscriptChapterCopyWithImpl<$Res>
     Object? sortOrder = null,
     Object? dateLabel = freezed,
     Object? eraLabel = freezed,
+    Object? synopsis = freezed,
+    Object? povCharacterId = freezed,
+    Object? locationId = freezed,
     Object? isDeleted = null,
+    Object? status = null,
     Object? createdAt = null,
     Object? updatedAt = null,
   }) {
@@ -134,10 +166,26 @@ class _$ManuscriptChapterCopyWithImpl<$Res>
           ? _self.eraLabel
           : eraLabel // ignore: cast_nullable_to_non_nullable
               as String?,
+      synopsis: freezed == synopsis
+          ? _self.synopsis
+          : synopsis // ignore: cast_nullable_to_non_nullable
+              as String?,
+      povCharacterId: freezed == povCharacterId
+          ? _self.povCharacterId
+          : povCharacterId // ignore: cast_nullable_to_non_nullable
+              as String?,
+      locationId: freezed == locationId
+          ? _self.locationId
+          : locationId // ignore: cast_nullable_to_non_nullable
+              as String?,
       isDeleted: null == isDeleted
           ? _self.isDeleted
           : isDeleted // ignore: cast_nullable_to_non_nullable
               as bool,
+      status: null == status
+          ? _self.status
+          : status // ignore: cast_nullable_to_non_nullable
+              as ChapterStatus,
       createdAt: null == createdAt
           ? _self.createdAt
           : createdAt // ignore: cast_nullable_to_non_nullable
@@ -250,7 +298,11 @@ extension ManuscriptChapterPatterns on ManuscriptChapter {
             int sortOrder,
             String? dateLabel,
             String? eraLabel,
+            String? synopsis,
+            String? povCharacterId,
+            String? locationId,
             bool isDeleted,
+            ChapterStatus status,
             DateTime createdAt,
             DateTime updatedAt)?
         $default, {
@@ -266,7 +318,11 @@ extension ManuscriptChapterPatterns on ManuscriptChapter {
             _that.sortOrder,
             _that.dateLabel,
             _that.eraLabel,
+            _that.synopsis,
+            _that.povCharacterId,
+            _that.locationId,
             _that.isDeleted,
+            _that.status,
             _that.createdAt,
             _that.updatedAt);
       case _:
@@ -296,7 +352,11 @@ extension ManuscriptChapterPatterns on ManuscriptChapter {
             int sortOrder,
             String? dateLabel,
             String? eraLabel,
+            String? synopsis,
+            String? povCharacterId,
+            String? locationId,
             bool isDeleted,
+            ChapterStatus status,
             DateTime createdAt,
             DateTime updatedAt)
         $default,
@@ -311,7 +371,11 @@ extension ManuscriptChapterPatterns on ManuscriptChapter {
             _that.sortOrder,
             _that.dateLabel,
             _that.eraLabel,
+            _that.synopsis,
+            _that.povCharacterId,
+            _that.locationId,
             _that.isDeleted,
+            _that.status,
             _that.createdAt,
             _that.updatedAt);
       case _:
@@ -340,7 +404,11 @@ extension ManuscriptChapterPatterns on ManuscriptChapter {
             int sortOrder,
             String? dateLabel,
             String? eraLabel,
+            String? synopsis,
+            String? povCharacterId,
+            String? locationId,
             bool isDeleted,
+            ChapterStatus status,
             DateTime createdAt,
             DateTime updatedAt)?
         $default,
@@ -355,7 +423,11 @@ extension ManuscriptChapterPatterns on ManuscriptChapter {
             _that.sortOrder,
             _that.dateLabel,
             _that.eraLabel,
+            _that.synopsis,
+            _that.povCharacterId,
+            _that.locationId,
             _that.isDeleted,
+            _that.status,
             _that.createdAt,
             _that.updatedAt);
       case _:
@@ -374,7 +446,11 @@ class _ManuscriptChapter implements ManuscriptChapter {
       this.sortOrder = 0,
       this.dateLabel,
       this.eraLabel,
+      this.synopsis = null,
+      this.povCharacterId = null,
+      this.locationId = null,
       this.isDeleted = false,
+      this.status = ChapterStatus.draft,
       required this.createdAt,
       required this.updatedAt});
   factory _ManuscriptChapter.fromJson(Map<String, dynamic> json) =>
@@ -395,7 +471,19 @@ class _ManuscriptChapter implements ManuscriptChapter {
   final String? eraLabel;
   @override
   @JsonKey()
+  final String? synopsis;
+  @override
+  @JsonKey()
+  final String? povCharacterId;
+  @override
+  @JsonKey()
+  final String? locationId;
+  @override
+  @JsonKey()
   final bool isDeleted;
+  @override
+  @JsonKey()
+  final ChapterStatus status;
   @override
   final DateTime createdAt;
   @override
@@ -430,8 +518,15 @@ class _ManuscriptChapter implements ManuscriptChapter {
                 other.dateLabel == dateLabel) &&
             (identical(other.eraLabel, eraLabel) ||
                 other.eraLabel == eraLabel) &&
+            (identical(other.synopsis, synopsis) ||
+                other.synopsis == synopsis) &&
+            (identical(other.povCharacterId, povCharacterId) ||
+                other.povCharacterId == povCharacterId) &&
+            (identical(other.locationId, locationId) ||
+                other.locationId == locationId) &&
             (identical(other.isDeleted, isDeleted) ||
                 other.isDeleted == isDeleted) &&
+            (identical(other.status, status) || other.status == status) &&
             (identical(other.createdAt, createdAt) ||
                 other.createdAt == createdAt) &&
             (identical(other.updatedAt, updatedAt) ||
@@ -440,12 +535,25 @@ class _ManuscriptChapter implements ManuscriptChapter {
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(runtimeType, id, title, content, sortOrder,
-      dateLabel, eraLabel, isDeleted, createdAt, updatedAt);
+  int get hashCode => Object.hash(
+      runtimeType,
+      id,
+      title,
+      content,
+      sortOrder,
+      dateLabel,
+      eraLabel,
+      synopsis,
+      povCharacterId,
+      locationId,
+      isDeleted,
+      status,
+      createdAt,
+      updatedAt);
 
   @override
   String toString() {
-    return 'ManuscriptChapter(id: $id, title: $title, content: $content, sortOrder: $sortOrder, dateLabel: $dateLabel, eraLabel: $eraLabel, isDeleted: $isDeleted, createdAt: $createdAt, updatedAt: $updatedAt)';
+    return 'ManuscriptChapter(id: $id, title: $title, content: $content, sortOrder: $sortOrder, dateLabel: $dateLabel, eraLabel: $eraLabel, synopsis: $synopsis, povCharacterId: $povCharacterId, locationId: $locationId, isDeleted: $isDeleted, status: $status, createdAt: $createdAt, updatedAt: $updatedAt)';
   }
 }
 
@@ -464,7 +572,11 @@ abstract mixin class _$ManuscriptChapterCopyWith<$Res>
       int sortOrder,
       String? dateLabel,
       String? eraLabel,
+      String? synopsis,
+      String? povCharacterId,
+      String? locationId,
       bool isDeleted,
+      ChapterStatus status,
       DateTime createdAt,
       DateTime updatedAt});
 }
@@ -488,7 +600,11 @@ class __$ManuscriptChapterCopyWithImpl<$Res>
     Object? sortOrder = null,
     Object? dateLabel = freezed,
     Object? eraLabel = freezed,
+    Object? synopsis = freezed,
+    Object? povCharacterId = freezed,
+    Object? locationId = freezed,
     Object? isDeleted = null,
+    Object? status = null,
     Object? createdAt = null,
     Object? updatedAt = null,
   }) {
@@ -517,10 +633,26 @@ class __$ManuscriptChapterCopyWithImpl<$Res>
           ? _self.eraLabel
           : eraLabel // ignore: cast_nullable_to_non_nullable
               as String?,
+      synopsis: freezed == synopsis
+          ? _self.synopsis
+          : synopsis // ignore: cast_nullable_to_non_nullable
+              as String?,
+      povCharacterId: freezed == povCharacterId
+          ? _self.povCharacterId
+          : povCharacterId // ignore: cast_nullable_to_non_nullable
+              as String?,
+      locationId: freezed == locationId
+          ? _self.locationId
+          : locationId // ignore: cast_nullable_to_non_nullable
+              as String?,
       isDeleted: null == isDeleted
           ? _self.isDeleted
           : isDeleted // ignore: cast_nullable_to_non_nullable
               as bool,
+      status: null == status
+          ? _self.status
+          : status // ignore: cast_nullable_to_non_nullable
+              as ChapterStatus,
       createdAt: null == createdAt
           ? _self.createdAt
           : createdAt // ignore: cast_nullable_to_non_nullable

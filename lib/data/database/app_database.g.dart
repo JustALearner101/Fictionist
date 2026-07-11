@@ -2665,281 +2665,6 @@ class TemplatesCompanion extends UpdateCompanion<TemplateRow> {
   }
 }
 
-class $QuickCapturesTable extends QuickCaptures
-    with TableInfo<$QuickCapturesTable, QuickCaptureRow> {
-  @override
-  final GeneratedDatabase attachedDatabase;
-  final String? _alias;
-  $QuickCapturesTable(this.attachedDatabase, [this._alias]);
-  static const VerificationMeta _idMeta = const VerificationMeta('id');
-  @override
-  late final GeneratedColumn<String> id = GeneratedColumn<String>(
-      'id', aliasedName, false,
-      type: DriftSqlType.string, requiredDuringInsert: true);
-  static const VerificationMeta _rawTextMeta =
-      const VerificationMeta('rawText');
-  @override
-  late final GeneratedColumn<String> rawText = GeneratedColumn<String>(
-      'raw_text', aliasedName, false,
-      type: DriftSqlType.string, requiredDuringInsert: true);
-  static const VerificationMeta _isProcessedMeta =
-      const VerificationMeta('isProcessed');
-  @override
-  late final GeneratedColumn<bool> isProcessed = GeneratedColumn<bool>(
-      'is_processed', aliasedName, false,
-      type: DriftSqlType.bool,
-      requiredDuringInsert: false,
-      defaultConstraints: GeneratedColumn.constraintIsAlways(
-          'CHECK ("is_processed" IN (0, 1))'),
-      defaultValue: const Constant(false));
-  static const VerificationMeta _createdAtMeta =
-      const VerificationMeta('createdAt');
-  @override
-  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
-      'created_at', aliasedName, false,
-      type: DriftSqlType.dateTime, requiredDuringInsert: true);
-  @override
-  List<GeneratedColumn> get $columns => [id, rawText, isProcessed, createdAt];
-  @override
-  String get aliasedName => _alias ?? actualTableName;
-  @override
-  String get actualTableName => $name;
-  static const String $name = 'quick_captures';
-  @override
-  VerificationContext validateIntegrity(Insertable<QuickCaptureRow> instance,
-      {bool isInserting = false}) {
-    final context = VerificationContext();
-    final data = instance.toColumns(true);
-    if (data.containsKey('id')) {
-      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
-    } else if (isInserting) {
-      context.missing(_idMeta);
-    }
-    if (data.containsKey('raw_text')) {
-      context.handle(_rawTextMeta,
-          rawText.isAcceptableOrUnknown(data['raw_text']!, _rawTextMeta));
-    } else if (isInserting) {
-      context.missing(_rawTextMeta);
-    }
-    if (data.containsKey('is_processed')) {
-      context.handle(
-          _isProcessedMeta,
-          isProcessed.isAcceptableOrUnknown(
-              data['is_processed']!, _isProcessedMeta));
-    }
-    if (data.containsKey('created_at')) {
-      context.handle(_createdAtMeta,
-          createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta));
-    } else if (isInserting) {
-      context.missing(_createdAtMeta);
-    }
-    return context;
-  }
-
-  @override
-  Set<GeneratedColumn> get $primaryKey => {id};
-  @override
-  QuickCaptureRow map(Map<String, dynamic> data, {String? tablePrefix}) {
-    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
-    return QuickCaptureRow(
-      id: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
-      rawText: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}raw_text'])!,
-      isProcessed: attachedDatabase.typeMapping
-          .read(DriftSqlType.bool, data['${effectivePrefix}is_processed'])!,
-      createdAt: attachedDatabase.typeMapping
-          .read(DriftSqlType.dateTime, data['${effectivePrefix}created_at'])!,
-    );
-  }
-
-  @override
-  $QuickCapturesTable createAlias(String alias) {
-    return $QuickCapturesTable(attachedDatabase, alias);
-  }
-}
-
-class QuickCaptureRow extends DataClass implements Insertable<QuickCaptureRow> {
-  final String id;
-  final String rawText;
-  final bool isProcessed;
-  final DateTime createdAt;
-  const QuickCaptureRow(
-      {required this.id,
-      required this.rawText,
-      required this.isProcessed,
-      required this.createdAt});
-  @override
-  Map<String, Expression> toColumns(bool nullToAbsent) {
-    final map = <String, Expression>{};
-    map['id'] = Variable<String>(id);
-    map['raw_text'] = Variable<String>(rawText);
-    map['is_processed'] = Variable<bool>(isProcessed);
-    map['created_at'] = Variable<DateTime>(createdAt);
-    return map;
-  }
-
-  QuickCapturesCompanion toCompanion(bool nullToAbsent) {
-    return QuickCapturesCompanion(
-      id: Value(id),
-      rawText: Value(rawText),
-      isProcessed: Value(isProcessed),
-      createdAt: Value(createdAt),
-    );
-  }
-
-  factory QuickCaptureRow.fromJson(Map<String, dynamic> json,
-      {ValueSerializer? serializer}) {
-    serializer ??= driftRuntimeOptions.defaultSerializer;
-    return QuickCaptureRow(
-      id: serializer.fromJson<String>(json['id']),
-      rawText: serializer.fromJson<String>(json['rawText']),
-      isProcessed: serializer.fromJson<bool>(json['isProcessed']),
-      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
-    );
-  }
-  @override
-  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
-    serializer ??= driftRuntimeOptions.defaultSerializer;
-    return <String, dynamic>{
-      'id': serializer.toJson<String>(id),
-      'rawText': serializer.toJson<String>(rawText),
-      'isProcessed': serializer.toJson<bool>(isProcessed),
-      'createdAt': serializer.toJson<DateTime>(createdAt),
-    };
-  }
-
-  QuickCaptureRow copyWith(
-          {String? id,
-          String? rawText,
-          bool? isProcessed,
-          DateTime? createdAt}) =>
-      QuickCaptureRow(
-        id: id ?? this.id,
-        rawText: rawText ?? this.rawText,
-        isProcessed: isProcessed ?? this.isProcessed,
-        createdAt: createdAt ?? this.createdAt,
-      );
-  QuickCaptureRow copyWithCompanion(QuickCapturesCompanion data) {
-    return QuickCaptureRow(
-      id: data.id.present ? data.id.value : this.id,
-      rawText: data.rawText.present ? data.rawText.value : this.rawText,
-      isProcessed:
-          data.isProcessed.present ? data.isProcessed.value : this.isProcessed,
-      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
-    );
-  }
-
-  @override
-  String toString() {
-    return (StringBuffer('QuickCaptureRow(')
-          ..write('id: $id, ')
-          ..write('rawText: $rawText, ')
-          ..write('isProcessed: $isProcessed, ')
-          ..write('createdAt: $createdAt')
-          ..write(')'))
-        .toString();
-  }
-
-  @override
-  int get hashCode => Object.hash(id, rawText, isProcessed, createdAt);
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      (other is QuickCaptureRow &&
-          other.id == this.id &&
-          other.rawText == this.rawText &&
-          other.isProcessed == this.isProcessed &&
-          other.createdAt == this.createdAt);
-}
-
-class QuickCapturesCompanion extends UpdateCompanion<QuickCaptureRow> {
-  final Value<String> id;
-  final Value<String> rawText;
-  final Value<bool> isProcessed;
-  final Value<DateTime> createdAt;
-  final Value<int> rowid;
-  const QuickCapturesCompanion({
-    this.id = const Value.absent(),
-    this.rawText = const Value.absent(),
-    this.isProcessed = const Value.absent(),
-    this.createdAt = const Value.absent(),
-    this.rowid = const Value.absent(),
-  });
-  QuickCapturesCompanion.insert({
-    required String id,
-    required String rawText,
-    this.isProcessed = const Value.absent(),
-    required DateTime createdAt,
-    this.rowid = const Value.absent(),
-  })  : id = Value(id),
-        rawText = Value(rawText),
-        createdAt = Value(createdAt);
-  static Insertable<QuickCaptureRow> custom({
-    Expression<String>? id,
-    Expression<String>? rawText,
-    Expression<bool>? isProcessed,
-    Expression<DateTime>? createdAt,
-    Expression<int>? rowid,
-  }) {
-    return RawValuesInsertable({
-      if (id != null) 'id': id,
-      if (rawText != null) 'raw_text': rawText,
-      if (isProcessed != null) 'is_processed': isProcessed,
-      if (createdAt != null) 'created_at': createdAt,
-      if (rowid != null) 'rowid': rowid,
-    });
-  }
-
-  QuickCapturesCompanion copyWith(
-      {Value<String>? id,
-      Value<String>? rawText,
-      Value<bool>? isProcessed,
-      Value<DateTime>? createdAt,
-      Value<int>? rowid}) {
-    return QuickCapturesCompanion(
-      id: id ?? this.id,
-      rawText: rawText ?? this.rawText,
-      isProcessed: isProcessed ?? this.isProcessed,
-      createdAt: createdAt ?? this.createdAt,
-      rowid: rowid ?? this.rowid,
-    );
-  }
-
-  @override
-  Map<String, Expression> toColumns(bool nullToAbsent) {
-    final map = <String, Expression>{};
-    if (id.present) {
-      map['id'] = Variable<String>(id.value);
-    }
-    if (rawText.present) {
-      map['raw_text'] = Variable<String>(rawText.value);
-    }
-    if (isProcessed.present) {
-      map['is_processed'] = Variable<bool>(isProcessed.value);
-    }
-    if (createdAt.present) {
-      map['created_at'] = Variable<DateTime>(createdAt.value);
-    }
-    if (rowid.present) {
-      map['rowid'] = Variable<int>(rowid.value);
-    }
-    return map;
-  }
-
-  @override
-  String toString() {
-    return (StringBuffer('QuickCapturesCompanion(')
-          ..write('id: $id, ')
-          ..write('rawText: $rawText, ')
-          ..write('isProcessed: $isProcessed, ')
-          ..write('createdAt: $createdAt, ')
-          ..write('rowid: $rowid')
-          ..write(')'))
-        .toString();
-  }
-}
-
 class $ManuscriptChaptersTable extends ManuscriptChapters
     with TableInfo<$ManuscriptChaptersTable, ManuscriptChapterRow> {
   @override
@@ -2990,6 +2715,31 @@ class $ManuscriptChaptersTable extends ManuscriptChapters
   late final GeneratedColumn<String> eraLabel = GeneratedColumn<String>(
       'era_label', aliasedName, true,
       type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _synopsisMeta =
+      const VerificationMeta('synopsis');
+  @override
+  late final GeneratedColumn<String> synopsis = GeneratedColumn<String>(
+      'synopsis', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _povCharacterIdMeta =
+      const VerificationMeta('povCharacterId');
+  @override
+  late final GeneratedColumn<String> povCharacterId = GeneratedColumn<String>(
+      'pov_character_id', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _locationIdMeta =
+      const VerificationMeta('locationId');
+  @override
+  late final GeneratedColumn<String> locationId = GeneratedColumn<String>(
+      'location_id', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _statusMeta = const VerificationMeta('status');
+  @override
+  late final GeneratedColumn<String> status = GeneratedColumn<String>(
+      'status', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      defaultValue: const Constant('draft'));
   static const VerificationMeta _isDeletedMeta =
       const VerificationMeta('isDeleted');
   @override
@@ -3020,6 +2770,10 @@ class $ManuscriptChaptersTable extends ManuscriptChapters
         sortOrder,
         dateLabel,
         eraLabel,
+        synopsis,
+        povCharacterId,
+        locationId,
+        status,
         isDeleted,
         createdAt,
         updatedAt
@@ -3062,6 +2816,26 @@ class $ManuscriptChaptersTable extends ManuscriptChapters
       context.handle(_eraLabelMeta,
           eraLabel.isAcceptableOrUnknown(data['era_label']!, _eraLabelMeta));
     }
+    if (data.containsKey('synopsis')) {
+      context.handle(_synopsisMeta,
+          synopsis.isAcceptableOrUnknown(data['synopsis']!, _synopsisMeta));
+    }
+    if (data.containsKey('pov_character_id')) {
+      context.handle(
+          _povCharacterIdMeta,
+          povCharacterId.isAcceptableOrUnknown(
+              data['pov_character_id']!, _povCharacterIdMeta));
+    }
+    if (data.containsKey('location_id')) {
+      context.handle(
+          _locationIdMeta,
+          locationId.isAcceptableOrUnknown(
+              data['location_id']!, _locationIdMeta));
+    }
+    if (data.containsKey('status')) {
+      context.handle(_statusMeta,
+          status.isAcceptableOrUnknown(data['status']!, _statusMeta));
+    }
     if (data.containsKey('is_deleted')) {
       context.handle(_isDeletedMeta,
           isDeleted.isAcceptableOrUnknown(data['is_deleted']!, _isDeletedMeta));
@@ -3099,6 +2873,14 @@ class $ManuscriptChaptersTable extends ManuscriptChapters
           .read(DriftSqlType.string, data['${effectivePrefix}date_label']),
       eraLabel: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}era_label']),
+      synopsis: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}synopsis']),
+      povCharacterId: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}pov_character_id']),
+      locationId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}location_id']),
+      status: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}status'])!,
       isDeleted: attachedDatabase.typeMapping
           .read(DriftSqlType.bool, data['${effectivePrefix}is_deleted'])!,
       createdAt: attachedDatabase.typeMapping
@@ -3122,6 +2904,10 @@ class ManuscriptChapterRow extends DataClass
   final int sortOrder;
   final String? dateLabel;
   final String? eraLabel;
+  final String? synopsis;
+  final String? povCharacterId;
+  final String? locationId;
+  final String status;
   final bool isDeleted;
   final DateTime createdAt;
   final DateTime updatedAt;
@@ -3132,6 +2918,10 @@ class ManuscriptChapterRow extends DataClass
       required this.sortOrder,
       this.dateLabel,
       this.eraLabel,
+      this.synopsis,
+      this.povCharacterId,
+      this.locationId,
+      required this.status,
       required this.isDeleted,
       required this.createdAt,
       required this.updatedAt});
@@ -3148,6 +2938,16 @@ class ManuscriptChapterRow extends DataClass
     if (!nullToAbsent || eraLabel != null) {
       map['era_label'] = Variable<String>(eraLabel);
     }
+    if (!nullToAbsent || synopsis != null) {
+      map['synopsis'] = Variable<String>(synopsis);
+    }
+    if (!nullToAbsent || povCharacterId != null) {
+      map['pov_character_id'] = Variable<String>(povCharacterId);
+    }
+    if (!nullToAbsent || locationId != null) {
+      map['location_id'] = Variable<String>(locationId);
+    }
+    map['status'] = Variable<String>(status);
     map['is_deleted'] = Variable<bool>(isDeleted);
     map['created_at'] = Variable<DateTime>(createdAt);
     map['updated_at'] = Variable<DateTime>(updatedAt);
@@ -3166,6 +2966,16 @@ class ManuscriptChapterRow extends DataClass
       eraLabel: eraLabel == null && nullToAbsent
           ? const Value.absent()
           : Value(eraLabel),
+      synopsis: synopsis == null && nullToAbsent
+          ? const Value.absent()
+          : Value(synopsis),
+      povCharacterId: povCharacterId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(povCharacterId),
+      locationId: locationId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(locationId),
+      status: Value(status),
       isDeleted: Value(isDeleted),
       createdAt: Value(createdAt),
       updatedAt: Value(updatedAt),
@@ -3182,6 +2992,10 @@ class ManuscriptChapterRow extends DataClass
       sortOrder: serializer.fromJson<int>(json['sortOrder']),
       dateLabel: serializer.fromJson<String?>(json['dateLabel']),
       eraLabel: serializer.fromJson<String?>(json['eraLabel']),
+      synopsis: serializer.fromJson<String?>(json['synopsis']),
+      povCharacterId: serializer.fromJson<String?>(json['povCharacterId']),
+      locationId: serializer.fromJson<String?>(json['locationId']),
+      status: serializer.fromJson<String>(json['status']),
       isDeleted: serializer.fromJson<bool>(json['isDeleted']),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
       updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
@@ -3197,6 +3011,10 @@ class ManuscriptChapterRow extends DataClass
       'sortOrder': serializer.toJson<int>(sortOrder),
       'dateLabel': serializer.toJson<String?>(dateLabel),
       'eraLabel': serializer.toJson<String?>(eraLabel),
+      'synopsis': serializer.toJson<String?>(synopsis),
+      'povCharacterId': serializer.toJson<String?>(povCharacterId),
+      'locationId': serializer.toJson<String?>(locationId),
+      'status': serializer.toJson<String>(status),
       'isDeleted': serializer.toJson<bool>(isDeleted),
       'createdAt': serializer.toJson<DateTime>(createdAt),
       'updatedAt': serializer.toJson<DateTime>(updatedAt),
@@ -3210,6 +3028,10 @@ class ManuscriptChapterRow extends DataClass
           int? sortOrder,
           Value<String?> dateLabel = const Value.absent(),
           Value<String?> eraLabel = const Value.absent(),
+          Value<String?> synopsis = const Value.absent(),
+          Value<String?> povCharacterId = const Value.absent(),
+          Value<String?> locationId = const Value.absent(),
+          String? status,
           bool? isDeleted,
           DateTime? createdAt,
           DateTime? updatedAt}) =>
@@ -3220,6 +3042,11 @@ class ManuscriptChapterRow extends DataClass
         sortOrder: sortOrder ?? this.sortOrder,
         dateLabel: dateLabel.present ? dateLabel.value : this.dateLabel,
         eraLabel: eraLabel.present ? eraLabel.value : this.eraLabel,
+        synopsis: synopsis.present ? synopsis.value : this.synopsis,
+        povCharacterId:
+            povCharacterId.present ? povCharacterId.value : this.povCharacterId,
+        locationId: locationId.present ? locationId.value : this.locationId,
+        status: status ?? this.status,
         isDeleted: isDeleted ?? this.isDeleted,
         createdAt: createdAt ?? this.createdAt,
         updatedAt: updatedAt ?? this.updatedAt,
@@ -3232,6 +3059,13 @@ class ManuscriptChapterRow extends DataClass
       sortOrder: data.sortOrder.present ? data.sortOrder.value : this.sortOrder,
       dateLabel: data.dateLabel.present ? data.dateLabel.value : this.dateLabel,
       eraLabel: data.eraLabel.present ? data.eraLabel.value : this.eraLabel,
+      synopsis: data.synopsis.present ? data.synopsis.value : this.synopsis,
+      povCharacterId: data.povCharacterId.present
+          ? data.povCharacterId.value
+          : this.povCharacterId,
+      locationId:
+          data.locationId.present ? data.locationId.value : this.locationId,
+      status: data.status.present ? data.status.value : this.status,
       isDeleted: data.isDeleted.present ? data.isDeleted.value : this.isDeleted,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
       updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
@@ -3247,6 +3081,10 @@ class ManuscriptChapterRow extends DataClass
           ..write('sortOrder: $sortOrder, ')
           ..write('dateLabel: $dateLabel, ')
           ..write('eraLabel: $eraLabel, ')
+          ..write('synopsis: $synopsis, ')
+          ..write('povCharacterId: $povCharacterId, ')
+          ..write('locationId: $locationId, ')
+          ..write('status: $status, ')
           ..write('isDeleted: $isDeleted, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt')
@@ -3255,8 +3093,20 @@ class ManuscriptChapterRow extends DataClass
   }
 
   @override
-  int get hashCode => Object.hash(id, title, content, sortOrder, dateLabel,
-      eraLabel, isDeleted, createdAt, updatedAt);
+  int get hashCode => Object.hash(
+      id,
+      title,
+      content,
+      sortOrder,
+      dateLabel,
+      eraLabel,
+      synopsis,
+      povCharacterId,
+      locationId,
+      status,
+      isDeleted,
+      createdAt,
+      updatedAt);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -3267,6 +3117,10 @@ class ManuscriptChapterRow extends DataClass
           other.sortOrder == this.sortOrder &&
           other.dateLabel == this.dateLabel &&
           other.eraLabel == this.eraLabel &&
+          other.synopsis == this.synopsis &&
+          other.povCharacterId == this.povCharacterId &&
+          other.locationId == this.locationId &&
+          other.status == this.status &&
           other.isDeleted == this.isDeleted &&
           other.createdAt == this.createdAt &&
           other.updatedAt == this.updatedAt);
@@ -3280,6 +3134,10 @@ class ManuscriptChaptersCompanion
   final Value<int> sortOrder;
   final Value<String?> dateLabel;
   final Value<String?> eraLabel;
+  final Value<String?> synopsis;
+  final Value<String?> povCharacterId;
+  final Value<String?> locationId;
+  final Value<String> status;
   final Value<bool> isDeleted;
   final Value<DateTime> createdAt;
   final Value<DateTime> updatedAt;
@@ -3291,6 +3149,10 @@ class ManuscriptChaptersCompanion
     this.sortOrder = const Value.absent(),
     this.dateLabel = const Value.absent(),
     this.eraLabel = const Value.absent(),
+    this.synopsis = const Value.absent(),
+    this.povCharacterId = const Value.absent(),
+    this.locationId = const Value.absent(),
+    this.status = const Value.absent(),
     this.isDeleted = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
@@ -3303,6 +3165,10 @@ class ManuscriptChaptersCompanion
     this.sortOrder = const Value.absent(),
     this.dateLabel = const Value.absent(),
     this.eraLabel = const Value.absent(),
+    this.synopsis = const Value.absent(),
+    this.povCharacterId = const Value.absent(),
+    this.locationId = const Value.absent(),
+    this.status = const Value.absent(),
     this.isDeleted = const Value.absent(),
     required DateTime createdAt,
     required DateTime updatedAt,
@@ -3318,6 +3184,10 @@ class ManuscriptChaptersCompanion
     Expression<int>? sortOrder,
     Expression<String>? dateLabel,
     Expression<String>? eraLabel,
+    Expression<String>? synopsis,
+    Expression<String>? povCharacterId,
+    Expression<String>? locationId,
+    Expression<String>? status,
     Expression<bool>? isDeleted,
     Expression<DateTime>? createdAt,
     Expression<DateTime>? updatedAt,
@@ -3330,6 +3200,10 @@ class ManuscriptChaptersCompanion
       if (sortOrder != null) 'sort_order': sortOrder,
       if (dateLabel != null) 'date_label': dateLabel,
       if (eraLabel != null) 'era_label': eraLabel,
+      if (synopsis != null) 'synopsis': synopsis,
+      if (povCharacterId != null) 'pov_character_id': povCharacterId,
+      if (locationId != null) 'location_id': locationId,
+      if (status != null) 'status': status,
       if (isDeleted != null) 'is_deleted': isDeleted,
       if (createdAt != null) 'created_at': createdAt,
       if (updatedAt != null) 'updated_at': updatedAt,
@@ -3344,6 +3218,10 @@ class ManuscriptChaptersCompanion
       Value<int>? sortOrder,
       Value<String?>? dateLabel,
       Value<String?>? eraLabel,
+      Value<String?>? synopsis,
+      Value<String?>? povCharacterId,
+      Value<String?>? locationId,
+      Value<String>? status,
       Value<bool>? isDeleted,
       Value<DateTime>? createdAt,
       Value<DateTime>? updatedAt,
@@ -3355,6 +3233,10 @@ class ManuscriptChaptersCompanion
       sortOrder: sortOrder ?? this.sortOrder,
       dateLabel: dateLabel ?? this.dateLabel,
       eraLabel: eraLabel ?? this.eraLabel,
+      synopsis: synopsis ?? this.synopsis,
+      povCharacterId: povCharacterId ?? this.povCharacterId,
+      locationId: locationId ?? this.locationId,
+      status: status ?? this.status,
       isDeleted: isDeleted ?? this.isDeleted,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
@@ -3383,6 +3265,18 @@ class ManuscriptChaptersCompanion
     if (eraLabel.present) {
       map['era_label'] = Variable<String>(eraLabel.value);
     }
+    if (synopsis.present) {
+      map['synopsis'] = Variable<String>(synopsis.value);
+    }
+    if (povCharacterId.present) {
+      map['pov_character_id'] = Variable<String>(povCharacterId.value);
+    }
+    if (locationId.present) {
+      map['location_id'] = Variable<String>(locationId.value);
+    }
+    if (status.present) {
+      map['status'] = Variable<String>(status.value);
+    }
     if (isDeleted.present) {
       map['is_deleted'] = Variable<bool>(isDeleted.value);
     }
@@ -3407,9 +3301,291 @@ class ManuscriptChaptersCompanion
           ..write('sortOrder: $sortOrder, ')
           ..write('dateLabel: $dateLabel, ')
           ..write('eraLabel: $eraLabel, ')
+          ..write('synopsis: $synopsis, ')
+          ..write('povCharacterId: $povCharacterId, ')
+          ..write('locationId: $locationId, ')
+          ..write('status: $status, ')
           ..write('isDeleted: $isDeleted, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $ChapterSnapshotsTable extends ChapterSnapshots
+    with TableInfo<$ChapterSnapshotsTable, ChapterSnapshotRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $ChapterSnapshotsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+      'id', aliasedName, false,
+      additionalChecks:
+          GeneratedColumn.checkTextLength(minTextLength: 36, maxTextLength: 36),
+      type: DriftSqlType.string,
+      requiredDuringInsert: true);
+  static const VerificationMeta _chapterIdMeta =
+      const VerificationMeta('chapterId');
+  @override
+  late final GeneratedColumn<String> chapterId = GeneratedColumn<String>(
+      'chapter_id', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: true,
+      defaultConstraints: GeneratedColumn.constraintIsAlways(
+          'REFERENCES manuscript_chapters (id) ON DELETE CASCADE'));
+  static const VerificationMeta _contentMeta =
+      const VerificationMeta('content');
+  @override
+  late final GeneratedColumn<String> content = GeneratedColumn<String>(
+      'content', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _createdAtMeta =
+      const VerificationMeta('createdAt');
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+      'created_at', aliasedName, false,
+      type: DriftSqlType.dateTime, requiredDuringInsert: true);
+  @override
+  List<GeneratedColumn> get $columns => [id, chapterId, content, createdAt];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'chapter_snapshots';
+  @override
+  VerificationContext validateIntegrity(Insertable<ChapterSnapshotRow> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('chapter_id')) {
+      context.handle(_chapterIdMeta,
+          chapterId.isAcceptableOrUnknown(data['chapter_id']!, _chapterIdMeta));
+    } else if (isInserting) {
+      context.missing(_chapterIdMeta);
+    }
+    if (data.containsKey('content')) {
+      context.handle(_contentMeta,
+          content.isAcceptableOrUnknown(data['content']!, _contentMeta));
+    } else if (isInserting) {
+      context.missing(_contentMeta);
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(_createdAtMeta,
+          createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta));
+    } else if (isInserting) {
+      context.missing(_createdAtMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  ChapterSnapshotRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return ChapterSnapshotRow(
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
+      chapterId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}chapter_id'])!,
+      content: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}content'])!,
+      createdAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}created_at'])!,
+    );
+  }
+
+  @override
+  $ChapterSnapshotsTable createAlias(String alias) {
+    return $ChapterSnapshotsTable(attachedDatabase, alias);
+  }
+}
+
+class ChapterSnapshotRow extends DataClass
+    implements Insertable<ChapterSnapshotRow> {
+  final String id;
+  final String chapterId;
+  final String content;
+  final DateTime createdAt;
+  const ChapterSnapshotRow(
+      {required this.id,
+      required this.chapterId,
+      required this.content,
+      required this.createdAt});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['chapter_id'] = Variable<String>(chapterId);
+    map['content'] = Variable<String>(content);
+    map['created_at'] = Variable<DateTime>(createdAt);
+    return map;
+  }
+
+  ChapterSnapshotsCompanion toCompanion(bool nullToAbsent) {
+    return ChapterSnapshotsCompanion(
+      id: Value(id),
+      chapterId: Value(chapterId),
+      content: Value(content),
+      createdAt: Value(createdAt),
+    );
+  }
+
+  factory ChapterSnapshotRow.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return ChapterSnapshotRow(
+      id: serializer.fromJson<String>(json['id']),
+      chapterId: serializer.fromJson<String>(json['chapterId']),
+      content: serializer.fromJson<String>(json['content']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'chapterId': serializer.toJson<String>(chapterId),
+      'content': serializer.toJson<String>(content),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+    };
+  }
+
+  ChapterSnapshotRow copyWith(
+          {String? id,
+          String? chapterId,
+          String? content,
+          DateTime? createdAt}) =>
+      ChapterSnapshotRow(
+        id: id ?? this.id,
+        chapterId: chapterId ?? this.chapterId,
+        content: content ?? this.content,
+        createdAt: createdAt ?? this.createdAt,
+      );
+  ChapterSnapshotRow copyWithCompanion(ChapterSnapshotsCompanion data) {
+    return ChapterSnapshotRow(
+      id: data.id.present ? data.id.value : this.id,
+      chapterId: data.chapterId.present ? data.chapterId.value : this.chapterId,
+      content: data.content.present ? data.content.value : this.content,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ChapterSnapshotRow(')
+          ..write('id: $id, ')
+          ..write('chapterId: $chapterId, ')
+          ..write('content: $content, ')
+          ..write('createdAt: $createdAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(id, chapterId, content, createdAt);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is ChapterSnapshotRow &&
+          other.id == this.id &&
+          other.chapterId == this.chapterId &&
+          other.content == this.content &&
+          other.createdAt == this.createdAt);
+}
+
+class ChapterSnapshotsCompanion extends UpdateCompanion<ChapterSnapshotRow> {
+  final Value<String> id;
+  final Value<String> chapterId;
+  final Value<String> content;
+  final Value<DateTime> createdAt;
+  final Value<int> rowid;
+  const ChapterSnapshotsCompanion({
+    this.id = const Value.absent(),
+    this.chapterId = const Value.absent(),
+    this.content = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  ChapterSnapshotsCompanion.insert({
+    required String id,
+    required String chapterId,
+    required String content,
+    required DateTime createdAt,
+    this.rowid = const Value.absent(),
+  })  : id = Value(id),
+        chapterId = Value(chapterId),
+        content = Value(content),
+        createdAt = Value(createdAt);
+  static Insertable<ChapterSnapshotRow> custom({
+    Expression<String>? id,
+    Expression<String>? chapterId,
+    Expression<String>? content,
+    Expression<DateTime>? createdAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (chapterId != null) 'chapter_id': chapterId,
+      if (content != null) 'content': content,
+      if (createdAt != null) 'created_at': createdAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  ChapterSnapshotsCompanion copyWith(
+      {Value<String>? id,
+      Value<String>? chapterId,
+      Value<String>? content,
+      Value<DateTime>? createdAt,
+      Value<int>? rowid}) {
+    return ChapterSnapshotsCompanion(
+      id: id ?? this.id,
+      chapterId: chapterId ?? this.chapterId,
+      content: content ?? this.content,
+      createdAt: createdAt ?? this.createdAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (chapterId.present) {
+      map['chapter_id'] = Variable<String>(chapterId.value);
+    }
+    if (content.present) {
+      map['content'] = Variable<String>(content.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ChapterSnapshotsCompanion(')
+          ..write('id: $id, ')
+          ..write('chapterId: $chapterId, ')
+          ..write('content: $content, ')
+          ..write('createdAt: $createdAt, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -4827,6 +5003,515 @@ class MapPinsCompanion extends UpdateCompanion<MapPinRow> {
   }
 }
 
+class $SetupPayoffsTable extends SetupPayoffs
+    with TableInfo<$SetupPayoffsTable, SetupPayoffRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $SetupPayoffsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+      'id', aliasedName, false,
+      additionalChecks:
+          GeneratedColumn.checkTextLength(minTextLength: 36, maxTextLength: 36),
+      type: DriftSqlType.string,
+      requiredDuringInsert: true);
+  static const VerificationMeta _setupChapterIdMeta =
+      const VerificationMeta('setupChapterId');
+  @override
+  late final GeneratedColumn<String> setupChapterId = GeneratedColumn<String>(
+      'setup_chapter_id', aliasedName, false,
+      additionalChecks:
+          GeneratedColumn.checkTextLength(minTextLength: 36, maxTextLength: 36),
+      type: DriftSqlType.string,
+      requiredDuringInsert: true);
+  static const VerificationMeta _setupDescriptionMeta =
+      const VerificationMeta('setupDescription');
+  @override
+  late final GeneratedColumn<String> setupDescription = GeneratedColumn<String>(
+      'setup_description', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _payoffChapterIdMeta =
+      const VerificationMeta('payoffChapterId');
+  @override
+  late final GeneratedColumn<String> payoffChapterId = GeneratedColumn<String>(
+      'payoff_chapter_id', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _payoffDescriptionMeta =
+      const VerificationMeta('payoffDescription');
+  @override
+  late final GeneratedColumn<String> payoffDescription =
+      GeneratedColumn<String>('payoff_description', aliasedName, true,
+          type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _entityIdMeta =
+      const VerificationMeta('entityId');
+  @override
+  late final GeneratedColumn<String> entityId = GeneratedColumn<String>(
+      'entity_id', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _isResolvedMeta =
+      const VerificationMeta('isResolved');
+  @override
+  late final GeneratedColumn<bool> isResolved = GeneratedColumn<bool>(
+      'is_resolved', aliasedName, false,
+      type: DriftSqlType.bool,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('CHECK ("is_resolved" IN (0, 1))'),
+      defaultValue: const Constant(false));
+  static const VerificationMeta _createdAtMeta =
+      const VerificationMeta('createdAt');
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+      'created_at', aliasedName, false,
+      type: DriftSqlType.dateTime, requiredDuringInsert: true);
+  static const VerificationMeta _updatedAtMeta =
+      const VerificationMeta('updatedAt');
+  @override
+  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
+      'updated_at', aliasedName, false,
+      type: DriftSqlType.dateTime, requiredDuringInsert: true);
+  @override
+  List<GeneratedColumn> get $columns => [
+        id,
+        setupChapterId,
+        setupDescription,
+        payoffChapterId,
+        payoffDescription,
+        entityId,
+        isResolved,
+        createdAt,
+        updatedAt
+      ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'setup_payoffs';
+  @override
+  VerificationContext validateIntegrity(Insertable<SetupPayoffRow> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('setup_chapter_id')) {
+      context.handle(
+          _setupChapterIdMeta,
+          setupChapterId.isAcceptableOrUnknown(
+              data['setup_chapter_id']!, _setupChapterIdMeta));
+    } else if (isInserting) {
+      context.missing(_setupChapterIdMeta);
+    }
+    if (data.containsKey('setup_description')) {
+      context.handle(
+          _setupDescriptionMeta,
+          setupDescription.isAcceptableOrUnknown(
+              data['setup_description']!, _setupDescriptionMeta));
+    } else if (isInserting) {
+      context.missing(_setupDescriptionMeta);
+    }
+    if (data.containsKey('payoff_chapter_id')) {
+      context.handle(
+          _payoffChapterIdMeta,
+          payoffChapterId.isAcceptableOrUnknown(
+              data['payoff_chapter_id']!, _payoffChapterIdMeta));
+    }
+    if (data.containsKey('payoff_description')) {
+      context.handle(
+          _payoffDescriptionMeta,
+          payoffDescription.isAcceptableOrUnknown(
+              data['payoff_description']!, _payoffDescriptionMeta));
+    }
+    if (data.containsKey('entity_id')) {
+      context.handle(_entityIdMeta,
+          entityId.isAcceptableOrUnknown(data['entity_id']!, _entityIdMeta));
+    }
+    if (data.containsKey('is_resolved')) {
+      context.handle(
+          _isResolvedMeta,
+          isResolved.isAcceptableOrUnknown(
+              data['is_resolved']!, _isResolvedMeta));
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(_createdAtMeta,
+          createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta));
+    } else if (isInserting) {
+      context.missing(_createdAtMeta);
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(_updatedAtMeta,
+          updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta));
+    } else if (isInserting) {
+      context.missing(_updatedAtMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  SetupPayoffRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return SetupPayoffRow(
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
+      setupChapterId: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}setup_chapter_id'])!,
+      setupDescription: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}setup_description'])!,
+      payoffChapterId: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}payoff_chapter_id']),
+      payoffDescription: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}payoff_description']),
+      entityId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}entity_id']),
+      isResolved: attachedDatabase.typeMapping
+          .read(DriftSqlType.bool, data['${effectivePrefix}is_resolved'])!,
+      createdAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}created_at'])!,
+      updatedAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}updated_at'])!,
+    );
+  }
+
+  @override
+  $SetupPayoffsTable createAlias(String alias) {
+    return $SetupPayoffsTable(attachedDatabase, alias);
+  }
+}
+
+class SetupPayoffRow extends DataClass implements Insertable<SetupPayoffRow> {
+  final String id;
+  final String setupChapterId;
+  final String setupDescription;
+  final String? payoffChapterId;
+  final String? payoffDescription;
+  final String? entityId;
+  final bool isResolved;
+  final DateTime createdAt;
+  final DateTime updatedAt;
+  const SetupPayoffRow(
+      {required this.id,
+      required this.setupChapterId,
+      required this.setupDescription,
+      this.payoffChapterId,
+      this.payoffDescription,
+      this.entityId,
+      required this.isResolved,
+      required this.createdAt,
+      required this.updatedAt});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['setup_chapter_id'] = Variable<String>(setupChapterId);
+    map['setup_description'] = Variable<String>(setupDescription);
+    if (!nullToAbsent || payoffChapterId != null) {
+      map['payoff_chapter_id'] = Variable<String>(payoffChapterId);
+    }
+    if (!nullToAbsent || payoffDescription != null) {
+      map['payoff_description'] = Variable<String>(payoffDescription);
+    }
+    if (!nullToAbsent || entityId != null) {
+      map['entity_id'] = Variable<String>(entityId);
+    }
+    map['is_resolved'] = Variable<bool>(isResolved);
+    map['created_at'] = Variable<DateTime>(createdAt);
+    map['updated_at'] = Variable<DateTime>(updatedAt);
+    return map;
+  }
+
+  SetupPayoffsCompanion toCompanion(bool nullToAbsent) {
+    return SetupPayoffsCompanion(
+      id: Value(id),
+      setupChapterId: Value(setupChapterId),
+      setupDescription: Value(setupDescription),
+      payoffChapterId: payoffChapterId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(payoffChapterId),
+      payoffDescription: payoffDescription == null && nullToAbsent
+          ? const Value.absent()
+          : Value(payoffDescription),
+      entityId: entityId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(entityId),
+      isResolved: Value(isResolved),
+      createdAt: Value(createdAt),
+      updatedAt: Value(updatedAt),
+    );
+  }
+
+  factory SetupPayoffRow.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return SetupPayoffRow(
+      id: serializer.fromJson<String>(json['id']),
+      setupChapterId: serializer.fromJson<String>(json['setupChapterId']),
+      setupDescription: serializer.fromJson<String>(json['setupDescription']),
+      payoffChapterId: serializer.fromJson<String?>(json['payoffChapterId']),
+      payoffDescription:
+          serializer.fromJson<String?>(json['payoffDescription']),
+      entityId: serializer.fromJson<String?>(json['entityId']),
+      isResolved: serializer.fromJson<bool>(json['isResolved']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+      updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'setupChapterId': serializer.toJson<String>(setupChapterId),
+      'setupDescription': serializer.toJson<String>(setupDescription),
+      'payoffChapterId': serializer.toJson<String?>(payoffChapterId),
+      'payoffDescription': serializer.toJson<String?>(payoffDescription),
+      'entityId': serializer.toJson<String?>(entityId),
+      'isResolved': serializer.toJson<bool>(isResolved),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+      'updatedAt': serializer.toJson<DateTime>(updatedAt),
+    };
+  }
+
+  SetupPayoffRow copyWith(
+          {String? id,
+          String? setupChapterId,
+          String? setupDescription,
+          Value<String?> payoffChapterId = const Value.absent(),
+          Value<String?> payoffDescription = const Value.absent(),
+          Value<String?> entityId = const Value.absent(),
+          bool? isResolved,
+          DateTime? createdAt,
+          DateTime? updatedAt}) =>
+      SetupPayoffRow(
+        id: id ?? this.id,
+        setupChapterId: setupChapterId ?? this.setupChapterId,
+        setupDescription: setupDescription ?? this.setupDescription,
+        payoffChapterId: payoffChapterId.present
+            ? payoffChapterId.value
+            : this.payoffChapterId,
+        payoffDescription: payoffDescription.present
+            ? payoffDescription.value
+            : this.payoffDescription,
+        entityId: entityId.present ? entityId.value : this.entityId,
+        isResolved: isResolved ?? this.isResolved,
+        createdAt: createdAt ?? this.createdAt,
+        updatedAt: updatedAt ?? this.updatedAt,
+      );
+  SetupPayoffRow copyWithCompanion(SetupPayoffsCompanion data) {
+    return SetupPayoffRow(
+      id: data.id.present ? data.id.value : this.id,
+      setupChapterId: data.setupChapterId.present
+          ? data.setupChapterId.value
+          : this.setupChapterId,
+      setupDescription: data.setupDescription.present
+          ? data.setupDescription.value
+          : this.setupDescription,
+      payoffChapterId: data.payoffChapterId.present
+          ? data.payoffChapterId.value
+          : this.payoffChapterId,
+      payoffDescription: data.payoffDescription.present
+          ? data.payoffDescription.value
+          : this.payoffDescription,
+      entityId: data.entityId.present ? data.entityId.value : this.entityId,
+      isResolved:
+          data.isResolved.present ? data.isResolved.value : this.isResolved,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('SetupPayoffRow(')
+          ..write('id: $id, ')
+          ..write('setupChapterId: $setupChapterId, ')
+          ..write('setupDescription: $setupDescription, ')
+          ..write('payoffChapterId: $payoffChapterId, ')
+          ..write('payoffDescription: $payoffDescription, ')
+          ..write('entityId: $entityId, ')
+          ..write('isResolved: $isResolved, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+      id,
+      setupChapterId,
+      setupDescription,
+      payoffChapterId,
+      payoffDescription,
+      entityId,
+      isResolved,
+      createdAt,
+      updatedAt);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is SetupPayoffRow &&
+          other.id == this.id &&
+          other.setupChapterId == this.setupChapterId &&
+          other.setupDescription == this.setupDescription &&
+          other.payoffChapterId == this.payoffChapterId &&
+          other.payoffDescription == this.payoffDescription &&
+          other.entityId == this.entityId &&
+          other.isResolved == this.isResolved &&
+          other.createdAt == this.createdAt &&
+          other.updatedAt == this.updatedAt);
+}
+
+class SetupPayoffsCompanion extends UpdateCompanion<SetupPayoffRow> {
+  final Value<String> id;
+  final Value<String> setupChapterId;
+  final Value<String> setupDescription;
+  final Value<String?> payoffChapterId;
+  final Value<String?> payoffDescription;
+  final Value<String?> entityId;
+  final Value<bool> isResolved;
+  final Value<DateTime> createdAt;
+  final Value<DateTime> updatedAt;
+  final Value<int> rowid;
+  const SetupPayoffsCompanion({
+    this.id = const Value.absent(),
+    this.setupChapterId = const Value.absent(),
+    this.setupDescription = const Value.absent(),
+    this.payoffChapterId = const Value.absent(),
+    this.payoffDescription = const Value.absent(),
+    this.entityId = const Value.absent(),
+    this.isResolved = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  SetupPayoffsCompanion.insert({
+    required String id,
+    required String setupChapterId,
+    required String setupDescription,
+    this.payoffChapterId = const Value.absent(),
+    this.payoffDescription = const Value.absent(),
+    this.entityId = const Value.absent(),
+    this.isResolved = const Value.absent(),
+    required DateTime createdAt,
+    required DateTime updatedAt,
+    this.rowid = const Value.absent(),
+  })  : id = Value(id),
+        setupChapterId = Value(setupChapterId),
+        setupDescription = Value(setupDescription),
+        createdAt = Value(createdAt),
+        updatedAt = Value(updatedAt);
+  static Insertable<SetupPayoffRow> custom({
+    Expression<String>? id,
+    Expression<String>? setupChapterId,
+    Expression<String>? setupDescription,
+    Expression<String>? payoffChapterId,
+    Expression<String>? payoffDescription,
+    Expression<String>? entityId,
+    Expression<bool>? isResolved,
+    Expression<DateTime>? createdAt,
+    Expression<DateTime>? updatedAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (setupChapterId != null) 'setup_chapter_id': setupChapterId,
+      if (setupDescription != null) 'setup_description': setupDescription,
+      if (payoffChapterId != null) 'payoff_chapter_id': payoffChapterId,
+      if (payoffDescription != null) 'payoff_description': payoffDescription,
+      if (entityId != null) 'entity_id': entityId,
+      if (isResolved != null) 'is_resolved': isResolved,
+      if (createdAt != null) 'created_at': createdAt,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  SetupPayoffsCompanion copyWith(
+      {Value<String>? id,
+      Value<String>? setupChapterId,
+      Value<String>? setupDescription,
+      Value<String?>? payoffChapterId,
+      Value<String?>? payoffDescription,
+      Value<String?>? entityId,
+      Value<bool>? isResolved,
+      Value<DateTime>? createdAt,
+      Value<DateTime>? updatedAt,
+      Value<int>? rowid}) {
+    return SetupPayoffsCompanion(
+      id: id ?? this.id,
+      setupChapterId: setupChapterId ?? this.setupChapterId,
+      setupDescription: setupDescription ?? this.setupDescription,
+      payoffChapterId: payoffChapterId ?? this.payoffChapterId,
+      payoffDescription: payoffDescription ?? this.payoffDescription,
+      entityId: entityId ?? this.entityId,
+      isResolved: isResolved ?? this.isResolved,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (setupChapterId.present) {
+      map['setup_chapter_id'] = Variable<String>(setupChapterId.value);
+    }
+    if (setupDescription.present) {
+      map['setup_description'] = Variable<String>(setupDescription.value);
+    }
+    if (payoffChapterId.present) {
+      map['payoff_chapter_id'] = Variable<String>(payoffChapterId.value);
+    }
+    if (payoffDescription.present) {
+      map['payoff_description'] = Variable<String>(payoffDescription.value);
+    }
+    if (entityId.present) {
+      map['entity_id'] = Variable<String>(entityId.value);
+    }
+    if (isResolved.present) {
+      map['is_resolved'] = Variable<bool>(isResolved.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<DateTime>(updatedAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('SetupPayoffsCompanion(')
+          ..write('id: $id, ')
+          ..write('setupChapterId: $setupChapterId, ')
+          ..write('setupDescription: $setupDescription, ')
+          ..write('payoffChapterId: $payoffChapterId, ')
+          ..write('payoffDescription: $payoffDescription, ')
+          ..write('entityId: $entityId, ')
+          ..write('isResolved: $isResolved, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
@@ -4838,14 +5523,16 @@ abstract class _$AppDatabase extends GeneratedDatabase {
       $TimelineEntriesTable(this);
   late final $EntityVersionsTable entityVersions = $EntityVersionsTable(this);
   late final $TemplatesTable templates = $TemplatesTable(this);
-  late final $QuickCapturesTable quickCaptures = $QuickCapturesTable(this);
   late final $ManuscriptChaptersTable manuscriptChapters =
       $ManuscriptChaptersTable(this);
+  late final $ChapterSnapshotsTable chapterSnapshots =
+      $ChapterSnapshotsTable(this);
   late final $PlotCardsTable plotCards = $PlotCardsTable(this);
   late final $PlotConnectionsTable plotConnections =
       $PlotConnectionsTable(this);
   late final $WorldMapsTable worldMaps = $WorldMapsTable(this);
   late final $MapPinsTable mapPins = $MapPinsTable(this);
+  late final $SetupPayoffsTable setupPayoffs = $SetupPayoffsTable(this);
   late final EntityDao entityDao = EntityDao(this as AppDatabase);
   late final RelationshipDao relationshipDao =
       RelationshipDao(this as AppDatabase);
@@ -4854,11 +5541,12 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final EntityVersionDao entityVersionDao =
       EntityVersionDao(this as AppDatabase);
   late final TemplateDao templateDao = TemplateDao(this as AppDatabase);
-  late final QuickCaptureDao quickCaptureDao =
-      QuickCaptureDao(this as AppDatabase);
   late final MapDao mapDao = MapDao(this as AppDatabase);
   late final ManuscriptDao manuscriptDao = ManuscriptDao(this as AppDatabase);
+  late final SnapshotDao snapshotDao = SnapshotDao(this as AppDatabase);
   late final PlotDao plotDao = PlotDao(this as AppDatabase);
+  late final SetupPayoffDao setupPayoffDao =
+      SetupPayoffDao(this as AppDatabase);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -4871,12 +5559,13 @@ abstract class _$AppDatabase extends GeneratedDatabase {
         timelineEntries,
         entityVersions,
         templates,
-        quickCaptures,
         manuscriptChapters,
+        chapterSnapshots,
         plotCards,
         plotConnections,
         worldMaps,
-        mapPins
+        mapPins,
+        setupPayoffs
       ];
   @override
   StreamQueryUpdateRules get streamUpdateRules => const StreamQueryUpdateRules(
@@ -4921,6 +5610,13 @@ abstract class _$AppDatabase extends GeneratedDatabase {
                 limitUpdateKind: UpdateKind.delete),
             result: [
               TableUpdate('entity_versions', kind: UpdateKind.delete),
+            ],
+          ),
+          WritePropagation(
+            on: TableUpdateQuery.onTableName('manuscript_chapters',
+                limitUpdateKind: UpdateKind.delete),
+            result: [
+              TableUpdate('chapter_snapshots', kind: UpdateKind.delete),
             ],
           ),
           WritePropagation(
@@ -4974,6 +5670,38 @@ typedef $$EntitiesTableUpdateCompanionBuilder = EntitiesCompanion Function({
 final class $$EntitiesTableReferences
     extends BaseReferences<_$AppDatabase, $EntitiesTable, EntityRow> {
   $$EntitiesTableReferences(super.$_db, super.$_table, super.$_typedResult);
+
+  static MultiTypedResultKey<$RelationshipsTable, List<RelationshipRow>>
+      _sourceRelationshipsTable(_$AppDatabase db) =>
+          MultiTypedResultKey.fromTable(db.relationships,
+              aliasName: $_aliasNameGenerator(
+                  db.entities.id, db.relationships.sourceId));
+
+  $$RelationshipsTableProcessedTableManager get sourceRelationships {
+    final manager = $$RelationshipsTableTableManager($_db, $_db.relationships)
+        .filter((f) => f.sourceId.id.sqlEquals($_itemColumn<String>('id')!));
+
+    final cache =
+        $_typedResult.readTableOrNull(_sourceRelationshipsTable($_db));
+    return ProcessedTableManager(
+        manager.$state.copyWith(prefetchedData: cache));
+  }
+
+  static MultiTypedResultKey<$RelationshipsTable, List<RelationshipRow>>
+      _targetRelationshipsTable(_$AppDatabase db) =>
+          MultiTypedResultKey.fromTable(db.relationships,
+              aliasName: $_aliasNameGenerator(
+                  db.entities.id, db.relationships.targetId));
+
+  $$RelationshipsTableProcessedTableManager get targetRelationships {
+    final manager = $$RelationshipsTableTableManager($_db, $_db.relationships)
+        .filter((f) => f.targetId.id.sqlEquals($_itemColumn<String>('id')!));
+
+    final cache =
+        $_typedResult.readTableOrNull(_targetRelationshipsTable($_db));
+    return ProcessedTableManager(
+        manager.$state.copyWith(prefetchedData: cache));
+  }
 
   static MultiTypedResultKey<$EntityTagsTable, List<EntityTagRow>>
       _entityTagsRefsTable(_$AppDatabase db) =>
@@ -5075,6 +5803,48 @@ class $$EntitiesTableFilterComposer
 
   ColumnFilters<DateTime> get updatedAt => $composableBuilder(
       column: $table.updatedAt, builder: (column) => ColumnFilters(column));
+
+  Expression<bool> sourceRelationships(
+      Expression<bool> Function($$RelationshipsTableFilterComposer f) f) {
+    final $$RelationshipsTableFilterComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.id,
+        referencedTable: $db.relationships,
+        getReferencedColumn: (t) => t.sourceId,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$RelationshipsTableFilterComposer(
+              $db: $db,
+              $table: $db.relationships,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return f(composer);
+  }
+
+  Expression<bool> targetRelationships(
+      Expression<bool> Function($$RelationshipsTableFilterComposer f) f) {
+    final $$RelationshipsTableFilterComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.id,
+        referencedTable: $db.relationships,
+        getReferencedColumn: (t) => t.targetId,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$RelationshipsTableFilterComposer(
+              $db: $db,
+              $table: $db.relationships,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return f(composer);
+  }
 
   Expression<bool> entityTagsRefs(
       Expression<bool> Function($$EntityTagsTableFilterComposer f) f) {
@@ -5241,6 +6011,48 @@ class $$EntitiesTableAnnotationComposer
   GeneratedColumn<DateTime> get updatedAt =>
       $composableBuilder(column: $table.updatedAt, builder: (column) => column);
 
+  Expression<T> sourceRelationships<T extends Object>(
+      Expression<T> Function($$RelationshipsTableAnnotationComposer a) f) {
+    final $$RelationshipsTableAnnotationComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.id,
+        referencedTable: $db.relationships,
+        getReferencedColumn: (t) => t.sourceId,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$RelationshipsTableAnnotationComposer(
+              $db: $db,
+              $table: $db.relationships,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return f(composer);
+  }
+
+  Expression<T> targetRelationships<T extends Object>(
+      Expression<T> Function($$RelationshipsTableAnnotationComposer a) f) {
+    final $$RelationshipsTableAnnotationComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.id,
+        referencedTable: $db.relationships,
+        getReferencedColumn: (t) => t.targetId,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$RelationshipsTableAnnotationComposer(
+              $db: $db,
+              $table: $db.relationships,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return f(composer);
+  }
+
   Expression<T> entityTagsRefs<T extends Object>(
       Expression<T> Function($$EntityTagsTableAnnotationComposer a) f) {
     final $$EntityTagsTableAnnotationComposer composer = $composerBuilder(
@@ -5338,7 +6150,9 @@ class $$EntitiesTableTableManager extends RootTableManager<
     (EntityRow, $$EntitiesTableReferences),
     EntityRow,
     PrefetchHooks Function(
-        {bool entityTagsRefs,
+        {bool sourceRelationships,
+        bool targetRelationships,
+        bool entityTagsRefs,
         bool timelineEntriesRefs,
         bool entityVersionsRefs,
         bool mapPinsRefs})> {
@@ -5409,13 +6223,17 @@ class $$EntitiesTableTableManager extends RootTableManager<
                   (e.readTable(table), $$EntitiesTableReferences(db, table, e)))
               .toList(),
           prefetchHooksCallback: (
-              {entityTagsRefs = false,
+              {sourceRelationships = false,
+              targetRelationships = false,
+              entityTagsRefs = false,
               timelineEntriesRefs = false,
               entityVersionsRefs = false,
               mapPinsRefs = false}) {
             return PrefetchHooks(
               db: db,
               explicitlyWatchedTables: [
+                if (sourceRelationships) db.relationships,
+                if (targetRelationships) db.relationships,
                 if (entityTagsRefs) db.entityTags,
                 if (timelineEntriesRefs) db.timelineEntries,
                 if (entityVersionsRefs) db.entityVersions,
@@ -5424,6 +6242,32 @@ class $$EntitiesTableTableManager extends RootTableManager<
               addJoins: null,
               getPrefetchedDataCallback: (items) async {
                 return [
+                  if (sourceRelationships)
+                    await $_getPrefetchedData<EntityRow, $EntitiesTable,
+                            RelationshipRow>(
+                        currentTable: table,
+                        referencedTable: $$EntitiesTableReferences
+                            ._sourceRelationshipsTable(db),
+                        managerFromTypedResult: (p0) =>
+                            $$EntitiesTableReferences(db, table, p0)
+                                .sourceRelationships,
+                        referencedItemsForCurrentItem: (item,
+                                referencedItems) =>
+                            referencedItems.where((e) => e.sourceId == item.id),
+                        typedResults: items),
+                  if (targetRelationships)
+                    await $_getPrefetchedData<EntityRow, $EntitiesTable,
+                            RelationshipRow>(
+                        currentTable: table,
+                        referencedTable: $$EntitiesTableReferences
+                            ._targetRelationshipsTable(db),
+                        managerFromTypedResult: (p0) =>
+                            $$EntitiesTableReferences(db, table, p0)
+                                .targetRelationships,
+                        referencedItemsForCurrentItem: (item,
+                                referencedItems) =>
+                            referencedItems.where((e) => e.targetId == item.id),
+                        typedResults: items),
                   if (entityTagsRefs)
                     await $_getPrefetchedData<EntityRow, $EntitiesTable,
                             EntityTagRow>(
@@ -5495,7 +6339,9 @@ typedef $$EntitiesTableProcessedTableManager = ProcessedTableManager<
     (EntityRow, $$EntitiesTableReferences),
     EntityRow,
     PrefetchHooks Function(
-        {bool entityTagsRefs,
+        {bool sourceRelationships,
+        bool targetRelationships,
+        bool entityTagsRefs,
         bool timelineEntriesRefs,
         bool entityVersionsRefs,
         bool mapPinsRefs})>;
@@ -7257,164 +8103,6 @@ typedef $$TemplatesTableProcessedTableManager = ProcessedTableManager<
     (TemplateRow, BaseReferences<_$AppDatabase, $TemplatesTable, TemplateRow>),
     TemplateRow,
     PrefetchHooks Function()>;
-typedef $$QuickCapturesTableCreateCompanionBuilder = QuickCapturesCompanion
-    Function({
-  required String id,
-  required String rawText,
-  Value<bool> isProcessed,
-  required DateTime createdAt,
-  Value<int> rowid,
-});
-typedef $$QuickCapturesTableUpdateCompanionBuilder = QuickCapturesCompanion
-    Function({
-  Value<String> id,
-  Value<String> rawText,
-  Value<bool> isProcessed,
-  Value<DateTime> createdAt,
-  Value<int> rowid,
-});
-
-class $$QuickCapturesTableFilterComposer
-    extends Composer<_$AppDatabase, $QuickCapturesTable> {
-  $$QuickCapturesTableFilterComposer({
-    required super.$db,
-    required super.$table,
-    super.joinBuilder,
-    super.$addJoinBuilderToRootComposer,
-    super.$removeJoinBuilderFromRootComposer,
-  });
-  ColumnFilters<String> get id => $composableBuilder(
-      column: $table.id, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<String> get rawText => $composableBuilder(
-      column: $table.rawText, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<bool> get isProcessed => $composableBuilder(
-      column: $table.isProcessed, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<DateTime> get createdAt => $composableBuilder(
-      column: $table.createdAt, builder: (column) => ColumnFilters(column));
-}
-
-class $$QuickCapturesTableOrderingComposer
-    extends Composer<_$AppDatabase, $QuickCapturesTable> {
-  $$QuickCapturesTableOrderingComposer({
-    required super.$db,
-    required super.$table,
-    super.joinBuilder,
-    super.$addJoinBuilderToRootComposer,
-    super.$removeJoinBuilderFromRootComposer,
-  });
-  ColumnOrderings<String> get id => $composableBuilder(
-      column: $table.id, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<String> get rawText => $composableBuilder(
-      column: $table.rawText, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<bool> get isProcessed => $composableBuilder(
-      column: $table.isProcessed, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
-      column: $table.createdAt, builder: (column) => ColumnOrderings(column));
-}
-
-class $$QuickCapturesTableAnnotationComposer
-    extends Composer<_$AppDatabase, $QuickCapturesTable> {
-  $$QuickCapturesTableAnnotationComposer({
-    required super.$db,
-    required super.$table,
-    super.joinBuilder,
-    super.$addJoinBuilderToRootComposer,
-    super.$removeJoinBuilderFromRootComposer,
-  });
-  GeneratedColumn<String> get id =>
-      $composableBuilder(column: $table.id, builder: (column) => column);
-
-  GeneratedColumn<String> get rawText =>
-      $composableBuilder(column: $table.rawText, builder: (column) => column);
-
-  GeneratedColumn<bool> get isProcessed => $composableBuilder(
-      column: $table.isProcessed, builder: (column) => column);
-
-  GeneratedColumn<DateTime> get createdAt =>
-      $composableBuilder(column: $table.createdAt, builder: (column) => column);
-}
-
-class $$QuickCapturesTableTableManager extends RootTableManager<
-    _$AppDatabase,
-    $QuickCapturesTable,
-    QuickCaptureRow,
-    $$QuickCapturesTableFilterComposer,
-    $$QuickCapturesTableOrderingComposer,
-    $$QuickCapturesTableAnnotationComposer,
-    $$QuickCapturesTableCreateCompanionBuilder,
-    $$QuickCapturesTableUpdateCompanionBuilder,
-    (
-      QuickCaptureRow,
-      BaseReferences<_$AppDatabase, $QuickCapturesTable, QuickCaptureRow>
-    ),
-    QuickCaptureRow,
-    PrefetchHooks Function()> {
-  $$QuickCapturesTableTableManager(_$AppDatabase db, $QuickCapturesTable table)
-      : super(TableManagerState(
-          db: db,
-          table: table,
-          createFilteringComposer: () =>
-              $$QuickCapturesTableFilterComposer($db: db, $table: table),
-          createOrderingComposer: () =>
-              $$QuickCapturesTableOrderingComposer($db: db, $table: table),
-          createComputedFieldComposer: () =>
-              $$QuickCapturesTableAnnotationComposer($db: db, $table: table),
-          updateCompanionCallback: ({
-            Value<String> id = const Value.absent(),
-            Value<String> rawText = const Value.absent(),
-            Value<bool> isProcessed = const Value.absent(),
-            Value<DateTime> createdAt = const Value.absent(),
-            Value<int> rowid = const Value.absent(),
-          }) =>
-              QuickCapturesCompanion(
-            id: id,
-            rawText: rawText,
-            isProcessed: isProcessed,
-            createdAt: createdAt,
-            rowid: rowid,
-          ),
-          createCompanionCallback: ({
-            required String id,
-            required String rawText,
-            Value<bool> isProcessed = const Value.absent(),
-            required DateTime createdAt,
-            Value<int> rowid = const Value.absent(),
-          }) =>
-              QuickCapturesCompanion.insert(
-            id: id,
-            rawText: rawText,
-            isProcessed: isProcessed,
-            createdAt: createdAt,
-            rowid: rowid,
-          ),
-          withReferenceMapper: (p0) => p0
-              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
-              .toList(),
-          prefetchHooksCallback: null,
-        ));
-}
-
-typedef $$QuickCapturesTableProcessedTableManager = ProcessedTableManager<
-    _$AppDatabase,
-    $QuickCapturesTable,
-    QuickCaptureRow,
-    $$QuickCapturesTableFilterComposer,
-    $$QuickCapturesTableOrderingComposer,
-    $$QuickCapturesTableAnnotationComposer,
-    $$QuickCapturesTableCreateCompanionBuilder,
-    $$QuickCapturesTableUpdateCompanionBuilder,
-    (
-      QuickCaptureRow,
-      BaseReferences<_$AppDatabase, $QuickCapturesTable, QuickCaptureRow>
-    ),
-    QuickCaptureRow,
-    PrefetchHooks Function()>;
 typedef $$ManuscriptChaptersTableCreateCompanionBuilder
     = ManuscriptChaptersCompanion Function({
   required String id,
@@ -7423,6 +8111,10 @@ typedef $$ManuscriptChaptersTableCreateCompanionBuilder
   Value<int> sortOrder,
   Value<String?> dateLabel,
   Value<String?> eraLabel,
+  Value<String?> synopsis,
+  Value<String?> povCharacterId,
+  Value<String?> locationId,
+  Value<String> status,
   Value<bool> isDeleted,
   required DateTime createdAt,
   required DateTime updatedAt,
@@ -7436,11 +8128,38 @@ typedef $$ManuscriptChaptersTableUpdateCompanionBuilder
   Value<int> sortOrder,
   Value<String?> dateLabel,
   Value<String?> eraLabel,
+  Value<String?> synopsis,
+  Value<String?> povCharacterId,
+  Value<String?> locationId,
+  Value<String> status,
   Value<bool> isDeleted,
   Value<DateTime> createdAt,
   Value<DateTime> updatedAt,
   Value<int> rowid,
 });
+
+final class $$ManuscriptChaptersTableReferences extends BaseReferences<
+    _$AppDatabase, $ManuscriptChaptersTable, ManuscriptChapterRow> {
+  $$ManuscriptChaptersTableReferences(
+      super.$_db, super.$_table, super.$_typedResult);
+
+  static MultiTypedResultKey<$ChapterSnapshotsTable, List<ChapterSnapshotRow>>
+      _chapterSnapshotsRefsTable(_$AppDatabase db) =>
+          MultiTypedResultKey.fromTable(db.chapterSnapshots,
+              aliasName: $_aliasNameGenerator(
+                  db.manuscriptChapters.id, db.chapterSnapshots.chapterId));
+
+  $$ChapterSnapshotsTableProcessedTableManager get chapterSnapshotsRefs {
+    final manager = $$ChapterSnapshotsTableTableManager(
+            $_db, $_db.chapterSnapshots)
+        .filter((f) => f.chapterId.id.sqlEquals($_itemColumn<String>('id')!));
+
+    final cache =
+        $_typedResult.readTableOrNull(_chapterSnapshotsRefsTable($_db));
+    return ProcessedTableManager(
+        manager.$state.copyWith(prefetchedData: cache));
+  }
+}
 
 class $$ManuscriptChaptersTableFilterComposer
     extends Composer<_$AppDatabase, $ManuscriptChaptersTable> {
@@ -7469,6 +8188,19 @@ class $$ManuscriptChaptersTableFilterComposer
   ColumnFilters<String> get eraLabel => $composableBuilder(
       column: $table.eraLabel, builder: (column) => ColumnFilters(column));
 
+  ColumnFilters<String> get synopsis => $composableBuilder(
+      column: $table.synopsis, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get povCharacterId => $composableBuilder(
+      column: $table.povCharacterId,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get locationId => $composableBuilder(
+      column: $table.locationId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get status => $composableBuilder(
+      column: $table.status, builder: (column) => ColumnFilters(column));
+
   ColumnFilters<bool> get isDeleted => $composableBuilder(
       column: $table.isDeleted, builder: (column) => ColumnFilters(column));
 
@@ -7477,6 +8209,27 @@ class $$ManuscriptChaptersTableFilterComposer
 
   ColumnFilters<DateTime> get updatedAt => $composableBuilder(
       column: $table.updatedAt, builder: (column) => ColumnFilters(column));
+
+  Expression<bool> chapterSnapshotsRefs(
+      Expression<bool> Function($$ChapterSnapshotsTableFilterComposer f) f) {
+    final $$ChapterSnapshotsTableFilterComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.id,
+        referencedTable: $db.chapterSnapshots,
+        getReferencedColumn: (t) => t.chapterId,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$ChapterSnapshotsTableFilterComposer(
+              $db: $db,
+              $table: $db.chapterSnapshots,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return f(composer);
+  }
 }
 
 class $$ManuscriptChaptersTableOrderingComposer
@@ -7505,6 +8258,19 @@ class $$ManuscriptChaptersTableOrderingComposer
 
   ColumnOrderings<String> get eraLabel => $composableBuilder(
       column: $table.eraLabel, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get synopsis => $composableBuilder(
+      column: $table.synopsis, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get povCharacterId => $composableBuilder(
+      column: $table.povCharacterId,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get locationId => $composableBuilder(
+      column: $table.locationId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get status => $composableBuilder(
+      column: $table.status, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<bool> get isDeleted => $composableBuilder(
       column: $table.isDeleted, builder: (column) => ColumnOrderings(column));
@@ -7543,6 +8309,18 @@ class $$ManuscriptChaptersTableAnnotationComposer
   GeneratedColumn<String> get eraLabel =>
       $composableBuilder(column: $table.eraLabel, builder: (column) => column);
 
+  GeneratedColumn<String> get synopsis =>
+      $composableBuilder(column: $table.synopsis, builder: (column) => column);
+
+  GeneratedColumn<String> get povCharacterId => $composableBuilder(
+      column: $table.povCharacterId, builder: (column) => column);
+
+  GeneratedColumn<String> get locationId => $composableBuilder(
+      column: $table.locationId, builder: (column) => column);
+
+  GeneratedColumn<String> get status =>
+      $composableBuilder(column: $table.status, builder: (column) => column);
+
   GeneratedColumn<bool> get isDeleted =>
       $composableBuilder(column: $table.isDeleted, builder: (column) => column);
 
@@ -7551,6 +8329,27 @@ class $$ManuscriptChaptersTableAnnotationComposer
 
   GeneratedColumn<DateTime> get updatedAt =>
       $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  Expression<T> chapterSnapshotsRefs<T extends Object>(
+      Expression<T> Function($$ChapterSnapshotsTableAnnotationComposer a) f) {
+    final $$ChapterSnapshotsTableAnnotationComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.id,
+        referencedTable: $db.chapterSnapshots,
+        getReferencedColumn: (t) => t.chapterId,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$ChapterSnapshotsTableAnnotationComposer(
+              $db: $db,
+              $table: $db.chapterSnapshots,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return f(composer);
+  }
 }
 
 class $$ManuscriptChaptersTableTableManager extends RootTableManager<
@@ -7562,13 +8361,9 @@ class $$ManuscriptChaptersTableTableManager extends RootTableManager<
     $$ManuscriptChaptersTableAnnotationComposer,
     $$ManuscriptChaptersTableCreateCompanionBuilder,
     $$ManuscriptChaptersTableUpdateCompanionBuilder,
-    (
-      ManuscriptChapterRow,
-      BaseReferences<_$AppDatabase, $ManuscriptChaptersTable,
-          ManuscriptChapterRow>
-    ),
+    (ManuscriptChapterRow, $$ManuscriptChaptersTableReferences),
     ManuscriptChapterRow,
-    PrefetchHooks Function()> {
+    PrefetchHooks Function({bool chapterSnapshotsRefs})> {
   $$ManuscriptChaptersTableTableManager(
       _$AppDatabase db, $ManuscriptChaptersTable table)
       : super(TableManagerState(
@@ -7588,6 +8383,10 @@ class $$ManuscriptChaptersTableTableManager extends RootTableManager<
             Value<int> sortOrder = const Value.absent(),
             Value<String?> dateLabel = const Value.absent(),
             Value<String?> eraLabel = const Value.absent(),
+            Value<String?> synopsis = const Value.absent(),
+            Value<String?> povCharacterId = const Value.absent(),
+            Value<String?> locationId = const Value.absent(),
+            Value<String> status = const Value.absent(),
             Value<bool> isDeleted = const Value.absent(),
             Value<DateTime> createdAt = const Value.absent(),
             Value<DateTime> updatedAt = const Value.absent(),
@@ -7600,6 +8399,10 @@ class $$ManuscriptChaptersTableTableManager extends RootTableManager<
             sortOrder: sortOrder,
             dateLabel: dateLabel,
             eraLabel: eraLabel,
+            synopsis: synopsis,
+            povCharacterId: povCharacterId,
+            locationId: locationId,
+            status: status,
             isDeleted: isDeleted,
             createdAt: createdAt,
             updatedAt: updatedAt,
@@ -7612,6 +8415,10 @@ class $$ManuscriptChaptersTableTableManager extends RootTableManager<
             Value<int> sortOrder = const Value.absent(),
             Value<String?> dateLabel = const Value.absent(),
             Value<String?> eraLabel = const Value.absent(),
+            Value<String?> synopsis = const Value.absent(),
+            Value<String?> povCharacterId = const Value.absent(),
+            Value<String?> locationId = const Value.absent(),
+            Value<String> status = const Value.absent(),
             Value<bool> isDeleted = const Value.absent(),
             required DateTime createdAt,
             required DateTime updatedAt,
@@ -7624,15 +8431,47 @@ class $$ManuscriptChaptersTableTableManager extends RootTableManager<
             sortOrder: sortOrder,
             dateLabel: dateLabel,
             eraLabel: eraLabel,
+            synopsis: synopsis,
+            povCharacterId: povCharacterId,
+            locationId: locationId,
+            status: status,
             isDeleted: isDeleted,
             createdAt: createdAt,
             updatedAt: updatedAt,
             rowid: rowid,
           ),
           withReferenceMapper: (p0) => p0
-              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .map((e) => (
+                    e.readTable(table),
+                    $$ManuscriptChaptersTableReferences(db, table, e)
+                  ))
               .toList(),
-          prefetchHooksCallback: null,
+          prefetchHooksCallback: ({chapterSnapshotsRefs = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [
+                if (chapterSnapshotsRefs) db.chapterSnapshots
+              ],
+              addJoins: null,
+              getPrefetchedDataCallback: (items) async {
+                return [
+                  if (chapterSnapshotsRefs)
+                    await $_getPrefetchedData<ManuscriptChapterRow,
+                            $ManuscriptChaptersTable, ChapterSnapshotRow>(
+                        currentTable: table,
+                        referencedTable: $$ManuscriptChaptersTableReferences
+                            ._chapterSnapshotsRefsTable(db),
+                        managerFromTypedResult: (p0) =>
+                            $$ManuscriptChaptersTableReferences(db, table, p0)
+                                .chapterSnapshotsRefs,
+                        referencedItemsForCurrentItem:
+                            (item, referencedItems) => referencedItems
+                                .where((e) => e.chapterId == item.id),
+                        typedResults: items)
+                ];
+              },
+            );
+          },
         ));
 }
 
@@ -7645,13 +8484,274 @@ typedef $$ManuscriptChaptersTableProcessedTableManager = ProcessedTableManager<
     $$ManuscriptChaptersTableAnnotationComposer,
     $$ManuscriptChaptersTableCreateCompanionBuilder,
     $$ManuscriptChaptersTableUpdateCompanionBuilder,
-    (
-      ManuscriptChapterRow,
-      BaseReferences<_$AppDatabase, $ManuscriptChaptersTable,
-          ManuscriptChapterRow>
-    ),
+    (ManuscriptChapterRow, $$ManuscriptChaptersTableReferences),
     ManuscriptChapterRow,
-    PrefetchHooks Function()>;
+    PrefetchHooks Function({bool chapterSnapshotsRefs})>;
+typedef $$ChapterSnapshotsTableCreateCompanionBuilder
+    = ChapterSnapshotsCompanion Function({
+  required String id,
+  required String chapterId,
+  required String content,
+  required DateTime createdAt,
+  Value<int> rowid,
+});
+typedef $$ChapterSnapshotsTableUpdateCompanionBuilder
+    = ChapterSnapshotsCompanion Function({
+  Value<String> id,
+  Value<String> chapterId,
+  Value<String> content,
+  Value<DateTime> createdAt,
+  Value<int> rowid,
+});
+
+final class $$ChapterSnapshotsTableReferences extends BaseReferences<
+    _$AppDatabase, $ChapterSnapshotsTable, ChapterSnapshotRow> {
+  $$ChapterSnapshotsTableReferences(
+      super.$_db, super.$_table, super.$_typedResult);
+
+  static $ManuscriptChaptersTable _chapterIdTable(_$AppDatabase db) =>
+      db.manuscriptChapters.createAlias($_aliasNameGenerator(
+          db.chapterSnapshots.chapterId, db.manuscriptChapters.id));
+
+  $$ManuscriptChaptersTableProcessedTableManager get chapterId {
+    final $_column = $_itemColumn<String>('chapter_id')!;
+
+    final manager =
+        $$ManuscriptChaptersTableTableManager($_db, $_db.manuscriptChapters)
+            .filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_chapterIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+        manager.$state.copyWith(prefetchedData: [item]));
+  }
+}
+
+class $$ChapterSnapshotsTableFilterComposer
+    extends Composer<_$AppDatabase, $ChapterSnapshotsTable> {
+  $$ChapterSnapshotsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get content => $composableBuilder(
+      column: $table.content, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+      column: $table.createdAt, builder: (column) => ColumnFilters(column));
+
+  $$ManuscriptChaptersTableFilterComposer get chapterId {
+    final $$ManuscriptChaptersTableFilterComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.chapterId,
+        referencedTable: $db.manuscriptChapters,
+        getReferencedColumn: (t) => t.id,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$ManuscriptChaptersTableFilterComposer(
+              $db: $db,
+              $table: $db.manuscriptChapters,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return composer;
+  }
+}
+
+class $$ChapterSnapshotsTableOrderingComposer
+    extends Composer<_$AppDatabase, $ChapterSnapshotsTable> {
+  $$ChapterSnapshotsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get content => $composableBuilder(
+      column: $table.content, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+      column: $table.createdAt, builder: (column) => ColumnOrderings(column));
+
+  $$ManuscriptChaptersTableOrderingComposer get chapterId {
+    final $$ManuscriptChaptersTableOrderingComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.chapterId,
+        referencedTable: $db.manuscriptChapters,
+        getReferencedColumn: (t) => t.id,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$ManuscriptChaptersTableOrderingComposer(
+              $db: $db,
+              $table: $db.manuscriptChapters,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return composer;
+  }
+}
+
+class $$ChapterSnapshotsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $ChapterSnapshotsTable> {
+  $$ChapterSnapshotsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get content =>
+      $composableBuilder(column: $table.content, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  $$ManuscriptChaptersTableAnnotationComposer get chapterId {
+    final $$ManuscriptChaptersTableAnnotationComposer composer =
+        $composerBuilder(
+            composer: this,
+            getCurrentColumn: (t) => t.chapterId,
+            referencedTable: $db.manuscriptChapters,
+            getReferencedColumn: (t) => t.id,
+            builder: (joinBuilder,
+                    {$addJoinBuilderToRootComposer,
+                    $removeJoinBuilderFromRootComposer}) =>
+                $$ManuscriptChaptersTableAnnotationComposer(
+                  $db: $db,
+                  $table: $db.manuscriptChapters,
+                  $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                  joinBuilder: joinBuilder,
+                  $removeJoinBuilderFromRootComposer:
+                      $removeJoinBuilderFromRootComposer,
+                ));
+    return composer;
+  }
+}
+
+class $$ChapterSnapshotsTableTableManager extends RootTableManager<
+    _$AppDatabase,
+    $ChapterSnapshotsTable,
+    ChapterSnapshotRow,
+    $$ChapterSnapshotsTableFilterComposer,
+    $$ChapterSnapshotsTableOrderingComposer,
+    $$ChapterSnapshotsTableAnnotationComposer,
+    $$ChapterSnapshotsTableCreateCompanionBuilder,
+    $$ChapterSnapshotsTableUpdateCompanionBuilder,
+    (ChapterSnapshotRow, $$ChapterSnapshotsTableReferences),
+    ChapterSnapshotRow,
+    PrefetchHooks Function({bool chapterId})> {
+  $$ChapterSnapshotsTableTableManager(
+      _$AppDatabase db, $ChapterSnapshotsTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$ChapterSnapshotsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$ChapterSnapshotsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$ChapterSnapshotsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<String> id = const Value.absent(),
+            Value<String> chapterId = const Value.absent(),
+            Value<String> content = const Value.absent(),
+            Value<DateTime> createdAt = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              ChapterSnapshotsCompanion(
+            id: id,
+            chapterId: chapterId,
+            content: content,
+            createdAt: createdAt,
+            rowid: rowid,
+          ),
+          createCompanionCallback: ({
+            required String id,
+            required String chapterId,
+            required String content,
+            required DateTime createdAt,
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              ChapterSnapshotsCompanion.insert(
+            id: id,
+            chapterId: chapterId,
+            content: content,
+            createdAt: createdAt,
+            rowid: rowid,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (
+                    e.readTable(table),
+                    $$ChapterSnapshotsTableReferences(db, table, e)
+                  ))
+              .toList(),
+          prefetchHooksCallback: ({chapterId = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [],
+              addJoins: <
+                  T extends TableManagerState<
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic>>(state) {
+                if (chapterId) {
+                  state = state.withJoin(
+                    currentTable: table,
+                    currentColumn: table.chapterId,
+                    referencedTable:
+                        $$ChapterSnapshotsTableReferences._chapterIdTable(db),
+                    referencedColumn: $$ChapterSnapshotsTableReferences
+                        ._chapterIdTable(db)
+                        .id,
+                  ) as T;
+                }
+
+                return state;
+              },
+              getPrefetchedDataCallback: (items) async {
+                return [];
+              },
+            );
+          },
+        ));
+}
+
+typedef $$ChapterSnapshotsTableProcessedTableManager = ProcessedTableManager<
+    _$AppDatabase,
+    $ChapterSnapshotsTable,
+    ChapterSnapshotRow,
+    $$ChapterSnapshotsTableFilterComposer,
+    $$ChapterSnapshotsTableOrderingComposer,
+    $$ChapterSnapshotsTableAnnotationComposer,
+    $$ChapterSnapshotsTableCreateCompanionBuilder,
+    $$ChapterSnapshotsTableUpdateCompanionBuilder,
+    (ChapterSnapshotRow, $$ChapterSnapshotsTableReferences),
+    ChapterSnapshotRow,
+    PrefetchHooks Function({bool chapterId})>;
 typedef $$PlotCardsTableCreateCompanionBuilder = PlotCardsCompanion Function({
   required String id,
   required String title,
@@ -8647,6 +9747,247 @@ typedef $$MapPinsTableProcessedTableManager = ProcessedTableManager<
     (MapPinRow, $$MapPinsTableReferences),
     MapPinRow,
     PrefetchHooks Function({bool mapId, bool entityId})>;
+typedef $$SetupPayoffsTableCreateCompanionBuilder = SetupPayoffsCompanion
+    Function({
+  required String id,
+  required String setupChapterId,
+  required String setupDescription,
+  Value<String?> payoffChapterId,
+  Value<String?> payoffDescription,
+  Value<String?> entityId,
+  Value<bool> isResolved,
+  required DateTime createdAt,
+  required DateTime updatedAt,
+  Value<int> rowid,
+});
+typedef $$SetupPayoffsTableUpdateCompanionBuilder = SetupPayoffsCompanion
+    Function({
+  Value<String> id,
+  Value<String> setupChapterId,
+  Value<String> setupDescription,
+  Value<String?> payoffChapterId,
+  Value<String?> payoffDescription,
+  Value<String?> entityId,
+  Value<bool> isResolved,
+  Value<DateTime> createdAt,
+  Value<DateTime> updatedAt,
+  Value<int> rowid,
+});
+
+class $$SetupPayoffsTableFilterComposer
+    extends Composer<_$AppDatabase, $SetupPayoffsTable> {
+  $$SetupPayoffsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get setupChapterId => $composableBuilder(
+      column: $table.setupChapterId,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get setupDescription => $composableBuilder(
+      column: $table.setupDescription,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get payoffChapterId => $composableBuilder(
+      column: $table.payoffChapterId,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get payoffDescription => $composableBuilder(
+      column: $table.payoffDescription,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get entityId => $composableBuilder(
+      column: $table.entityId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<bool> get isResolved => $composableBuilder(
+      column: $table.isResolved, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+      column: $table.createdAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
+      column: $table.updatedAt, builder: (column) => ColumnFilters(column));
+}
+
+class $$SetupPayoffsTableOrderingComposer
+    extends Composer<_$AppDatabase, $SetupPayoffsTable> {
+  $$SetupPayoffsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get setupChapterId => $composableBuilder(
+      column: $table.setupChapterId,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get setupDescription => $composableBuilder(
+      column: $table.setupDescription,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get payoffChapterId => $composableBuilder(
+      column: $table.payoffChapterId,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get payoffDescription => $composableBuilder(
+      column: $table.payoffDescription,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get entityId => $composableBuilder(
+      column: $table.entityId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<bool> get isResolved => $composableBuilder(
+      column: $table.isResolved, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+      column: $table.createdAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
+      column: $table.updatedAt, builder: (column) => ColumnOrderings(column));
+}
+
+class $$SetupPayoffsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $SetupPayoffsTable> {
+  $$SetupPayoffsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get setupChapterId => $composableBuilder(
+      column: $table.setupChapterId, builder: (column) => column);
+
+  GeneratedColumn<String> get setupDescription => $composableBuilder(
+      column: $table.setupDescription, builder: (column) => column);
+
+  GeneratedColumn<String> get payoffChapterId => $composableBuilder(
+      column: $table.payoffChapterId, builder: (column) => column);
+
+  GeneratedColumn<String> get payoffDescription => $composableBuilder(
+      column: $table.payoffDescription, builder: (column) => column);
+
+  GeneratedColumn<String> get entityId =>
+      $composableBuilder(column: $table.entityId, builder: (column) => column);
+
+  GeneratedColumn<bool> get isResolved => $composableBuilder(
+      column: $table.isResolved, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+}
+
+class $$SetupPayoffsTableTableManager extends RootTableManager<
+    _$AppDatabase,
+    $SetupPayoffsTable,
+    SetupPayoffRow,
+    $$SetupPayoffsTableFilterComposer,
+    $$SetupPayoffsTableOrderingComposer,
+    $$SetupPayoffsTableAnnotationComposer,
+    $$SetupPayoffsTableCreateCompanionBuilder,
+    $$SetupPayoffsTableUpdateCompanionBuilder,
+    (
+      SetupPayoffRow,
+      BaseReferences<_$AppDatabase, $SetupPayoffsTable, SetupPayoffRow>
+    ),
+    SetupPayoffRow,
+    PrefetchHooks Function()> {
+  $$SetupPayoffsTableTableManager(_$AppDatabase db, $SetupPayoffsTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$SetupPayoffsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$SetupPayoffsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$SetupPayoffsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<String> id = const Value.absent(),
+            Value<String> setupChapterId = const Value.absent(),
+            Value<String> setupDescription = const Value.absent(),
+            Value<String?> payoffChapterId = const Value.absent(),
+            Value<String?> payoffDescription = const Value.absent(),
+            Value<String?> entityId = const Value.absent(),
+            Value<bool> isResolved = const Value.absent(),
+            Value<DateTime> createdAt = const Value.absent(),
+            Value<DateTime> updatedAt = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              SetupPayoffsCompanion(
+            id: id,
+            setupChapterId: setupChapterId,
+            setupDescription: setupDescription,
+            payoffChapterId: payoffChapterId,
+            payoffDescription: payoffDescription,
+            entityId: entityId,
+            isResolved: isResolved,
+            createdAt: createdAt,
+            updatedAt: updatedAt,
+            rowid: rowid,
+          ),
+          createCompanionCallback: ({
+            required String id,
+            required String setupChapterId,
+            required String setupDescription,
+            Value<String?> payoffChapterId = const Value.absent(),
+            Value<String?> payoffDescription = const Value.absent(),
+            Value<String?> entityId = const Value.absent(),
+            Value<bool> isResolved = const Value.absent(),
+            required DateTime createdAt,
+            required DateTime updatedAt,
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              SetupPayoffsCompanion.insert(
+            id: id,
+            setupChapterId: setupChapterId,
+            setupDescription: setupDescription,
+            payoffChapterId: payoffChapterId,
+            payoffDescription: payoffDescription,
+            entityId: entityId,
+            isResolved: isResolved,
+            createdAt: createdAt,
+            updatedAt: updatedAt,
+            rowid: rowid,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$SetupPayoffsTableProcessedTableManager = ProcessedTableManager<
+    _$AppDatabase,
+    $SetupPayoffsTable,
+    SetupPayoffRow,
+    $$SetupPayoffsTableFilterComposer,
+    $$SetupPayoffsTableOrderingComposer,
+    $$SetupPayoffsTableAnnotationComposer,
+    $$SetupPayoffsTableCreateCompanionBuilder,
+    $$SetupPayoffsTableUpdateCompanionBuilder,
+    (
+      SetupPayoffRow,
+      BaseReferences<_$AppDatabase, $SetupPayoffsTable, SetupPayoffRow>
+    ),
+    SetupPayoffRow,
+    PrefetchHooks Function()>;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -8664,10 +10005,10 @@ class $AppDatabaseManager {
       $$EntityVersionsTableTableManager(_db, _db.entityVersions);
   $$TemplatesTableTableManager get templates =>
       $$TemplatesTableTableManager(_db, _db.templates);
-  $$QuickCapturesTableTableManager get quickCaptures =>
-      $$QuickCapturesTableTableManager(_db, _db.quickCaptures);
   $$ManuscriptChaptersTableTableManager get manuscriptChapters =>
       $$ManuscriptChaptersTableTableManager(_db, _db.manuscriptChapters);
+  $$ChapterSnapshotsTableTableManager get chapterSnapshots =>
+      $$ChapterSnapshotsTableTableManager(_db, _db.chapterSnapshots);
   $$PlotCardsTableTableManager get plotCards =>
       $$PlotCardsTableTableManager(_db, _db.plotCards);
   $$PlotConnectionsTableTableManager get plotConnections =>
@@ -8676,4 +10017,6 @@ class $AppDatabaseManager {
       $$WorldMapsTableTableManager(_db, _db.worldMaps);
   $$MapPinsTableTableManager get mapPins =>
       $$MapPinsTableTableManager(_db, _db.mapPins);
+  $$SetupPayoffsTableTableManager get setupPayoffs =>
+      $$SetupPayoffsTableTableManager(_db, _db.setupPayoffs);
 }

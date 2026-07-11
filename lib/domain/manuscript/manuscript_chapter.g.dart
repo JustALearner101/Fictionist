@@ -14,7 +14,12 @@ _ManuscriptChapter _$ManuscriptChapterFromJson(Map<String, dynamic> json) =>
       sortOrder: (json['sortOrder'] as num?)?.toInt() ?? 0,
       dateLabel: json['dateLabel'] as String?,
       eraLabel: json['eraLabel'] as String?,
+      synopsis: json['synopsis'] as String? ?? null,
+      povCharacterId: json['povCharacterId'] as String? ?? null,
+      locationId: json['locationId'] as String? ?? null,
       isDeleted: json['isDeleted'] as bool? ?? false,
+      status: $enumDecodeNullable(_$ChapterStatusEnumMap, json['status']) ??
+          ChapterStatus.draft,
       createdAt: DateTime.parse(json['createdAt'] as String),
       updatedAt: DateTime.parse(json['updatedAt'] as String),
     );
@@ -27,7 +32,17 @@ Map<String, dynamic> _$ManuscriptChapterToJson(_ManuscriptChapter instance) =>
       'sortOrder': instance.sortOrder,
       'dateLabel': instance.dateLabel,
       'eraLabel': instance.eraLabel,
+      'synopsis': instance.synopsis,
+      'povCharacterId': instance.povCharacterId,
+      'locationId': instance.locationId,
       'isDeleted': instance.isDeleted,
+      'status': _$ChapterStatusEnumMap[instance.status]!,
       'createdAt': instance.createdAt.toIso8601String(),
       'updatedAt': instance.updatedAt.toIso8601String(),
     };
+
+const _$ChapterStatusEnumMap = {
+  ChapterStatus.draft: 'draft',
+  ChapterStatus.revising: 'revising',
+  ChapterStatus.done: 'done',
+};

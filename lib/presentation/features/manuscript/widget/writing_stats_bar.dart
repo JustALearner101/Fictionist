@@ -10,14 +10,14 @@ import 'package:fictionist/presentation/features/manuscript/provider/session_goa
 /// Shows word / char counts, estimated reading time, last-edit timestamp,
 /// a circular session-goal progress ring, and the current writing streak.
 class WritingStatsBar extends ConsumerWidget {
-  final int wordCount;
-  final int charCount;
+  final ValueNotifier<int> wordCountNotifier;
+  final ValueNotifier<int> charCountNotifier;
   final DateTime? lastEdited;
 
   const WritingStatsBar({
     super.key,
-    required this.wordCount,
-    required this.charCount,
+    required this.wordCountNotifier,
+    required this.charCountNotifier,
     this.lastEdited,
   });
 
@@ -67,6 +67,18 @@ class WritingStatsBar extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    return ValueListenableBuilder(
+      valueListenable: wordCountNotifier,
+      builder: (context, _, __) {
+        final wordCount = wordCountNotifier.value;
+        final charCount = charCountNotifier.value;
+        return _buildContent(context, ref, wordCount, charCount);
+      },
+    );
+  }
+
+  Widget _buildContent(
+      BuildContext context, WidgetRef ref, int wordCount, int charCount) {
     final prefs = ref.watch(writingPreferencesProvider);
     final goals = ref.watch(sessionGoalsProvider);
     final theme = Theme.of(context);

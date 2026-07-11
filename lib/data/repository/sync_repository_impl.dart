@@ -8,7 +8,6 @@ import 'package:fictionist/domain/repository/relationship_repository.dart';
 import 'package:fictionist/domain/repository/tag_repository.dart';
 import 'package:fictionist/domain/repository/timeline_repository.dart';
 import 'package:fictionist/domain/repository/template_repository.dart';
-import 'package:fictionist/domain/repository/quick_capture_repository.dart';
 import 'package:fictionist/domain/repository/map_repository.dart';
 import 'package:fictionist/domain/repository/manuscript_repository.dart';
 import 'package:fictionist/domain/services/backup_synchronizer.dart';
@@ -22,7 +21,6 @@ class SyncRepositoryImpl implements SyncRepository {
   final TagRepository _tagRepo;
   final TimelineRepository _timelineRepo;
   final TemplateRepository _templateRepo;
-  final QuickCaptureRepository _quickCaptureRepo;
   final MapRepository _mapRepo;
   final ManuscriptRepository _manuscriptRepo;
   final BackupSynchronizer _synchronizer;
@@ -33,7 +31,6 @@ class SyncRepositoryImpl implements SyncRepository {
     this._tagRepo,
     this._timelineRepo,
     this._templateRepo,
-    this._quickCaptureRepo,
     this._mapRepo,
     this._manuscriptRepo,
     this._synchronizer,
@@ -77,13 +74,6 @@ class SyncRepositoryImpl implements SyncRepository {
       templates.fold(
         (_) {},
         (list) => result['templates'] = list.map((t) => t.toJson()).toList(),
-      );
-
-      // Quick captures
-      final captures = await _quickCaptureRepo.getUnprocessedOrdered();
-      captures.fold(
-        (_) {},
-        (list) => result['quick_captures'] = list.map((c) => c.toJson()).toList(),
       );
 
       // Maps
@@ -211,27 +201,6 @@ class SyncRepositoryImpl implements SyncRepository {
         final result = await _synchronizer.mergeWithReport(
           local: local,
           incoming: records['templates']!,
-        );
-        result.fold(
-          (_) {},
-          (merged) {
-            totalInserted += merged.inserted;
-            totalUpdated += merged.updated;
-            totalSkipped += merged.skipped;
-          },
-        );
-      }
-
-      // Import Quick Captures
-      if (records.containsKey('quick_captures')) {
-        final allCaptures = await _quickCaptureRepo.getUnprocessedOrdered();
-        final local = allCaptures.fold(
-          (_) => <Map<String, dynamic>>[],
-          (list) => list.map((c) => c.toJson()).toList(),
-        );
-        final result = await _synchronizer.mergeWithReport(
-          local: local,
-          incoming: records['quick_captures']!,
         );
         result.fold(
           (_) {},

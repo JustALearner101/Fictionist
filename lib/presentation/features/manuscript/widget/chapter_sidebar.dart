@@ -45,23 +45,34 @@ class ChapterSidebar extends ConsumerWidget {
           children: [
             // Header with collapse toggle
             _SidebarHeader(collapsed: collapsed),
-            // Chapter list or corkboard
-            Expanded(child: collapsed ? _CollapsedChapterList(
-              chapters: chapters,
-              selectedChapterId: selectedChapterId,
-              onChapterSelected: onChapterSelected,
-            ) : prefs.corkboardView ? CorkboardView(
-              chapters: chapters,
-              selectedChapterId: selectedChapterId,
-              onChapterSelected: onChapterSelected,
-              onReorder: onReorder,
-            ) : _ExpandedChapterList(
-              chapters: chapters,
-              selectedChapterId: selectedChapterId,
-              onChapterSelected: onChapterSelected,
-              onChapterDeleted: onChapterDeleted,
-              onReorder: onReorder,
-            )),
+            // Chapter list or corkboard (animated transition)
+            Expanded(
+              child: AnimatedSwitcher(
+                duration: const Duration(milliseconds: 200),
+                switchInCurve: Curves.easeOut,
+                switchOutCurve: Curves.easeIn,
+                child: collapsed
+                    ? _CollapsedChapterList(
+                        chapters: chapters,
+                        selectedChapterId: selectedChapterId,
+                        onChapterSelected: onChapterSelected,
+                      )
+                    : prefs.corkboardView
+                        ? CorkboardView(
+                            chapters: chapters,
+                            selectedChapterId: selectedChapterId,
+                            onChapterSelected: onChapterSelected,
+                            onReorder: onReorder,
+                          )
+                        : _ExpandedChapterList(
+                            chapters: chapters,
+                            selectedChapterId: selectedChapterId,
+                            onChapterSelected: onChapterSelected,
+                            onChapterDeleted: onChapterDeleted,
+                            onReorder: onReorder,
+                          ),
+              ),
+            ),
           ],
         ),
       ),
@@ -76,63 +87,73 @@ class _SidebarHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+
+    final toggleButton = Consumer(
+      builder: (context, ref, _) {
+        final prefsCollapsed =
+            ref.watch(writingPreferencesProvider).sidebarCollapsed;
+        return IconButton(
+          icon: Icon(
+            prefsCollapsed
+                ? Icons.chevron_right
+                : Icons.chevron_left,
+            size: 20,
+            color: theme.colorScheme.onSurfaceVariant,
+          ),
+          tooltip: prefsCollapsed
+              ? 'Expand sidebar'
+              : 'Collapse sidebar',
+          onPressed: () {
+            ref.read(writingPreferencesProvider.notifier).update(
+              (p) => p.copyWith(
+                  sidebarCollapsed: !p.sidebarCollapsed),
+            );
+          },
+          visualDensity: VisualDensity.compact,
+        );
+      },
+    );
+
+    if (collapsed) {
+      return Padding(
+        padding: const EdgeInsets.fromLTRB(0, 16, 0, 8),
+        child: Center(
+          child: toggleButton,
+        ),
+      );
+    }
+
     return Padding(
       padding: const EdgeInsets.fromLTRB(12, 16, 8, 8),
       child: Row(
         children: [
-          if (!collapsed) ...[
-            Text('Chapters', style: theme.textTheme.labelLarge?.copyWith(
-              color: theme.colorScheme.primary,
-              fontWeight: FontWeight.w600,
-              letterSpacing: 1.2,
-            )),
-            const Spacer(),
-            // List / Grid toggle button
-            Consumer(
-              builder: (context, ref, _) {
-                final corkboard = ref.watch(writingPreferencesProvider).corkboardView;
-                return IconButton(
-                  icon: Icon(
-                    corkboard ? Icons.list : Icons.grid_view_rounded,
-                    size: 20,
-                    color: theme.colorScheme.onSurfaceVariant,
-                  ),
-                  tooltip: corkboard ? 'List view' : 'Corkboard view',
-                  onPressed: () {
-                    ref.read(writingPreferencesProvider.notifier).update(
-                      (p) => p.copyWith(corkboardView: !p.corkboardView),
-                    );
-                  },
-                  visualDensity: VisualDensity.compact,
-                );
-              },
-            ),
-          ],
+          Text('Chapters', style: theme.textTheme.labelLarge?.copyWith(
+            color: theme.colorScheme.primary,
+            fontWeight: FontWeight.w600,
+            letterSpacing: 1.2,
+          )),
+          const Spacer(),
+          // List / Grid toggle button
           Consumer(
             builder: (context, ref, _) {
-              final prefsCollapsed =
-                  ref.watch(writingPreferencesProvider).sidebarCollapsed;
+              final corkboard = ref.watch(writingPreferencesProvider).corkboardView;
               return IconButton(
                 icon: Icon(
-                  prefsCollapsed
-                      ? Icons.chevron_right
-                      : Icons.chevron_left,
+                  corkboard ? Icons.list : Icons.grid_view_rounded,
                   size: 20,
                   color: theme.colorScheme.onSurfaceVariant,
                 ),
-                tooltip: prefsCollapsed
-                    ? 'Expand sidebar'
-                    : 'Collapse sidebar',
+                tooltip: corkboard ? 'List view' : 'Corkboard view',
                 onPressed: () {
                   ref.read(writingPreferencesProvider.notifier).update(
-                    (p) => p.copyWith(
-                        sidebarCollapsed: !p.sidebarCollapsed),
+                    (p) => p.copyWith(corkboardView: !p.corkboardView),
                   );
                 },
                 visualDensity: VisualDensity.compact,
               );
             },
           ),
+          toggleButton,
         ],
       ),
     );

@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:fictionist/domain/entity/entity.dart';
@@ -124,7 +126,7 @@ class _EntityPeekSheetState extends ConsumerState<EntityPeekSheet> {
           ),
         ),
       ),
-    );
+    ).animate().slideY(begin: 0.1, duration: 250.ms, curve: Curves.easeOutQuad).fadeIn(duration: 200.ms);
   }
 
   Widget _buildContent(
@@ -563,7 +565,10 @@ class _RelatedEntityTile extends ConsumerWidget {
                     size: 16,
                     color: Theme.of(context).colorScheme.onSurfaceVariant,
                   ),
-            onTap: canNest ? onPeek : null,
+            onTap: canNest ? () {
+              HapticFeedback.lightImpact();
+              onPeek();
+            } : null,
           ),
         );
       },

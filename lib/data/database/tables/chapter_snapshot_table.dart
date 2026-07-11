@@ -9,7 +9,6 @@ class ChapterSnapshots extends Table {
       text().references(ManuscriptChapters, #id, onDelete: KeyAction.cascade)();
   TextColumn get content => text()();
   DateTimeColumn get createdAt => dateTime()();
-  IntColumn get rowId => integer().autoIncrement()();
 
   @override
   Set<Column> get primaryKey => {id};

@@ -1,16 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_quill/flutter_quill.dart';
 
-import 'package:fictionist/presentation/features/manuscript/widget/typewriter_editor.dart';
-import 'package:fictionist/presentation/features/manuscript/widget/minimal_toolbar.dart';
-
-/// A wrapped [QuillEditor] with an optional [QuillSimpleToolbar].
+/// A wrapped [QuillEditor] without a built-in toolbar.
 ///
-/// Exposes the internal [QuillController] so the parent can insert text
-/// (e.g. wikilinks) at the cursor position.
+/// Exposes the internal [QuillController] via [onControllerReady]
+/// so the parent can attach a toolbar at any position (top/bottom).
 ///
-/// When [typewriterMode] is true, the editor uses [TypewriterEditor] for
-/// centered-cursor scrolling instead of the default top-aligned scroll.
+/// When [typewriterMode] is true, the editor gets top/bottom padding in
+/// the config to simulate centered-cursor scrolling.
 class QuillEditorWidget extends StatefulWidget {
   final String? initialContent;
   final ValueChanged<String> onContentChanged;
@@ -66,8 +63,15 @@ class _QuillEditorWidgetState extends State<QuillEditorWidget> {
   QuillEditorConfig _buildEditorConfig(BuildContext context) {
     final textStyle =
         Theme.of(context).textTheme.bodyLarge ?? const TextStyle(fontSize: 16);
+    final basePadding =
+        const EdgeInsets.only(left: 24, top: 16, right: 40, bottom: 24);
     return QuillEditorConfig(
-      padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 24),
+      padding: widget.typewriterMode
+          ? basePadding.copyWith(
+              top: basePadding.top + MediaQuery.of(context).size.height * 0.35,
+              bottom: basePadding.bottom + MediaQuery.of(context).size.height * 0.65,
+            )
+          : basePadding,
       placeholder: 'Start writing your chapter...',
       customStyles: DefaultStyles(
         h1: DefaultTextBlockStyle(
@@ -129,22 +133,9 @@ class _QuillEditorWidgetState extends State<QuillEditorWidget> {
 
   @override
   Widget build(BuildContext context) {
-    final editorConfig = _buildEditorConfig(context);
-
-    return Column(
-      children: [
-        if (!widget.readOnly)
-          MinimalToolbar(
-            controller: _controller,
-          ),
-        Expanded(
-          child: TypewriterEditor(
-            controller: _controller,
-            enabled: widget.typewriterMode,
-            config: editorConfig,
-          ),
-        ),
-      ],
+    return QuillEditor.basic(
+      controller: _controller,
+      config: _buildEditorConfig(context),
     );
   }
 }

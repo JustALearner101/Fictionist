@@ -151,7 +151,21 @@ class _PlotCanvasScreenState extends ConsumerState<PlotCanvasScreen> {
                             top: card.yPosition,
                             child: GestureDetector(
                               onPanUpdate: (details) {
-                                _updateCardPosition(card.id, details.delta);
+                                setState(() {
+                                  final idx = _cards.indexWhere((c) => c.id == card.id);
+                                  if (idx != -1) {
+                                    final current = _cards[idx];
+                                    _cards[idx] = current.copyWith(
+                                      xPosition: current.xPosition + details.delta.dx,
+                                      yPosition: current.yPosition + details.delta.dy,
+                                    );
+                                  }
+                                });
+                              },
+                              onPanEnd: (details) async {
+                                final current = _cards.firstWhere((c) => c.id == card.id);
+                                final repo = getIt<PlotRepository>();
+                                await repo.updateCardPosition(card.id, current.xPosition, current.yPosition);
                               },
                               child: _PlotCardWidget(
                                 card: card,
@@ -214,34 +228,39 @@ class _PlotCardWidget extends StatelessWidget {
             ? Theme.of(context).colorScheme.primary 
             : (isDraft ? Theme.of(context).colorScheme.outline.withOpacity(0.5) : color.withOpacity(0.8)));
 
-    return CustomPaint(
-      painter: isDraft
-          ? DashedBorderPainter(
-              color: borderColor,
-              strokeWidth: isConnecting || isConnectTarget ? 2.0 : 1.2,
-            )
-          : null,
-      child: Container(
-        width: 180,
-        padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(
-          color: isConnecting ? color.withOpacity(0.2) : Theme.of(context).colorScheme.surface,
-          borderRadius: BorderRadius.circular(10),
-          border: isDraft
-              ? null
-              : Border.all(
-                  color: borderColor,
-                  width: isConnecting || isConnectTarget ? 2.0 : 1.2,
-                ),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.08),
-              blurRadius: 4,
-              offset: const Offset(1, 2),
-            ),
-          ],
-        ),
-        child: Column(
+    final int hash = card.id.hashCode;
+    final double tiltAngle = (isConnecting || isConnectTarget) ? 0.0 : (((hash % 8) - 4) * 0.006); // -0.024 to +0.024 rad (~ -1.3deg to +1.3deg)
+
+    return Transform.rotate(
+      angle: tiltAngle,
+      child: CustomPaint(
+        painter: isDraft
+            ? DashedBorderPainter(
+                color: borderColor,
+                strokeWidth: isConnecting || isConnectTarget ? 2.0 : 1.2,
+              )
+            : null,
+        child: Container(
+          width: 180,
+          padding: const EdgeInsets.fromLTRB(12, 12, 12, 20), // Polaroid bottom gap
+          decoration: BoxDecoration(
+            color: isConnecting ? color.withOpacity(0.12) : Theme.of(context).colorScheme.surface,
+            borderRadius: BorderRadius.circular(12),
+            border: isDraft
+                ? null
+                : Border.all(
+                    color: borderColor,
+                    width: isConnecting || isConnectTarget ? 2.0 : 1.2,
+                  ),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.12),
+                blurRadius: 6,
+                offset: const Offset(1, 3),
+              ),
+            ],
+          ),
+          child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -282,7 +301,8 @@ class _PlotCardWidget extends StatelessWidget {
           ],
         ),
       ),
-    );
+    ),
+  );
   }
 }
 
@@ -348,6 +368,16 @@ class _ConnectionPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
+    final gridPaint = Paint()
+      ..color = color.withOpacity(0.06)
+      ..style = PaintingStyle.fill;
+    const double spacing = 32.0;
+    for (double x = 0; x < size.width; x += spacing) {
+      for (double y = 0; y < size.height; y += spacing) {
+        canvas.drawCircle(Offset(x, y), 1.0, gridPaint);
+      }
+    }
+
     final paint = Paint()
       ..color = color.withOpacity(0.4)
       ..strokeWidth = 2

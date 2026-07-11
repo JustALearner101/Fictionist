@@ -43,13 +43,16 @@ class ManuscriptState {
   }
 }
 
-@riverpod
+// ponytail: keepAlive so chapter list survives tab switches
+@Riverpod(keepAlive: true)
 class ManuscriptNotifier extends _$ManuscriptNotifier {
   @override
   ManuscriptState build() {
     _loadChapters();
     return const ManuscriptState();
   }
+
+  Future<void> refreshChapters() => _loadChapters();
 
   Future<void> _loadChapters() async {
     state = state.copyWith(isLoading: true, errorMessage: null);
@@ -268,5 +271,27 @@ class ManuscriptNotifier extends _$ManuscriptNotifier {
         await useCase(UpdateChapterParams(chapter: updated));
       }
     }
+  }
+
+  Future<void> updateChapterPov(String id, String? characterId) async {
+    final useCase = getIt<UpdateChapterUseCase>();
+    final chapter = state.chapters.firstWhere((c) => c.id == id);
+    final updatedChapters = state.chapters.map((c) {
+      return c.id == id ? c.copyWith(povCharacterId: characterId) : c;
+    }).toList();
+    state = state.copyWith(chapters: updatedChapters);
+    await useCase(UpdateChapterParams(
+        chapter: chapter.copyWith(povCharacterId: characterId)));
+  }
+
+  Future<void> updateChapterLocation(String id, String? locationId) async {
+    final useCase = getIt<UpdateChapterUseCase>();
+    final chapter = state.chapters.firstWhere((c) => c.id == id);
+    final updatedChapters = state.chapters.map((c) {
+      return c.id == id ? c.copyWith(locationId: locationId) : c;
+    }).toList();
+    state = state.copyWith(chapters: updatedChapters);
+    await useCase(UpdateChapterParams(
+        chapter: chapter.copyWith(locationId: locationId)));
   }
 }

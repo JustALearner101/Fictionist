@@ -11,7 +11,7 @@ class WritingPreferences {
   const WritingPreferences({
     this.sidebarCollapsed = false,
     this.distractionFree = false,
-    this.typewriterMode = true,
+    this.typewriterMode = false,
     this.corkboardView = false,
     this.wordCountGoal = 0,
     this.editorFontSize = 16.0,

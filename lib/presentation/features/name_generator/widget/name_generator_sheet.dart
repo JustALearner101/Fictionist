@@ -7,7 +7,7 @@ import 'package:fictionist/domain/use_case/name_generator/generate_names_use_cas
 import 'package:fictionist/injection.dart';
 import 'package:fictionist/presentation/features/name_generator/provider/name_generator_provider.dart';
 import 'package:go_router/go_router.dart';
-import '../../common/widget/loading_indicator.dart';
+import 'package:fictionist/presentation/common/widget/loading_indicator.dart';
 
 /// A reusable bottom sheet that generates fantasy names.
 ///
@@ -221,7 +221,7 @@ class _NameGeneratorSheetState extends ConsumerState<NameGeneratorSheet>
 
   Widget _buildResults(BuildContext context, NameGeneratorState state) {
     if (state.isLoading) {
-      return const Center(
+      return Center(
         child: LoadingIndicator(),
       );
     }

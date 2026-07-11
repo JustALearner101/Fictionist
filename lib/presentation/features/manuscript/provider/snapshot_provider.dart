@@ -3,8 +3,9 @@ import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
 
+import 'package:drift/drift.dart';
+import 'package:fictionist/data/database/app_database.dart';
 import 'package:fictionist/data/dao/snapshot_dao.dart';
-import 'package:fictionist/data/database/tables/chapter_snapshot_table.dart';
 import 'package:fictionist/domain/manuscript/chapter_snapshot.dart';
 import 'package:fictionist/injection.dart';
 
@@ -52,6 +53,5 @@ ChapterSnapshotsCompanion _toCompanion(ChapterSnapshot snapshot) {
     chapterId: Value(snapshot.chapterId),
     content: Value(snapshot.content),
     createdAt: Value(snapshot.createdAt),
-    rowId: const Value.absent(),
   );
 }

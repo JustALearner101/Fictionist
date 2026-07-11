@@ -5,11 +5,9 @@ import '../../../core/error/failure.dart';
 import '../../../core/use_case/use_case.dart';
 import '../../entity/entity.dart';
 import '../../map/world_map.dart';
-import '../../quick_capture/quick_capture.dart';
 import '../../relationship/relationship.dart';
 import '../../repository/entity_repository.dart';
 import '../../repository/map_repository.dart';
-import '../../repository/quick_capture_repository.dart';
 import '../../repository/relationship_repository.dart';
 import '../../repository/tag_repository.dart';
 import '../../repository/template_repository.dart';
@@ -35,7 +33,6 @@ class ImportDatabaseUseCase implements UseCase<Unit, ImportDatabaseParams> {
   final TagRepository _tagRepository;
   final TimelineRepository _timelineRepository;
   final TemplateRepository _templateRepository;
-  final QuickCaptureRepository _captureRepository;
   final MapRepository _mapRepository;
 
   ImportDatabaseUseCase(
@@ -44,7 +41,6 @@ class ImportDatabaseUseCase implements UseCase<Unit, ImportDatabaseParams> {
     this._tagRepository,
     this._timelineRepository,
     this._templateRepository,
-    this._captureRepository,
     this._mapRepository,
   );
 
@@ -86,10 +82,6 @@ class ImportDatabaseUseCase implements UseCase<Unit, ImportDatabaseParams> {
 
       final templatesList = (data['templates'] as List? ?? [])
           .map((e) => Template.fromJson(e as Map<String, dynamic>))
-          .toList();
-
-      final capturesList = (data['quick_captures'] as List? ?? [])
-          .map((e) => QuickCapture.fromJson(e as Map<String, dynamic>))
           .toList();
 
       final mapsList = (data['world_maps'] as List? ?? [])
@@ -199,15 +191,6 @@ class ImportDatabaseUseCase implements UseCase<Unit, ImportDatabaseParams> {
             }
             return Right<Failure, Template>(existingTemplate);
           },
-        );
-      }
-
-      // Import Quick Captures
-      for (final capture in capturesList) {
-        final existingResult = await _captureRepository.getById(capture.id);
-        await existingResult.fold(
-          (failure) => _captureRepository.create(capture),
-          (existingCapture) => Right<Failure, QuickCapture>(existingCapture),
         );
       }
 

@@ -1,5 +1,4 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import '../../../../domain/entity/entity.dart';
 import '../../../../domain/relationship/relationship.dart';
 import '../../../../domain/use_case/continuity_check_use_case.dart';
 import '../../../../domain/use_case/relationship/get_all_relationships_use_case.dart';

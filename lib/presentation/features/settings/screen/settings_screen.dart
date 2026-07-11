@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:share_plus/share_plus.dart';
@@ -31,7 +32,6 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         'relationships': (data['relationships'] as List?)?.length ?? 0,
         'timeline_entries': (data['timeline_entries'] as List?)?.length ?? 0,
         'templates': (data['templates'] as List?)?.length ?? 0,
-        'quick_captures': (data['quick_captures'] as List?)?.length ?? 0,
         'world_maps': (data['world_maps'] as List?)?.length ?? 0,
         'entity_versions': (data['entity_versions'] as List?)?.length ?? 0,
       };
@@ -111,16 +111,28 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     );
 
     if (confirm != true) return;
-    setState(() => _loading = true);
-    final result = await getIt<ImportDatabaseUseCase>()(ImportDatabaseParams(jsonContent: json, isReplace: false));
-    setState(() => _loading = false);
-    result.fold(
-      (f) => _snack(f.message, Theme.of(context).colorScheme.error),
-      (_) {
-        ref.invalidate(entityListProvider);
-        _showImportDone(counts);
-      },
+    
+    final success = await showDialog<bool>(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) => ImportProgressDialog(
+        counts: counts,
+        onStartImport: () async {
+          final result = await getIt<ImportDatabaseUseCase>()(
+            ImportDatabaseParams(jsonContent: json, isReplace: false),
+          );
+          result.fold(
+            (failure) => throw Exception(failure.message),
+            (_) => null,
+          );
+        },
+      ),
     );
+
+    if (success == true) {
+      ref.invalidate(entityListProvider);
+      _showImportDone(counts);
+    }
   }
 
   Future<void> _purgeDeleted() async {
@@ -322,6 +334,142 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             ]),
           ),
         ),
+      ),
+    );
+  }
+}
+
+class ImportProgressDialog extends StatefulWidget {
+  final Map<String, int> counts;
+  final Future<void> Function() onStartImport;
+
+  const ImportProgressDialog({
+    super.key,
+    required this.counts,
+    required this.onStartImport,
+  });
+
+  @override
+  State<ImportProgressDialog> createState() => _ImportProgressDialogState();
+}
+
+class _ImportProgressDialogState extends State<ImportProgressDialog> with SingleTickerProviderStateMixin {
+  double _progress = 0.0;
+  bool _entitiesDone = false;
+  bool _relsDone = false;
+  bool _eventsDone = false;
+  bool _mapsDone = false;
+  String? _error;
+
+  @override
+  void initState() {
+    super.initState();
+    _startProcess();
+  }
+
+  Future<void> _startProcess() async {
+    try {
+      await widget.onStartImport();
+    } catch (e) {
+      if (mounted) {
+        setState(() => _error = e.toString());
+      }
+      return;
+    }
+
+    if (!mounted) return;
+    
+    // Step 1: Entities
+    await Future.delayed(const Duration(milliseconds: 300));
+    if (mounted) setState(() { _progress = 0.25; _entitiesDone = true; });
+    
+    // Step 2: Relationships
+    await Future.delayed(const Duration(milliseconds: 300));
+    if (mounted) setState(() { _progress = 0.50; _relsDone = true; });
+
+    // Step 3: Timeline Events
+    await Future.delayed(const Duration(milliseconds: 300));
+    if (mounted) setState(() { _progress = 0.75; _eventsDone = true; });
+
+    // Step 4: Maps
+    await Future.delayed(const Duration(milliseconds: 300));
+    if (mounted) setState(() { _progress = 1.0; _mapsDone = true; });
+
+    await Future.delayed(const Duration(milliseconds: 200));
+    if (mounted) {
+      Navigator.pop(context, true);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (_error != null) {
+      return AlertDialog(
+        backgroundColor: Theme.of(context).colorScheme.surface,
+        title: Text('Import Failed', style: TextStyle(color: Theme.of(context).colorScheme.error)),
+        content: Text(_error!),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('OK'),
+          )
+        ],
+      );
+    }
+
+    return AlertDialog(
+      backgroundColor: Theme.of(context).colorScheme.surface,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+      title: Text('Importing Codex Data...', style: Theme.of(context).textTheme.titleMedium!.copyWith(fontFamily: 'Lora', fontWeight: FontWeight.bold)),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const SizedBox(height: 8),
+          LinearProgressIndicator(
+            value: _progress,
+            backgroundColor: Theme.of(context).colorScheme.outline.withOpacity(0.12),
+            valueColor: AlwaysStoppedAnimation<Color>(Theme.of(context).colorScheme.primary),
+            minHeight: 6,
+            borderRadius: BorderRadius.circular(3),
+          ),
+          const SizedBox(height: 20),
+          _buildImportRow(Icons.category, '${widget.counts['entities'] ?? 0} World Entities', _entitiesDone),
+          _buildImportRow(Icons.link, '${widget.counts['relationships'] ?? 0} Relationships/Links', _relsDone),
+          _buildImportRow(Icons.timeline, '${widget.counts['timeline_entries'] ?? 0} Timeline Events', _eventsDone),
+          _buildImportRow(Icons.map, '${widget.counts['world_maps'] ?? 0} World Maps', _mapsDone),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildImportRow(IconData icon, String text, bool isDone) {
+    final theme = Theme.of(context);
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 6.0),
+      child: Row(
+        children: [
+          Icon(icon, size: 18, color: isDone ? theme.colorScheme.tertiary : theme.colorScheme.outline),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Text(
+              text,
+              style: TextStyle(
+                fontSize: 13,
+                fontWeight: isDone ? FontWeight.bold : FontWeight.normal,
+                color: isDone ? theme.colorScheme.onSurface : theme.colorScheme.onSurfaceVariant,
+              ),
+            ),
+          ),
+          if (isDone)
+            Icon(Icons.check_circle, size: 18, color: theme.colorScheme.tertiary).animate().scale(duration: 200.ms, curve: Curves.easeOutBack)
+          else
+            SizedBox(
+              width: 14,
+              height: 14,
+              child: CircularProgressIndicator(strokeWidth: 1.5, color: theme.colorScheme.primary),
+            ),
+        ],
       ),
     );
   }

@@ -16,8 +16,8 @@ import 'package:fictionist/data/dao/entity_version_dao.dart' as _i983;
 import 'package:fictionist/data/dao/manuscript_dao.dart' as _i25;
 import 'package:fictionist/data/dao/map_dao.dart' as _i1004;
 import 'package:fictionist/data/dao/plot_dao.dart' as _i476;
-import 'package:fictionist/data/dao/quick_capture_dao.dart' as _i1036;
 import 'package:fictionist/data/dao/relationship_dao.dart' as _i499;
+import 'package:fictionist/data/dao/snapshot_dao.dart' as _i569;
 import 'package:fictionist/data/dao/tag_dao.dart' as _i932;
 import 'package:fictionist/data/dao/template_dao.dart' as _i573;
 import 'package:fictionist/data/dao/timeline_dao.dart' as _i651;
@@ -32,8 +32,6 @@ import 'package:fictionist/data/repository/map_repository_impl.dart' as _i625;
 import 'package:fictionist/data/repository/name_generator_repository_impl.dart'
     as _i284;
 import 'package:fictionist/data/repository/plot_repository.dart' as _i89;
-import 'package:fictionist/data/repository/quick_capture_repository_impl.dart'
-    as _i887;
 import 'package:fictionist/data/repository/relationship_repository_impl.dart'
     as _i868;
 import 'package:fictionist/data/repository/sync_repository_impl.dart' as _i313;
@@ -50,8 +48,6 @@ import 'package:fictionist/domain/repository/manuscript_repository.dart'
 import 'package:fictionist/domain/repository/map_repository.dart' as _i308;
 import 'package:fictionist/domain/repository/name_generator_repository.dart'
     as _i553;
-import 'package:fictionist/domain/repository/quick_capture_repository.dart'
-    as _i1014;
 import 'package:fictionist/domain/repository/relationship_repository.dart'
     as _i838;
 import 'package:fictionist/domain/repository/sync_repository.dart' as _i226;
@@ -69,6 +65,8 @@ import 'package:fictionist/domain/use_case/entity/create_entity_use_case.dart'
     as _i501;
 import 'package:fictionist/domain/use_case/entity/delete_entity_use_case.dart'
     as _i998;
+import 'package:fictionist/domain/use_case/entity/get_entity_references_use_case.dart'
+    as _i483;
 import 'package:fictionist/domain/use_case/entity/get_entity_use_case.dart'
     as _i631;
 import 'package:fictionist/domain/use_case/entity/list_entities_use_case.dart'
@@ -99,10 +97,6 @@ import 'package:fictionist/domain/use_case/map/save_map_pin_use_case.dart'
     as _i701;
 import 'package:fictionist/domain/use_case/name_generator/generate_names_use_case.dart'
     as _i802;
-import 'package:fictionist/domain/use_case/quick_capture/create_quick_capture_use_case.dart'
-    as _i402;
-import 'package:fictionist/domain/use_case/quick_capture/process_quick_capture_use_case.dart'
-    as _i701;
 import 'package:fictionist/domain/use_case/relationship/create_relationship_use_case.dart'
     as _i664;
 import 'package:fictionist/domain/use_case/relationship/delete_relationship_use_case.dart'
@@ -165,10 +159,10 @@ extension GetItInjectableX on _i174.GetIt {
         () => _i1004.MapDao(gh<_i92.AppDatabase>()));
     gh.lazySingleton<_i476.PlotDao>(
         () => _i476.PlotDao(gh<_i92.AppDatabase>()));
-    gh.lazySingleton<_i1036.QuickCaptureDao>(
-        () => _i1036.QuickCaptureDao(gh<_i92.AppDatabase>()));
     gh.lazySingleton<_i499.RelationshipDao>(
         () => _i499.RelationshipDao(gh<_i92.AppDatabase>()));
+    gh.lazySingleton<_i569.SnapshotDao>(
+        () => _i569.SnapshotDao(gh<_i92.AppDatabase>()));
     gh.lazySingleton<_i932.TagDao>(() => _i932.TagDao(gh<_i92.AppDatabase>()));
     gh.lazySingleton<_i573.TemplateDao>(
         () => _i573.TemplateDao(gh<_i92.AppDatabase>()));
@@ -204,8 +198,6 @@ extension GetItInjectableX on _i174.GetIt {
           gh<_i743.ManuscriptRepository>(),
           gh<_i339.EntityRepository>(),
         ));
-    gh.lazySingleton<_i1014.QuickCaptureRepository>(
-        () => _i887.QuickCaptureRepositoryImpl(gh<_i1036.QuickCaptureDao>()));
     gh.lazySingleton<_i1060.CreateTimelineEntryUseCase>(() =>
         _i1060.CreateTimelineEntryUseCase(gh<_i577.TimelineRepository>()));
     gh.lazySingleton<_i980.GetTimelineUseCase>(
@@ -241,18 +233,27 @@ extension GetItInjectableX on _i174.GetIt {
         () => _i698.SearchEntitiesUseCase(gh<_i339.EntityRepository>()));
     gh.lazySingleton<_i722.SearchEntitiesWithSnippetsUseCase>(() =>
         _i722.SearchEntitiesWithSnippetsUseCase(gh<_i339.EntityRepository>()));
+    gh.lazySingleton<_i226.SyncRepository>(() => _i313.SyncRepositoryImpl(
+          gh<_i339.EntityRepository>(),
+          gh<_i838.RelationshipRepository>(),
+          gh<_i523.TagRepository>(),
+          gh<_i577.TimelineRepository>(),
+          gh<_i179.TemplateRepository>(),
+          gh<_i308.MapRepository>(),
+          gh<_i743.ManuscriptRepository>(),
+          gh<_i925.BackupSynchronizer>(),
+        ));
     gh.lazySingleton<_i885.AssignTagUseCase>(
         () => _i885.AssignTagUseCase(gh<_i523.TagRepository>()));
     gh.lazySingleton<_i417.CreateTagUseCase>(
         () => _i417.CreateTagUseCase(gh<_i523.TagRepository>()));
     gh.lazySingleton<_i883.GetTagsUseCase>(
         () => _i883.GetTagsUseCase(gh<_i523.TagRepository>()));
-    gh.lazySingleton<_i701.ProcessQuickCaptureUseCase>(
-        () => _i701.ProcessQuickCaptureUseCase(
-              gh<_i1014.QuickCaptureRepository>(),
-              gh<_i339.EntityRepository>(),
-              gh<_i501.CreateEntityUseCase>(),
-              gh<_i178.UpdateEntityUseCase>(),
+    gh.lazySingleton<_i483.GetEntityReferencesUseCase>(
+        () => _i483.GetEntityReferencesUseCase(
+              gh<_i743.ManuscriptRepository>(),
+              gh<_i577.TimelineRepository>(),
+              gh<_i838.RelationshipRepository>(),
             ));
     gh.lazySingleton<_i272.SampleWorldUseCase>(() => _i272.SampleWorldUseCase(
           gh<_i339.EntityRepository>(),
@@ -260,29 +261,18 @@ extension GetItInjectableX on _i174.GetIt {
           gh<_i838.RelationshipRepository>(),
           gh<_i577.TimelineRepository>(),
         ));
-    gh.lazySingleton<_i564.ImportDatabaseUseCase>(
-        () => _i564.ImportDatabaseUseCase(
+    gh.lazySingleton<_i431.GetTemplatesUseCase>(
+        () => _i431.GetTemplatesUseCase(gh<_i179.TemplateRepository>()));
+    gh.lazySingleton<_i714.ExportDatabaseUseCase>(
+        () => _i714.ExportDatabaseUseCase(
               gh<_i339.EntityRepository>(),
               gh<_i838.RelationshipRepository>(),
               gh<_i523.TagRepository>(),
               gh<_i577.TimelineRepository>(),
               gh<_i179.TemplateRepository>(),
-              gh<_i1014.QuickCaptureRepository>(),
+              gh<_i36.EntityVersionRepository>(),
               gh<_i308.MapRepository>(),
             ));
-    gh.lazySingleton<_i226.SyncRepository>(() => _i313.SyncRepositoryImpl(
-          gh<_i339.EntityRepository>(),
-          gh<_i838.RelationshipRepository>(),
-          gh<_i523.TagRepository>(),
-          gh<_i577.TimelineRepository>(),
-          gh<_i179.TemplateRepository>(),
-          gh<_i1014.QuickCaptureRepository>(),
-          gh<_i308.MapRepository>(),
-          gh<_i743.ManuscriptRepository>(),
-          gh<_i925.BackupSynchronizer>(),
-        ));
-    gh.lazySingleton<_i431.GetTemplatesUseCase>(
-        () => _i431.GetTemplatesUseCase(gh<_i179.TemplateRepository>()));
     gh.lazySingleton<_i998.DeleteEntityUseCase>(() => _i998.DeleteEntityUseCase(
           gh<_i339.EntityRepository>(),
           gh<_i838.RelationshipRepository>(),
@@ -301,21 +291,17 @@ extension GetItInjectableX on _i174.GetIt {
         () => _i408.RemoveMapPinUseCase(gh<_i308.MapRepository>()));
     gh.lazySingleton<_i701.SaveMapPinUseCase>(
         () => _i701.SaveMapPinUseCase(gh<_i308.MapRepository>()));
-    gh.lazySingleton<_i714.ExportDatabaseUseCase>(
-        () => _i714.ExportDatabaseUseCase(
+    gh.lazySingleton<_i791.BootstrapUseCase>(
+        () => _i791.BootstrapUseCase(gh<_i179.TemplateRepository>()));
+    gh.lazySingleton<_i564.ImportDatabaseUseCase>(
+        () => _i564.ImportDatabaseUseCase(
               gh<_i339.EntityRepository>(),
               gh<_i838.RelationshipRepository>(),
               gh<_i523.TagRepository>(),
               gh<_i577.TimelineRepository>(),
               gh<_i179.TemplateRepository>(),
-              gh<_i1014.QuickCaptureRepository>(),
-              gh<_i36.EntityVersionRepository>(),
               gh<_i308.MapRepository>(),
             ));
-    gh.lazySingleton<_i402.CreateQuickCaptureUseCase>(() =>
-        _i402.CreateQuickCaptureUseCase(gh<_i1014.QuickCaptureRepository>()));
-    gh.lazySingleton<_i791.BootstrapUseCase>(
-        () => _i791.BootstrapUseCase(gh<_i179.TemplateRepository>()));
     return this;
   }
 }

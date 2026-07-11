@@ -3,7 +3,7 @@
 // ignore_for_file: type=lint
 // ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
 
-part of 'quick_capture.dart';
+part of 'chapter_snapshot.dart';
 
 // **************************************************************************
 // FreezedGenerator
@@ -13,32 +13,32 @@ part of 'quick_capture.dart';
 T _$identity<T>(T value) => value;
 
 /// @nodoc
-mixin _$QuickCapture {
+mixin _$ChapterSnapshot {
   String get id;
-  String get rawText;
-  bool get isProcessed;
+  String get chapterId;
+  String get content;
   DateTime get createdAt;
 
-  /// Create a copy of QuickCapture
+  /// Create a copy of ChapterSnapshot
   /// with the given fields replaced by the non-null parameter values.
   @JsonKey(includeFromJson: false, includeToJson: false)
   @pragma('vm:prefer-inline')
-  $QuickCaptureCopyWith<QuickCapture> get copyWith =>
-      _$QuickCaptureCopyWithImpl<QuickCapture>(
-          this as QuickCapture, _$identity);
+  $ChapterSnapshotCopyWith<ChapterSnapshot> get copyWith =>
+      _$ChapterSnapshotCopyWithImpl<ChapterSnapshot>(
+          this as ChapterSnapshot, _$identity);
 
-  /// Serializes this QuickCapture to a JSON map.
+  /// Serializes this ChapterSnapshot to a JSON map.
   Map<String, dynamic> toJson();
 
   @override
   bool operator ==(Object other) {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
-            other is QuickCapture &&
+            other is ChapterSnapshot &&
             (identical(other.id, id) || other.id == id) &&
-            (identical(other.rawText, rawText) || other.rawText == rawText) &&
-            (identical(other.isProcessed, isProcessed) ||
-                other.isProcessed == isProcessed) &&
+            (identical(other.chapterId, chapterId) ||
+                other.chapterId == chapterId) &&
+            (identical(other.content, content) || other.content == content) &&
             (identical(other.createdAt, createdAt) ||
                 other.createdAt == createdAt));
   }
@@ -46,38 +46,39 @@ mixin _$QuickCapture {
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   int get hashCode =>
-      Object.hash(runtimeType, id, rawText, isProcessed, createdAt);
+      Object.hash(runtimeType, id, chapterId, content, createdAt);
 
   @override
   String toString() {
-    return 'QuickCapture(id: $id, rawText: $rawText, isProcessed: $isProcessed, createdAt: $createdAt)';
+    return 'ChapterSnapshot(id: $id, chapterId: $chapterId, content: $content, createdAt: $createdAt)';
   }
 }
 
 /// @nodoc
-abstract mixin class $QuickCaptureCopyWith<$Res> {
-  factory $QuickCaptureCopyWith(
-          QuickCapture value, $Res Function(QuickCapture) _then) =
-      _$QuickCaptureCopyWithImpl;
+abstract mixin class $ChapterSnapshotCopyWith<$Res> {
+  factory $ChapterSnapshotCopyWith(
+          ChapterSnapshot value, $Res Function(ChapterSnapshot) _then) =
+      _$ChapterSnapshotCopyWithImpl;
   @useResult
-  $Res call({String id, String rawText, bool isProcessed, DateTime createdAt});
+  $Res call({String id, String chapterId, String content, DateTime createdAt});
 }
 
 /// @nodoc
-class _$QuickCaptureCopyWithImpl<$Res> implements $QuickCaptureCopyWith<$Res> {
-  _$QuickCaptureCopyWithImpl(this._self, this._then);
+class _$ChapterSnapshotCopyWithImpl<$Res>
+    implements $ChapterSnapshotCopyWith<$Res> {
+  _$ChapterSnapshotCopyWithImpl(this._self, this._then);
 
-  final QuickCapture _self;
-  final $Res Function(QuickCapture) _then;
+  final ChapterSnapshot _self;
+  final $Res Function(ChapterSnapshot) _then;
 
-  /// Create a copy of QuickCapture
+  /// Create a copy of ChapterSnapshot
   /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
     Object? id = null,
-    Object? rawText = null,
-    Object? isProcessed = null,
+    Object? chapterId = null,
+    Object? content = null,
     Object? createdAt = null,
   }) {
     return _then(_self.copyWith(
@@ -85,14 +86,14 @@ class _$QuickCaptureCopyWithImpl<$Res> implements $QuickCaptureCopyWith<$Res> {
           ? _self.id
           : id // ignore: cast_nullable_to_non_nullable
               as String,
-      rawText: null == rawText
-          ? _self.rawText
-          : rawText // ignore: cast_nullable_to_non_nullable
+      chapterId: null == chapterId
+          ? _self.chapterId
+          : chapterId // ignore: cast_nullable_to_non_nullable
               as String,
-      isProcessed: null == isProcessed
-          ? _self.isProcessed
-          : isProcessed // ignore: cast_nullable_to_non_nullable
-              as bool,
+      content: null == content
+          ? _self.content
+          : content // ignore: cast_nullable_to_non_nullable
+              as String,
       createdAt: null == createdAt
           ? _self.createdAt
           : createdAt // ignore: cast_nullable_to_non_nullable
@@ -101,8 +102,8 @@ class _$QuickCaptureCopyWithImpl<$Res> implements $QuickCaptureCopyWith<$Res> {
   }
 }
 
-/// Adds pattern-matching-related methods to [QuickCapture].
-extension QuickCapturePatterns on QuickCapture {
+/// Adds pattern-matching-related methods to [ChapterSnapshot].
+extension ChapterSnapshotPatterns on ChapterSnapshot {
   /// A variant of `map` that fallback to returning `orElse`.
   ///
   /// It is equivalent to doing:
@@ -117,12 +118,12 @@ extension QuickCapturePatterns on QuickCapture {
 
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>(
-    TResult Function(_QuickCapture value)? $default, {
+    TResult Function(_ChapterSnapshot value)? $default, {
     required TResult orElse(),
   }) {
     final _that = this;
     switch (_that) {
-      case _QuickCapture() when $default != null:
+      case _ChapterSnapshot() when $default != null:
         return $default(_that);
       case _:
         return orElse();
@@ -144,11 +145,11 @@ extension QuickCapturePatterns on QuickCapture {
 
   @optionalTypeArgs
   TResult map<TResult extends Object?>(
-    TResult Function(_QuickCapture value) $default,
+    TResult Function(_ChapterSnapshot value) $default,
   ) {
     final _that = this;
     switch (_that) {
-      case _QuickCapture():
+      case _ChapterSnapshot():
         return $default(_that);
       case _:
         throw StateError('Unexpected subclass');
@@ -169,11 +170,11 @@ extension QuickCapturePatterns on QuickCapture {
 
   @optionalTypeArgs
   TResult? mapOrNull<TResult extends Object?>(
-    TResult? Function(_QuickCapture value)? $default,
+    TResult? Function(_ChapterSnapshot value)? $default,
   ) {
     final _that = this;
     switch (_that) {
-      case _QuickCapture() when $default != null:
+      case _ChapterSnapshot() when $default != null:
         return $default(_that);
       case _:
         return null;
@@ -195,15 +196,15 @@ extension QuickCapturePatterns on QuickCapture {
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>(
     TResult Function(
-            String id, String rawText, bool isProcessed, DateTime createdAt)?
+            String id, String chapterId, String content, DateTime createdAt)?
         $default, {
     required TResult orElse(),
   }) {
     final _that = this;
     switch (_that) {
-      case _QuickCapture() when $default != null:
+      case _ChapterSnapshot() when $default != null:
         return $default(
-            _that.id, _that.rawText, _that.isProcessed, _that.createdAt);
+            _that.id, _that.chapterId, _that.content, _that.createdAt);
       case _:
         return orElse();
     }
@@ -225,14 +226,14 @@ extension QuickCapturePatterns on QuickCapture {
   @optionalTypeArgs
   TResult when<TResult extends Object?>(
     TResult Function(
-            String id, String rawText, bool isProcessed, DateTime createdAt)
+            String id, String chapterId, String content, DateTime createdAt)
         $default,
   ) {
     final _that = this;
     switch (_that) {
-      case _QuickCapture():
+      case _ChapterSnapshot():
         return $default(
-            _that.id, _that.rawText, _that.isProcessed, _that.createdAt);
+            _that.id, _that.chapterId, _that.content, _that.createdAt);
       case _:
         throw StateError('Unexpected subclass');
     }
@@ -253,14 +254,14 @@ extension QuickCapturePatterns on QuickCapture {
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>(
     TResult? Function(
-            String id, String rawText, bool isProcessed, DateTime createdAt)?
+            String id, String chapterId, String content, DateTime createdAt)?
         $default,
   ) {
     final _that = this;
     switch (_that) {
-      case _QuickCapture() when $default != null:
+      case _ChapterSnapshot() when $default != null:
         return $default(
-            _that.id, _that.rawText, _that.isProcessed, _that.createdAt);
+            _that.id, _that.chapterId, _that.content, _that.createdAt);
       case _:
         return null;
     }
@@ -269,36 +270,35 @@ extension QuickCapturePatterns on QuickCapture {
 
 /// @nodoc
 @JsonSerializable()
-class _QuickCapture implements QuickCapture {
-  const _QuickCapture(
+class _ChapterSnapshot implements ChapterSnapshot {
+  const _ChapterSnapshot(
       {required this.id,
-      required this.rawText,
-      this.isProcessed = false,
+      required this.chapterId,
+      required this.content,
       required this.createdAt});
-  factory _QuickCapture.fromJson(Map<String, dynamic> json) =>
-      _$QuickCaptureFromJson(json);
+  factory _ChapterSnapshot.fromJson(Map<String, dynamic> json) =>
+      _$ChapterSnapshotFromJson(json);
 
   @override
   final String id;
   @override
-  final String rawText;
+  final String chapterId;
   @override
-  @JsonKey()
-  final bool isProcessed;
+  final String content;
   @override
   final DateTime createdAt;
 
-  /// Create a copy of QuickCapture
+  /// Create a copy of ChapterSnapshot
   /// with the given fields replaced by the non-null parameter values.
   @override
   @JsonKey(includeFromJson: false, includeToJson: false)
   @pragma('vm:prefer-inline')
-  _$QuickCaptureCopyWith<_QuickCapture> get copyWith =>
-      __$QuickCaptureCopyWithImpl<_QuickCapture>(this, _$identity);
+  _$ChapterSnapshotCopyWith<_ChapterSnapshot> get copyWith =>
+      __$ChapterSnapshotCopyWithImpl<_ChapterSnapshot>(this, _$identity);
 
   @override
   Map<String, dynamic> toJson() {
-    return _$QuickCaptureToJson(
+    return _$ChapterSnapshotToJson(
       this,
     );
   }
@@ -307,11 +307,11 @@ class _QuickCapture implements QuickCapture {
   bool operator ==(Object other) {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
-            other is _QuickCapture &&
+            other is _ChapterSnapshot &&
             (identical(other.id, id) || other.id == id) &&
-            (identical(other.rawText, rawText) || other.rawText == rawText) &&
-            (identical(other.isProcessed, isProcessed) ||
-                other.isProcessed == isProcessed) &&
+            (identical(other.chapterId, chapterId) ||
+                other.chapterId == chapterId) &&
+            (identical(other.content, content) || other.content == content) &&
             (identical(other.createdAt, createdAt) ||
                 other.createdAt == createdAt));
   }
@@ -319,56 +319,56 @@ class _QuickCapture implements QuickCapture {
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   int get hashCode =>
-      Object.hash(runtimeType, id, rawText, isProcessed, createdAt);
+      Object.hash(runtimeType, id, chapterId, content, createdAt);
 
   @override
   String toString() {
-    return 'QuickCapture(id: $id, rawText: $rawText, isProcessed: $isProcessed, createdAt: $createdAt)';
+    return 'ChapterSnapshot(id: $id, chapterId: $chapterId, content: $content, createdAt: $createdAt)';
   }
 }
 
 /// @nodoc
-abstract mixin class _$QuickCaptureCopyWith<$Res>
-    implements $QuickCaptureCopyWith<$Res> {
-  factory _$QuickCaptureCopyWith(
-          _QuickCapture value, $Res Function(_QuickCapture) _then) =
-      __$QuickCaptureCopyWithImpl;
+abstract mixin class _$ChapterSnapshotCopyWith<$Res>
+    implements $ChapterSnapshotCopyWith<$Res> {
+  factory _$ChapterSnapshotCopyWith(
+          _ChapterSnapshot value, $Res Function(_ChapterSnapshot) _then) =
+      __$ChapterSnapshotCopyWithImpl;
   @override
   @useResult
-  $Res call({String id, String rawText, bool isProcessed, DateTime createdAt});
+  $Res call({String id, String chapterId, String content, DateTime createdAt});
 }
 
 /// @nodoc
-class __$QuickCaptureCopyWithImpl<$Res>
-    implements _$QuickCaptureCopyWith<$Res> {
-  __$QuickCaptureCopyWithImpl(this._self, this._then);
+class __$ChapterSnapshotCopyWithImpl<$Res>
+    implements _$ChapterSnapshotCopyWith<$Res> {
+  __$ChapterSnapshotCopyWithImpl(this._self, this._then);
 
-  final _QuickCapture _self;
-  final $Res Function(_QuickCapture) _then;
+  final _ChapterSnapshot _self;
+  final $Res Function(_ChapterSnapshot) _then;
 
-  /// Create a copy of QuickCapture
+  /// Create a copy of ChapterSnapshot
   /// with the given fields replaced by the non-null parameter values.
   @override
   @pragma('vm:prefer-inline')
   $Res call({
     Object? id = null,
-    Object? rawText = null,
-    Object? isProcessed = null,
+    Object? chapterId = null,
+    Object? content = null,
     Object? createdAt = null,
   }) {
-    return _then(_QuickCapture(
+    return _then(_ChapterSnapshot(
       id: null == id
           ? _self.id
           : id // ignore: cast_nullable_to_non_nullable
               as String,
-      rawText: null == rawText
-          ? _self.rawText
-          : rawText // ignore: cast_nullable_to_non_nullable
+      chapterId: null == chapterId
+          ? _self.chapterId
+          : chapterId // ignore: cast_nullable_to_non_nullable
               as String,
-      isProcessed: null == isProcessed
-          ? _self.isProcessed
-          : isProcessed // ignore: cast_nullable_to_non_nullable
-              as bool,
+      content: null == content
+          ? _self.content
+          : content // ignore: cast_nullable_to_non_nullable
+              as String,
       createdAt: null == createdAt
           ? _self.createdAt
           : createdAt // ignore: cast_nullable_to_non_nullable

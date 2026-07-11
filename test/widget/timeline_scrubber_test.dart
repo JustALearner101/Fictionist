@@ -23,6 +23,10 @@ void main() {
 
       expect(find.text('Year: 1800'), findsOneWidget);
       expect(find.byType(Slider), findsOneWidget);
+
+      await tester.drag(find.byType(Slider), const Offset(100, 0));
+      await tester.pumpAndSettle();
+      expect(lastYear, isNotNull);
     });
 
     testWidgets('shows entity count', (tester) async {

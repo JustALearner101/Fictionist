@@ -1,17 +1,8 @@
 import 'dart:convert';
-import 'package:fictionist/data/dao/entity_dao.dart';
-import 'package:fictionist/data/dao/entity_version_dao.dart';
-import 'package:fictionist/data/dao/map_dao.dart';
-import 'package:fictionist/data/dao/quick_capture_dao.dart';
-import 'package:fictionist/data/dao/relationship_dao.dart';
-import 'package:fictionist/data/dao/tag_dao.dart';
-import 'package:fictionist/data/dao/template_dao.dart';
-import 'package:fictionist/data/dao/timeline_dao.dart';
 import 'package:fictionist/data/database/app_database.dart';
 import 'package:fictionist/data/repository/entity_repository_impl.dart';
 import 'package:fictionist/data/repository/entity_version_repository_impl.dart';
 import 'package:fictionist/data/repository/map_repository_impl.dart';
-import 'package:fictionist/data/repository/quick_capture_repository_impl.dart';
 import 'package:fictionist/data/repository/relationship_repository_impl.dart';
 import 'package:fictionist/data/repository/tag_repository_impl.dart';
 import 'package:fictionist/data/repository/template_repository_impl.dart';
@@ -50,27 +41,25 @@ void main() {
     await db.close();
   });
 
-  ExportDatabaseUseCase _makeExport() {
+  ExportDatabaseUseCase makeExport() {
     return ExportDatabaseUseCase(
       EntityRepositoryImpl(db.entityDao),
       RelationshipRepositoryImpl(db.relationshipDao),
       TagRepositoryImpl(db.tagDao),
       TimelineRepositoryImpl(db.timelineDao),
       TemplateRepositoryImpl(db.templateDao),
-      QuickCaptureRepositoryImpl(db.quickCaptureDao),
       EntityVersionRepositoryImpl(db.entityVersionDao),
       MapRepositoryImpl(db.mapDao),
     );
   }
 
-  ImportDatabaseUseCase _makeImport() {
+  ImportDatabaseUseCase makeImport() {
     return ImportDatabaseUseCase(
       EntityRepositoryImpl(db.entityDao),
       RelationshipRepositoryImpl(db.relationshipDao),
       TagRepositoryImpl(db.tagDao),
       TimelineRepositoryImpl(db.timelineDao),
       TemplateRepositoryImpl(db.templateDao),
-      QuickCaptureRepositoryImpl(db.quickCaptureDao),
       MapRepositoryImpl(db.mapDao),
     );
   }
@@ -80,7 +69,7 @@ void main() {
       final entity = _makeEntity('e-1', 'Gandalf');
       await EntityRepositoryImpl(db.entityDao).create(entity);
 
-      final exportUseCase = _makeExport();
+      final exportUseCase = makeExport();
       final result = await exportUseCase();
       expect(result.isRight(), true);
 
@@ -89,10 +78,10 @@ void main() {
         (json) {
           expect(json, isNotEmpty);
           // Should be valid JSON
-          final parsed = jsonDecode(json);
-          expect(parsed, isA<Map>());
-          expect(parsed['data'], isA<Map>());
-          expect(parsed['data']['entities'], isA<List>());
+          final parsed = jsonDecode(json) as Map<String, dynamic>;
+          expect(parsed, isA<Map<String, dynamic>>());
+          expect(parsed['data'], isA<Map<String, dynamic>>());
+          expect(parsed['data']['entities'], isA<List<dynamic>>());
         },
       );
     });
@@ -105,7 +94,7 @@ void main() {
       await entityRepo.create(_makeEntity('e-3', 'Merry'));
 
       // Export
-      final exportJson = (await _makeExport()())
+      final exportJson = (await makeExport()())
           .getOrElse((l) => fail('export failed'));
 
       // Close and reopen with fresh DB
@@ -113,7 +102,7 @@ void main() {
       db = createTestDatabase();
 
       // Import with replace mode
-      final importResult = await _makeImport()(ImportDatabaseParams(
+      final importResult = await makeImport()(ImportDatabaseParams(
         jsonContent: exportJson,
         isReplace: true,
       ));
@@ -136,7 +125,7 @@ void main() {
       await entityRepo.create(_makeEntity('e-1', 'Original'));
 
       // Export
-      final exportJson = (await _makeExport()())
+      final exportJson = (await makeExport()())
           .getOrElse((l) => fail('export failed'));
 
       // Add another entity after export
@@ -144,7 +133,7 @@ void main() {
 
       // Add entity to export JSON manually
       final decoded = jsonDecode(exportJson) as Map<String, dynamic>;
-      final entities = decoded['data']['entities'] as List;
+      final entities = decoded['data']['entities'] as List<dynamic>;
       entities.add({
         'id': 'e-3',
         'name': 'From Import',
@@ -160,7 +149,7 @@ void main() {
       final modifiedJson = jsonEncode(decoded);
 
       // Import with merge (not replace)
-      await _makeImport()(ImportDatabaseParams(
+      await makeImport()(ImportDatabaseParams(
         jsonContent: modifiedJson,
         isReplace: false,
       ));
@@ -178,7 +167,7 @@ void main() {
     });
 
     test('import invalid JSON returns failure', () async {
-      final result = await _makeImport()(ImportDatabaseParams(
+      final result = await makeImport()(ImportDatabaseParams(
         jsonContent: 'not valid json {{',
         isReplace: false,
       ));
@@ -186,7 +175,7 @@ void main() {
     });
 
     test('export empty database produces valid export', () async {
-      final result = await _makeExport()();
+      final result = await makeExport()();
       expect(result.isRight(), true);
       result.fold(
         (_) => fail('should succeed'),

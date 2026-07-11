@@ -6,16 +6,16 @@ import 'package:fictionist/presentation/features/manuscript/provider/writing_pre
 enum SaveStatus { saved, editing, saving }
 
 class EditorStatusBar extends ConsumerWidget {
-  final int wordCount;
-  final int charCount;
+  final ValueNotifier<int> wordCountNotifier;
+  final ValueNotifier<int> charCountNotifier;
   final String? chapterTitle;
   final bool isSaving;
   final bool hasUnsavedChanges;
 
   const EditorStatusBar({
     super.key,
-    required this.wordCount,
-    required this.charCount,
+    required this.wordCountNotifier,
+    required this.charCountNotifier,
     this.chapterTitle,
     this.isSaving = false,
     this.hasUnsavedChanges = false,
@@ -29,10 +29,15 @@ class EditorStatusBar extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final prefs = ref.watch(writingPreferencesProvider);
-    final theme = Theme.of(context);
-    final readingTime = (wordCount / 200).ceil();
-    final status = _status;
+    return ValueListenableBuilder(
+      valueListenable: wordCountNotifier,
+      builder: (context, _, __) {
+        final wordCount = wordCountNotifier.value;
+        final charCount = charCountNotifier.value;
+        final prefs = ref.watch(writingPreferencesProvider);
+        final theme = Theme.of(context);
+        final readingTime = (wordCount / 200).ceil();
+        final status = _status;
 
     return Container(
       height: 28,
@@ -126,6 +131,8 @@ class EditorStatusBar extends ConsumerWidget {
             ),
         ],
       ),
+    );
+      },
     );
   }
 }

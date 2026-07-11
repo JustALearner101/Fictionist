@@ -8,7 +8,7 @@ import '../dao/entity_dao.dart';
 import '../dao/manuscript_dao.dart';
 import '../dao/map_dao.dart';
 import '../dao/plot_dao.dart';
-import '../dao/quick_capture_dao.dart';
+import '../dao/setup_payoff_dao.dart';
 import '../dao/relationship_dao.dart';
 import '../dao/tag_dao.dart';
 import '../dao/template_dao.dart';
@@ -23,7 +23,7 @@ import 'tables/manuscript_chapter_table.dart';
 import 'tables/chapter_snapshot_table.dart';
 import 'tables/map_pin_table.dart';
 import 'tables/plot_tables.dart';
-import 'tables/quick_capture_table.dart';
+import 'tables/setup_payoff_table.dart';
 import 'tables/relationship_table.dart';
 import 'tables/tag_table.dart';
 import 'tables/template_table.dart';
@@ -42,13 +42,13 @@ part 'app_database.g.dart';
     TimelineEntries,
     EntityVersions,
     Templates,
-    QuickCaptures,
     ManuscriptChapters,
     ChapterSnapshots,
     PlotCards,
     PlotConnections,
     WorldMaps,
     MapPins,
+    SetupPayoffs,
   ],
   daos: [
     EntityDao,
@@ -57,11 +57,11 @@ part 'app_database.g.dart';
     TimelineDao,
     EntityVersionDao,
     TemplateDao,
-    QuickCaptureDao,
     MapDao,
     ManuscriptDao,
     SnapshotDao,
     PlotDao,
+    SetupPayoffDao,
   ],
 )
 class AppDatabase extends _$AppDatabase {
@@ -70,7 +70,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.forTesting(QueryExecutor e) : super(e);
 
   @override
-  int get schemaVersion => 4;
+  int get schemaVersion => 7;
 
   @override
   MigrationStrategy get migration {
@@ -116,6 +116,21 @@ class AppDatabase extends _$AppDatabase {
         }
         if (from < 4) {
           await m.createTable(chapterSnapshots);
+        }
+        if (from >= 2 && from < 5) {
+          // Add columns added to manuscript_chapters after the original v2 creation
+          // Only needed for installs that were created at v2 (not fresh installs)
+          await m.addColumn(manuscriptChapters, manuscriptChapters.synopsis);
+          await m.addColumn(manuscriptChapters, manuscriptChapters.dateLabel);
+          await m.addColumn(manuscriptChapters, manuscriptChapters.eraLabel);
+          await m.addColumn(manuscriptChapters, manuscriptChapters.status);
+        }
+        if (from < 6) {
+          await m.addColumn(manuscriptChapters, manuscriptChapters.povCharacterId);
+          await m.addColumn(manuscriptChapters, manuscriptChapters.locationId);
+        }
+        if (from < 7) {
+          await m.createTable(setupPayoffs);
         }
       },
       beforeOpen: (details) async {

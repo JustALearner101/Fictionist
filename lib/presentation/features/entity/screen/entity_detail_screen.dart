@@ -20,6 +20,7 @@ import '../../../common/widget/loading_indicator.dart';
 import '../provider/entity_detail_provider.dart';
 import '../provider/entity_list_provider.dart';
 import '../../relationship/widget/relationship_picker_sheet.dart';
+import '../provider/entity_references_provider.dart';
 import '../provider/entity_relationships_provider.dart';
 import '../provider/entity_version_history_provider.dart';
 import '../../timeline/provider/timeline_provider.dart';
@@ -193,7 +194,8 @@ class _EntityDetailScreenState extends ConsumerState<EntityDetailScreen> {
       snapshotEntity = Entity.fromJson(json);
     } catch (_) {}
 
-    if (snapshotEntity == null) return;
+    final snapshot = snapshotEntity;
+    if (snapshot == null) return;
 
     showDialog<void>(
       context: context,
@@ -239,7 +241,7 @@ class _EntityDetailScreenState extends ConsumerState<EntityDetailScreen> {
                       children: _generateDiffSpans(
                         context,
                         currentEntity.description ?? '',
-                        snapshotEntity.description ?? '',
+                        snapshot.description ?? '',
                       ),
                     ),
                   ),
@@ -426,6 +428,8 @@ class _EntityDetailScreenState extends ConsumerState<EntityDetailScreen> {
               icon: Icons.history,
               child: _TimelineStrip(entityId: widget.entityId),
             )),
+            // ── Appears In ──
+            SliverToBoxAdapter(child: _AppearsInSection(entityId: widget.entityId)),
             // Bottom padding
             SliverToBoxAdapter(child: SizedBox(height: 40)),
           ],
@@ -503,62 +507,74 @@ class _HeroCard extends StatelessWidget {
     final color = Color(entity.iconColor);
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 8, 16, 4),
-      child: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [color.withValues(alpha: 0.08), Colors.transparent],
-          ),
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: color.withValues(alpha: 0.25), width: 0.8),
-        ),
-        padding: const EdgeInsets.all(18),
-        child: Row(
-          children: [
-            // Avatar
-            Container(
-              width: 56, height: 56,
-              decoration: BoxDecoration(
-                color: color.withValues(alpha: 0.15),
-                shape: BoxShape.circle,
-                border: Border.all(color: color.withValues(alpha: 0.6), width: 1.5),
-                boxShadow: [BoxShadow(color: color.withValues(alpha: 0.1), blurRadius: 12)],
+      child: Hero(
+        tag: 'entity-card-${entity.id}',
+        child: Material(
+          type: MaterialType.transparency,
+          child: Container(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [color.withValues(alpha: 0.08), Colors.transparent],
               ),
-              child: Center(
-                child: Text(
-                  entity.name.isNotEmpty ? entity.name[0].toUpperCase() : '?',
-                  style: Theme.of(context).textTheme.headlineMedium!.copyWith(
-                    color: color, fontWeight: FontWeight.bold, fontSize: 24,
-                  ),
-                ),
-              ),
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: color.withValues(alpha: 0.25), width: 0.8),
             ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      _Badge(label: entity.status.label.toUpperCase(),
-                        color: _statusColor(context, entity.status)),
-                      SizedBox(width: 8),
-                      _Badge(label: entity.type.label.toUpperCase(),
-                        color: Theme.of(context).colorScheme.primary),
-                    ],
-                  ),
-                  SizedBox(height: 8),
-                  Text(
-                    'Last updated ${_timeAgo(entity.updatedAt)}',
-                    style: Theme.of(context).textTheme.bodyLarge!.copyWith(
-                      color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 12,
+            padding: const EdgeInsets.all(18),
+            child: Row(
+              children: [
+                // Avatar
+                Hero(
+                  tag: 'entity-avatar-${entity.id}',
+                  child: Material(
+                    type: MaterialType.transparency,
+                    child: Container(
+                      width: 56, height: 56,
+                      decoration: BoxDecoration(
+                        color: color.withValues(alpha: 0.15),
+                        shape: BoxShape.circle,
+                        border: Border.all(color: color.withValues(alpha: 0.6), width: 1.5),
+                        boxShadow: [BoxShadow(color: color.withValues(alpha: 0.1), blurRadius: 12)],
+                      ),
+                      child: Center(
+                        child: Text(
+                          entity.name.isNotEmpty ? entity.name[0].toUpperCase() : '?',
+                          style: Theme.of(context).textTheme.headlineMedium!.copyWith(
+                            color: color, fontWeight: FontWeight.bold, fontSize: 24,
+                          ),
+                        ),
+                      ),
                     ),
                   ),
-                ],
-              ),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          _Badge(label: entity.status.label.toUpperCase(),
+                            color: _statusColor(context, entity.status)),
+                          SizedBox(width: 8),
+                          _Badge(label: entity.type.label.toUpperCase(),
+                            color: Theme.of(context).colorScheme.primary),
+                        ],
+                      ),
+                      SizedBox(height: 8),
+                      Text(
+                        'Last updated ${_timeAgo(entity.updatedAt)}',
+                        style: Theme.of(context).textTheme.bodyLarge!.copyWith(
+                          color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 12,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             ),
-          ],
+          ),
         ),
       ),
     );
@@ -655,54 +671,96 @@ class _AttributesGrid extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GridView.builder(
-      shrinkWrap: true,
-      physics: NeverScrollableScrollPhysics(),
-      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 2, crossAxisSpacing: 10, mainAxisSpacing: 10,
-        childAspectRatio: 2.4,
-      ),
-      itemCount: fields.length,
-      itemBuilder: (_, i) {
-        final f = fields[i];
-        final val = f.value?.toString() ?? '';
-        final accent = Theme.of(context).colorScheme.primary.withValues(alpha: 0.08);
-        return Container(
-          padding: EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-          decoration: BoxDecoration(
-            color: val.isNotEmpty ? accent : Theme.of(context).colorScheme.surfaceContainerHighest,
-            borderRadius: BorderRadius.circular(10),
-            border: Border.all(
-              color: val.isNotEmpty
-                  ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.2)
-                  : Theme.of(context).colorScheme.outline.withValues(alpha: 0.3),
-              width: 0.6,
-            ),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisAlignment: MainAxisAlignment.center,
+    final List<Widget> rows = [];
+    List<CustomField> rowBuffer = [];
+
+    void flushBuffer() {
+      if (rowBuffer.isEmpty) return;
+      if (rowBuffer.length == 1) {
+        rows.add(_buildCard(context, rowBuffer[0], isFullWidth: true));
+      } else {
+        rows.add(
+          Row(
             children: [
-              Text(f.label,
-                style: Theme.of(context).textTheme.labelMedium!.copyWith(
-                  color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 10,
-                  letterSpacing: 0.3,
-                ),
-              ),
-              SizedBox(height: 3),
-              Text(val.isNotEmpty ? val : '—',
-                style: Theme.of(context).textTheme.bodyLarge!.copyWith(
-                  color: val.isNotEmpty ? Theme.of(context).colorScheme.onSurface
-                      : Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.4),
-                  fontSize: 13, fontWeight: val.isNotEmpty
-                      ? FontWeight.w600 : FontWeight.w400,
-                ),
-                maxLines: 1, overflow: TextOverflow.ellipsis,
-              ),
+              Expanded(child: _buildCard(context, rowBuffer[0], isFullWidth: false)),
+              const SizedBox(width: 10),
+              Expanded(child: _buildCard(context, rowBuffer[1], isFullWidth: false)),
             ],
           ),
         );
-      },
+      }
+      rowBuffer.clear();
+    }
+
+    for (final f in fields) {
+      final val = f.value?.toString() ?? '';
+      if (val.length > 20) {
+        flushBuffer();
+        rows.add(_buildCard(context, f, isFullWidth: true));
+      } else {
+        rowBuffer.add(f);
+        if (rowBuffer.length == 2) {
+          flushBuffer();
+        }
+      }
+    }
+    flushBuffer();
+
+    return Column(
+      children: rows.asMap().entries.map((e) {
+        final idx = e.key;
+        final w = e.value;
+        return Padding(
+          padding: EdgeInsets.only(bottom: idx < rows.length - 1 ? 10 : 0),
+          child: w,
+        );
+      }).toList(),
+    );
+  }
+
+  Widget _buildCard(BuildContext context, CustomField f, {required bool isFullWidth}) {
+    final val = f.value?.toString() ?? '';
+    final accent = Theme.of(context).colorScheme.primary.withOpacity(0.06);
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+      decoration: BoxDecoration(
+        color: val.isNotEmpty ? accent : Theme.of(context).colorScheme.surfaceContainerHighest,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: val.isNotEmpty
+              ? Theme.of(context).colorScheme.primary.withOpacity(0.2)
+              : Theme.of(context).colorScheme.outline.withOpacity(0.35),
+          width: 0.7,
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text(
+            f.label.toUpperCase(),
+            style: Theme.of(context).textTheme.labelMedium!.copyWith(
+              color: Theme.of(context).colorScheme.onSurfaceVariant.withOpacity(0.7),
+              fontSize: 9.5,
+              fontWeight: FontWeight.w600,
+              letterSpacing: 0.6,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            val.isNotEmpty ? val : '—',
+            style: Theme.of(context).textTheme.bodyLarge!.copyWith(
+              color: val.isNotEmpty
+                  ? Theme.of(context).colorScheme.onSurface
+                  : Theme.of(context).colorScheme.onSurfaceVariant.withOpacity(0.4),
+              fontSize: 13.5,
+              fontWeight: val.isNotEmpty ? FontWeight.w600 : FontWeight.w400,
+            ),
+            maxLines: isFullWidth ? 3 : 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ],
+      ),
     );
   }
 }
@@ -971,6 +1029,197 @@ class _TimelineStrip extends ConsumerWidget {
       },
       loading: () => LoadingIndicator(),
       error: (e, _) => Text('Error: $e'),
+    );
+  }
+}
+
+// ─── Appears In Section ───────────────────────────────────────────────────
+
+class _AppearsInSection extends ConsumerWidget {
+  final String entityId;
+  const _AppearsInSection({required this.entityId});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final refsAsync = ref.watch(entityReferencesProvider(entityId));
+    final theme = Theme.of(context);
+
+    return refsAsync.when(
+      data: (refs) {
+        final hasData = refs.chapters.isNotEmpty ||
+            refs.timelineEntries.isNotEmpty ||
+            refs.relationships.isNotEmpty;
+        if (!hasData) return const SizedBox.shrink();
+
+        return _SectionCard(
+          title: 'Appears In',
+          icon: Icons.menu_book_outlined,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // ── Mention stats ──────────────────────────────
+              if (refs.totalMentions > 0)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 8),
+                  child: Row(
+                    children: [
+                      _MiniStat(
+                          icon: Icons.format_quote,
+                          label: '${refs.totalMentions} mentions',
+                          color: theme.colorScheme.primary),
+                      if (refs.dialogueMentions > 0) ...[
+                        const SizedBox(width: 12),
+                        _MiniStat(
+                            icon: Icons.chat_bubble_outline,
+                            label: '${refs.dialogueMentions} dialogue',
+                            color: const Color(0xFFFBBF24)),
+                      ],
+                      if (refs.narrationMentions > 0) ...[
+                        const SizedBox(width: 12),
+                        _MiniStat(
+                            icon: Icons.article_outlined,
+                            label: '${refs.narrationMentions} narration',
+                            color: const Color(0xFF60A5FA)),
+                      ],
+                    ],
+                  ),
+                ),
+              // ── Chapters ───────────────────────────────────
+              if (refs.chapters.isNotEmpty) ...[
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 4),
+                  child: Text('Chapters',
+                      style: theme.textTheme.labelSmall?.copyWith(
+                        color: theme.colorScheme.onSurfaceVariant,
+                        letterSpacing: 1,
+                      )),
+                ),
+                ...refs.chapters.take(8).map((ch) => _ReferenceTile(
+                      icon: Icons.article_outlined,
+                      title: ch.chapterTitle,
+                      subtitle: '${ch.mentionCount} mention${ch.mentionCount == 1 ? '' : 's'}',
+                      onTap: () => context.push('/manuscript/write/${ch.chapterId}'),
+                    )),
+                if (refs.chapters.length > 8)
+                  Padding(
+                    padding: const EdgeInsets.only(left: 40, top: 2),
+                    child: Text('+${refs.chapters.length - 8} more chapters',
+                        style: theme.textTheme.labelSmall?.copyWith(
+                          color: theme.colorScheme.onSurfaceVariant.withOpacity(0.6),
+                        )),
+                  ),
+              ],
+              // ── Timeline ───────────────────────────────────
+              if (refs.timelineEntries.isNotEmpty) ...[
+                const SizedBox(height: 10),
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 4),
+                  child: Text('Timeline',
+                      style: theme.textTheme.labelSmall?.copyWith(
+                        color: theme.colorScheme.onSurfaceVariant,
+                        letterSpacing: 1,
+                      )),
+                ),
+                ...refs.timelineEntries.map((te) => _ReferenceTile(
+                      icon: Icons.history,
+                      title: te.entryTitle,
+                      subtitle: te.dateLabel ?? '',
+                      onTap: () {},
+                    )),
+              ],
+              // ── Relationships ──────────────────────────────
+              if (refs.relationships.isNotEmpty) ...[
+                const SizedBox(height: 10),
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 4),
+                  child: Text('Relationships',
+                      style: theme.textTheme.labelSmall?.copyWith(
+                        color: theme.colorScheme.onSurfaceVariant,
+                        letterSpacing: 1,
+                      )),
+                ),
+                ...refs.relationships.take(5).map((rel) => _ReferenceTile(
+                      icon: Icons.hub_outlined,
+                      title: rel.typeKey,
+                      subtitle: 'Connected entity',
+                      onTap: () => context.push('/entities/${rel.otherEntityId}'),
+                    )),
+              ],
+            ],
+          ),
+        );
+      },
+      loading: () => const SizedBox.shrink(),
+      error: (_, __) => const SizedBox.shrink(),
+    );
+  }
+}
+
+class _MiniStat extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final Color color;
+  const _MiniStat({required this.icon, required this.label, required this.color});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(mainAxisSize: MainAxisSize.min, children: [
+      Icon(icon, size: 12, color: color),
+      const SizedBox(width: 4),
+      Text(label,
+          style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                color: color,
+                fontSize: 11,
+              )),
+    ]);
+  }
+}
+
+class _ReferenceTile extends StatelessWidget {
+  final IconData icon;
+  final String title;
+  final String subtitle;
+  final VoidCallback onTap;
+  const _ReferenceTile({
+    required this.icon,
+    required this.title,
+    required this.subtitle,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return InkWell(
+      onTap: onTap,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 6),
+        child: Row(
+          children: [
+            Icon(icon, size: 14,
+                color: theme.colorScheme.onSurfaceVariant.withOpacity(0.5)),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(title,
+                      style: theme.textTheme.bodyMedium?.copyWith(fontSize: 13),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis),
+                  if (subtitle.isNotEmpty)
+                    Text(subtitle,
+                        style: theme.textTheme.labelSmall?.copyWith(
+                            color: theme.colorScheme.onSurfaceVariant,
+                            fontSize: 10)),
+                ],
+              ),
+            ),
+            Icon(Icons.chevron_right, size: 14,
+                color: theme.colorScheme.onSurfaceVariant.withOpacity(0.3)),
+          ],
+        ),
+      ),
     );
   }
 }

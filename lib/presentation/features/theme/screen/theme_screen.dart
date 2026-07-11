@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:fictionist/core/theme/theme_config.dart';
 import 'package:fictionist/core/theme/theme_presets.dart';
 import 'package:fictionist/presentation/features/theme/provider/theme_provider.dart';
 import 'package:fictionist/presentation/common/widget/loading_indicator.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 /// Full theme customization screen.
 ///
@@ -63,7 +67,7 @@ class ThemeScreen extends ConsumerWidget {
   Widget _buildBody(
     BuildContext context,
     WidgetRef ref,
-    dynamic config,
+    ThemeConfig config,
   ) {
     return ListView(
       padding: const EdgeInsets.all(20),
@@ -96,6 +100,7 @@ class ThemeScreen extends ConsumerWidget {
               preset: preset,
               isActive: isActive,
               onTap: () {
+                HapticFeedback.selectionClick();
                 ref.read(themeNotifierProvider.notifier).applyPreset(preset);
               },
             );
@@ -118,34 +123,48 @@ class ThemeScreen extends ConsumerWidget {
 
         _FontDropdown(
           label: 'Display Font',
-          value: '',
+          value: config.displayFont,
           options: _fontOptions['display']!,
-          onChanged: (String value) {},
-          fontFamily: null,
+          onChanged: (String value) {
+            HapticFeedback.selectionClick();
+            ref.read(themeNotifierProvider.notifier).updateConfig(
+                  config.copyWith(displayFont: value),
+                );
+          },
         ),
         const SizedBox(height: 8),
         _FontDropdown(
           label: 'Heading Font',
-          value: '',
+          value: config.headingFont,
           options: _fontOptions['heading']!,
-          onChanged: (String value) {},
-          fontFamily: null,
+          onChanged: (String value) {
+            HapticFeedback.selectionClick();
+            ref.read(themeNotifierProvider.notifier).updateConfig(
+                  config.copyWith(headingFont: value),
+                );
+          },
         ),
         const SizedBox(height: 8),
         _FontDropdown(
           label: 'Body Font',
-          value: '',
+          value: config.bodyFont,
           options: _fontOptions['body']!,
-          onChanged: (String value) {},
-          fontFamily: null,
+          onChanged: (String value) {
+            HapticFeedback.selectionClick();
+            ref.read(themeNotifierProvider.notifier).updateConfig(
+                  config.copyWith(bodyFont: value),
+                );
+          },
         ),
-
+        const SizedBox(height: 16),
+        _TypographyPreviewBox(config: config),
         const SizedBox(height: 28),
 
         // Reset
         Center(
           child: OutlinedButton.icon(
             onPressed: () {
+              HapticFeedback.mediumImpact();
               ref
                   .read(themeNotifierProvider.notifier)
                   .resetToDefault();
@@ -168,7 +187,7 @@ class ThemeScreen extends ConsumerWidget {
 
 /// A card representing a theme preset with color swatches.
 class _PresetCard extends StatelessWidget {
-  final dynamic preset; // ThemeConfig
+  final ThemeConfig preset;
   final bool isActive;
   final VoidCallback onTap;
 
@@ -303,6 +322,89 @@ class _FontDropdown extends StatelessWidget {
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class _TypographyPreviewBox extends StatelessWidget {
+  final ThemeConfig config;
+  const _TypographyPreviewBox({required this.config});
+
+  @override
+  Widget build(BuildContext context) {
+    TextStyle getStyle(String family, {required double fontSize, required FontWeight fontWeight}) {
+      try {
+        return GoogleFonts.getFont(
+          family,
+          fontSize: fontSize,
+          fontWeight: fontWeight,
+          color: Theme.of(context).colorScheme.onSurface,
+        );
+      } catch (_) {
+        return TextStyle(
+          fontFamily: family,
+          fontSize: fontSize,
+          fontWeight: fontWeight,
+          color: Theme.of(context).colorScheme.onSurface,
+        );
+      }
+    }
+
+    return Container(
+      margin: const EdgeInsets.symmetric(vertical: 12),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surfaceVariant.withOpacity(0.2),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(
+          color: Theme.of(context).colorScheme.outline.withOpacity(0.3),
+          width: 0.8,
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(
+                Icons.text_format_rounded,
+                size: 16,
+                color: Theme.of(context).colorScheme.primary,
+              ),
+              const SizedBox(width: 6),
+              Text(
+                'LIVE TYPOGRAPHY PREVIEW',
+                style: Theme.of(context).textTheme.labelMedium!.copyWith(
+                  fontSize: 10,
+                  fontWeight: FontWeight.w700,
+                  letterSpacing: 1.0,
+                  color: Theme.of(context).colorScheme.primary,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 14),
+          Text(
+            'The Chronicle of Scania',
+            style: getStyle(config.displayFont, fontSize: 22, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            'Chapter I: The Scholar\'s Exile',
+            style: getStyle(config.headingFont, fontSize: 14, fontWeight: FontWeight.w600).copyWith(
+              color: Theme.of(context).colorScheme.primary,
+            ),
+          ),
+          const SizedBox(height: 10),
+          Text(
+            'Elidor Thorne carried the Iron Quill through the dense Scania mist. The elders of the Genius Society had pronounced their final decree: to seek the Valley anomaly was to seek heresy.',
+            style: getStyle(config.bodyFont, fontSize: 13, fontWeight: FontWeight.normal).copyWith(
+              height: 1.5,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+            ),
+          ),
+        ],
       ),
     );
   }

@@ -14,7 +14,7 @@ class MinimalToolbar extends StatelessWidget {
     final style = controller.getSelectionStyle();
     final attrs = style.attributes;
 
-    bool isActive(String key) => attrs.keys.any((a) => a.key == key);
+    bool isActive(String key) => attrs.containsKey(key);
 
     return Container(
       height: 40,
@@ -29,19 +29,19 @@ class MinimalToolbar extends StatelessWidget {
         children: [
           const SizedBox(width: 40),
           _Btn(
-            icon: Icons.format_bold,
+            icon: const Icon(Icons.format_bold),
             tooltip: 'Bold',
             isActive: isActive('bold'),
             onPressed: () => _toggle(Attribute.bold),
           ),
           _Btn(
-            icon: Icons.format_italic,
+            icon: const Icon(Icons.format_italic),
             tooltip: 'Italic',
             isActive: isActive('italic'),
             onPressed: () => _toggle(Attribute.italic),
           ),
           _Btn(
-            icon: Icons.format_underlined,
+            icon: const Icon(Icons.format_underlined),
             tooltip: 'Underline',
             isActive: isActive('underline'),
             onPressed: () => _toggle(Attribute.underline),
@@ -49,26 +49,21 @@ class MinimalToolbar extends StatelessWidget {
           const SizedBox(width: 8),
           for (final lvl in [1, 2, 3])
             _Btn(
-              icon: lvl == 1
-                  ? Icons.format_h1
-                  : lvl == 2
-                      ? Icons.format_h2
-                      : Icons.format_h3,
+              icon: Text('H$lvl'),
               tooltip: 'H$lvl',
-              isActive: attrs.entries.any(
-                  (e) => e.key.key == 'header' && e.value == lvl),
+              isActive: attrs['header']?.value == lvl,
               onPressed: () => _toggle(HeaderAttribute(level: lvl)),
             ),
           const SizedBox(width: 8),
           _Btn(
-            icon: Icons.format_quote,
+            icon: const Icon(Icons.format_quote),
             tooltip: 'Blockquote',
             isActive: isActive('blockquote'),
             onPressed: () => _toggle(Attribute.blockQuote),
           ),
           const Spacer(),
           _Btn(
-            icon: Icons.link,
+            icon: const Icon(Icons.link),
             tooltip: 'Insert Wiki Link [[ ]]',
             onPressed: () {
               final index = controller.selection.baseOffset;
@@ -87,7 +82,7 @@ class MinimalToolbar extends StatelessWidget {
 
   void _toggle(Attribute attr) {
     final style = controller.getSelectionStyle();
-    final has = style.attributes.entries.any((e) => e.key.key == attr.key);
+    final has = style.attributes.containsKey(attr.key);
     if (has) {
       controller.formatSelection(Attribute.clone(attr, null));
     } else {
@@ -97,7 +92,7 @@ class MinimalToolbar extends StatelessWidget {
 }
 
 class _Btn extends StatelessWidget {
-  final IconData icon;
+  final Widget icon;
   final String tooltip;
   final VoidCallback onPressed;
   final bool isActive;
@@ -112,16 +107,27 @@ class _Btn extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final activeColor = theme.colorScheme.primary;
+    final inactiveColor = theme.colorScheme.onSurfaceVariant.withOpacity(0.6);
+    final color = isActive ? activeColor : inactiveColor;
+
     return Tooltip(
       message: tooltip,
       child: SizedBox(
         width: 36,
         height: 36,
         child: IconButton(
-          icon: Icon(icon, size: 18),
-          color: isActive
-              ? theme.colorScheme.primary
-              : theme.colorScheme.onSurfaceVariant.withOpacity(0.6),
+          icon: DefaultTextStyle.merge(
+            style: TextStyle(
+              color: color,
+              fontWeight: FontWeight.bold,
+              fontSize: 13,
+            ),
+            child: IconTheme.merge(
+              data: IconThemeData(color: color, size: 18),
+              child: icon,
+            ),
+          ),
           onPressed: onPressed,
           visualDensity: VisualDensity.compact,
           padding: EdgeInsets.zero,

@@ -36,28 +36,28 @@ class _EntityCreateScreenState extends ConsumerState<EntityCreateScreen> {
 
   static final Map<String, List<CustomField>> _quickTemplates = {
     'Noble Character': [
-      const CustomField(key: 'title', label: 'Title / Rank', value: 'Lord'),
-      const CustomField(key: 'house', label: 'House / Allegiance', value: ''),
-      const CustomField(key: 'lineage', label: 'Lineage / Dynastic Line', value: ''),
-      const CustomField(key: 'sigil', label: 'House Sigil / Arms', value: ''),
+      CustomField(id: 'nob_title', key: 'title', label: 'Title / Rank', fieldType: 'short_text', value: 'Lord'),
+      CustomField(id: 'nob_house', key: 'house', label: 'House / Allegiance', fieldType: 'short_text', value: ''),
+      CustomField(id: 'nob_lin', key: 'lineage', label: 'Lineage / Dynastic Line', fieldType: 'short_text', value: ''),
+      CustomField(id: 'nob_sig', key: 'sigil', label: 'House Sigil / Arms', fieldType: 'short_text', value: ''),
     ],
     'Settlement / City': [
-      const CustomField(key: 'population', label: 'Population size', value: ''),
-      const CustomField(key: 'ruler', label: 'Ruling Lord / Council', value: ''),
-      const CustomField(key: 'climate', label: 'Regional Climate', value: ''),
-      const CustomField(key: 'defense', label: 'Defenses / Fortifications', value: ''),
+      CustomField(id: 'set_pop', key: 'population', label: 'Population size', fieldType: 'short_text', value: ''),
+      CustomField(id: 'set_rul', key: 'ruler', label: 'Ruling Lord / Council', fieldType: 'short_text', value: ''),
+      CustomField(id: 'set_clim', key: 'climate', label: 'Regional Climate', fieldType: 'short_text', value: ''),
+      CustomField(id: 'set_def', key: 'defense', label: 'Defenses / Fortifications', fieldType: 'short_text', value: ''),
     ],
     'Military Order': [
-      const CustomField(key: 'strength', label: 'Active Troop Strength', value: ''),
-      const CustomField(key: 'commander', label: 'Grand Master / Commander', value: ''),
-      const CustomField(key: 'headquarters', label: 'Primary Fortress / HQ', value: ''),
-      const CustomField(key: 'motto', label: 'Order Motto / Creed', value: ''),
+      CustomField(id: 'mil_str', key: 'strength', label: 'Active Troop Strength', fieldType: 'short_text', value: ''),
+      CustomField(id: 'mil_cmd', key: 'commander', label: 'Grand Master / Commander', fieldType: 'short_text', value: ''),
+      CustomField(id: 'mil_hq', key: 'headquarters', label: 'Primary Fortress / HQ', fieldType: 'short_text', value: ''),
+      CustomField(id: 'mil_motto', key: 'motto', label: 'Order Motto / Creed', fieldType: 'short_text', value: ''),
     ],
     'Spiritual Order': [
-      const CustomField(key: 'deity', label: 'Patron Deity / Entity', value: ''),
-      const CustomField(key: 'hq', label: 'Holy Site / Temple City', value: ''),
-      const CustomField(key: 'influence', label: 'Regional Influence', value: ''),
-      const CustomField(key: 'sacred_object', label: 'Sacred Relic / Artifact', value: ''),
+      CustomField(id: 'spi_deity', key: 'deity', label: 'Patron Deity / Entity', fieldType: 'short_text', value: ''),
+      CustomField(id: 'spi_hq', key: 'hq', label: 'Holy Site / Temple City', fieldType: 'short_text', value: ''),
+      CustomField(id: 'spi_inf', key: 'influence', label: 'Regional Influence', fieldType: 'short_text', value: ''),
+      CustomField(id: 'spi_sac', key: 'sacred_object', label: 'Sacred Relic / Artifact', fieldType: 'short_text', value: ''),
     ],
   };
 

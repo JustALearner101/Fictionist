@@ -8,10 +8,12 @@ import '../../entity/provider/entity_list_provider.dart';
 
 class RelationshipPickerSheet extends ConsumerStatefulWidget {
   final Entity sourceEntity;
+  final Entity? targetEntity;
 
   const RelationshipPickerSheet({
     super.key,
     required this.sourceEntity,
+    this.targetEntity,
   });
 
   @override
@@ -30,6 +32,9 @@ class _RelationshipPickerSheetState extends ConsumerState<RelationshipPickerShee
   @override
   void initState() {
     super.initState();
+    if (widget.targetEntity != null) {
+      _selectedTarget = widget.targetEntity;
+    }
     // Get relationship types applicable to the source entity type
     final eligibleDefs = RelationshipTypeRegistry.builtinTypes
         .where((def) => def.applicableSourceTypes.contains(widget.sourceEntity.type))

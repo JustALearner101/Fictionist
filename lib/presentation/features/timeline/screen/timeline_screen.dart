@@ -271,7 +271,70 @@ class _TimelineScreenState extends ConsumerState<TimelineScreen> {
     );
   }
 
-  Widget _buildTimelineItemRow({required Widget card, required Color dotColor}) {
+  Widget _getEventIcon(String title, Color dotColor) {
+    final t = title.toLowerCase();
+    IconData icon;
+    if (t.contains('born') || t.contains('birth')) {
+      icon = Icons.child_care;
+    } else if (t.contains('died') || t.contains('death') || t.contains('slain') || t.contains('fall')) {
+      icon = Icons.gavel;
+    } else if (t.contains('battle') || t.contains('war') || t.contains('siege') || t.contains('conquest')) {
+      icon = Icons.bolt;
+    } else if (t.contains('crown') || t.contains('coronation') || t.contains('reign')) {
+      icon = Icons.workspace_premium;
+    } else if (t.contains('found') || t.contains('built') || t.contains('construct')) {
+      icon = Icons.foundation;
+    } else if (t.contains('destroy') || t.contains('burn') || t.contains('ruin')) {
+      icon = Icons.local_fire_department;
+    } else if (t == 'chapter') {
+      icon = Icons.auto_stories;
+    } else {
+      return Container(
+        width: 10,
+        height: 10,
+        decoration: BoxDecoration(
+          color: dotColor,
+          shape: BoxShape.circle,
+          border: Border.all(
+            color: Theme.of(context).colorScheme.surface,
+            width: 1.5,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: dotColor.withOpacity(0.4),
+              blurRadius: 4,
+              spreadRadius: 1,
+            ),
+          ],
+        ),
+      );
+    }
+
+    return Container(
+      width: 22,
+      height: 22,
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surface,
+        shape: BoxShape.circle,
+        border: Border.all(
+          color: dotColor,
+          width: 1.5,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: dotColor.withOpacity(0.2),
+            blurRadius: 4,
+            offset: const Offset(0, 1),
+          )
+        ],
+      ),
+      child: Center(
+        child: Icon(icon, size: 11, color: dotColor),
+      ),
+    );
+  }
+
+  Widget _buildTimelineItemRow({required Widget card, required Widget customDot}) {
     return IntrinsicHeight(
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -282,28 +345,10 @@ class _TimelineScreenState extends ConsumerState<TimelineScreen> {
               alignment: Alignment.center,
               children: [
                 Container(
-                  width: 1.5,
+                  width: 2.0,
                   color: Theme.of(context).colorScheme.outline.withOpacity(0.35),
                 ),
-                Container(
-                  width: 10,
-                  height: 10,
-                  decoration: BoxDecoration(
-                    color: dotColor,
-                    shape: BoxShape.circle,
-                    border: Border.all(
-                      color: Theme.of(context).colorScheme.surface,
-                      width: 1.5,
-                    ),
-                    boxShadow: [
-                      BoxShadow(
-                        color: dotColor.withOpacity(0.4),
-                        blurRadius: 4,
-                        spreadRadius: 1,
-                      ),
-                    ],
-                  ),
-                ),
+                customDot,
               ],
             ),
           ),
@@ -428,7 +473,7 @@ class _TimelineScreenState extends ConsumerState<TimelineScreen> {
                         if (item is ChronicleTimelineEntry) {
                           final linked = entitiesList.where((x) => x.id == item.entry.entityId).firstOrNull;
                           return _buildTimelineItemRow(
-                            dotColor: Theme.of(context).colorScheme.primary,
+                            customDot: _getEventIcon(item.entry.title, Theme.of(context).colorScheme.primary),
                             card: _entryCard(
                               item.entry,
                               linked,
@@ -438,7 +483,7 @@ class _TimelineScreenState extends ConsumerState<TimelineScreen> {
                         }
                         if (item is ChronicleChapter) {
                           return _buildTimelineItemRow(
-                            dotColor: Theme.of(context).colorScheme.secondary,
+                            customDot: _getEventIcon('chapter', Theme.of(context).colorScheme.secondary),
                             card: _chapterCard(
                               item,
                               padding: const EdgeInsets.only(right: 14, top: 4, bottom: 4),

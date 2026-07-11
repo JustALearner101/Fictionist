@@ -1,19 +1,20 @@
+import 'package:fictionist/presentation/common/widget/app_scaffold.dart';
+import 'package:fictionist/presentation/features/entity/screen/entity_create_screen.dart';
+import 'package:fictionist/presentation/features/entity/screen/entity_detail_screen.dart';
+import 'package:fictionist/presentation/features/entity/screen/entity_edit_screen.dart';
+import 'package:fictionist/presentation/features/entity/screen/entity_list_screen.dart';
+import 'package:fictionist/presentation/features/graph/screen/graph_screen.dart';
+import 'package:fictionist/presentation/features/manuscript/screen/chapter_editor_screen.dart';
+import 'package:fictionist/presentation/features/manuscript/screen/manuscript_screen.dart';
+import 'package:fictionist/presentation/features/map/screen/map_generator_screen.dart';
+import 'package:fictionist/presentation/features/map/screen/map_screen.dart';
+import 'package:fictionist/presentation/features/plot/screen/plot_canvas_screen.dart';
+import 'package:fictionist/presentation/features/search/screen/search_screen.dart';
+import 'package:fictionist/presentation/features/settings/screen/settings_screen.dart';
+import 'package:fictionist/presentation/features/theme/screen/theme_screen.dart';
+import 'package:fictionist/presentation/features/timeline/screen/timeline_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import '../common/widget/app_scaffold.dart';
-import '../features/entity/screen/entity_create_screen.dart';
-import '../features/entity/screen/entity_detail_screen.dart';
-import '../features/entity/screen/entity_edit_screen.dart';
-import '../features/entity/screen/entity_list_screen.dart';
-import '../features/graph/screen/graph_screen.dart';
-import '../features/inbox/screen/inbox_screen.dart';
-import '../features/manuscript/screen/manuscript_screen.dart';
-import '../features/map/screen/map_screen.dart';
-import '../features/plot/screen/plot_canvas_screen.dart';
-import '../features/settings/screen/settings_screen.dart';
-import '../features/theme/screen/theme_screen.dart';
-import '../features/timeline/screen/timeline_screen.dart';
-import '../features/search/screen/search_screen.dart';
 
 final GlobalKey<NavigatorState> _rootNavigatorKey =
     GlobalKey<NavigatorState>(debugLabel: 'root');
@@ -70,6 +71,16 @@ final GoRouter appRouter = GoRouter(
           pageBuilder: (context, state) => const NoTransitionPage(
             child: ManuscriptScreen(),
           ),
+          routes: [
+            GoRoute(
+              path: 'write/:chapterId',
+              parentNavigatorKey: _rootNavigatorKey,
+              builder: (context, state) {
+                final id = state.pathParameters['chapterId'] ?? '';
+                return ChapterEditorScreen(chapterId: id);
+              },
+            ),
+          ],
         ),
         GoRoute(
           path: '/graph',
@@ -88,12 +99,13 @@ final GoRouter appRouter = GoRouter(
           pageBuilder: (context, state) => const NoTransitionPage(
             child: MapScreen(),
           ),
-        ),
-        GoRoute(
-          path: '/inbox',
-          pageBuilder: (context, state) => const NoTransitionPage(
-            child: InboxScreen(),
-          ),
+          routes: [
+            GoRoute(
+              path: 'generator',
+              parentNavigatorKey: _rootNavigatorKey,
+              builder: (context, state) => const MapGeneratorScreen(),
+            ),
+          ],
         ),
       ],
     ),

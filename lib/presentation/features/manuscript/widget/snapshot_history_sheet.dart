@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:fictionist/domain/manuscript/chapter_snapshot.dart';
+import 'package:fictionist/core/utils/word_diff.dart';
 
 /// Formats a DateTime to a human-readable string like "Jul 10, 2026 – 2:30 PM".
 String _formatDateTime(DateTime dt) {
@@ -21,11 +22,13 @@ String _formatDateTime(DateTime dt) {
 class SnapshotHistorySheet extends StatelessWidget {
   final List<ChapterSnapshot> snapshots;
   final void Function(ChapterSnapshot snapshot) onRestore;
+  final String? currentContent;
 
   const SnapshotHistorySheet({
     super.key,
     required this.snapshots,
     required this.onRestore,
+    this.currentContent,
   });
 
   @override
@@ -197,6 +200,50 @@ class SnapshotHistorySheet extends StatelessWidget {
     );
   }
 
+  Widget _buildDiffView(BuildContext context, String oldText, String newText) {
+    final diffs = computeWordDiff(oldText, newText);
+    final theme = Theme.of(context);
+    final spans = <TextSpan>[];
+
+    for (final diff in diffs) {
+      switch (diff.type) {
+        case DiffType.equal:
+          spans.add(TextSpan(
+            text: diff.text,
+            style: TextStyle(
+              color: theme.colorScheme.onSurface,
+            ),
+          ));
+          break;
+        case DiffType.deletion:
+          spans.add(TextSpan(
+            text: diff.text,
+            style: TextStyle(
+              color: theme.colorScheme.error,
+              backgroundColor: theme.colorScheme.errorContainer.withOpacity(0.3),
+              decoration: TextDecoration.lineThrough,
+            ),
+          ));
+          break;
+        case DiffType.insertion:
+          spans.add(TextSpan(
+            text: diff.text,
+            style: TextStyle(
+              color: theme.colorScheme.primary,
+              backgroundColor: theme.colorScheme.primaryContainer.withOpacity(0.3),
+              fontWeight: FontWeight.bold,
+            ),
+          ));
+          break;
+      }
+    }
+
+    return SelectableText.rich(
+      TextSpan(children: spans),
+      style: theme.textTheme.bodyMedium!.copyWith(height: 1.6),
+    );
+  }
+
   void _showPreviewDialog(BuildContext context, ChapterSnapshot snapshot) {
     final theme = Theme.of(context);
     final formattedDate = _formatDateTime(snapshot.createdAt);
@@ -208,71 +255,108 @@ class SnapshotHistorySheet extends StatelessWidget {
     showDialog(
       context: context,
       builder: (ctx) {
-        return AlertDialog(
-          backgroundColor: theme.colorScheme.surface,
-          title: Row(
-            children: [
-              Icon(Icons.history,
-                  size: 20, color: theme.colorScheme.primary),
-              const SizedBox(width: 8),
-              Expanded(
-                child: Text(
-                  formattedDate,
-                  style: theme.textTheme.titleMedium,
-                ),
-              ),
-            ],
-          ),
-          content: SizedBox(
-            width: double.maxFinite,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  '$wordCount words · ${snapshot.content.length} chars',
-                  style: theme.textTheme.labelMedium!.copyWith(
-                    color: theme.colorScheme.onSurfaceVariant,
-                  ),
-                ),
-                const SizedBox(height: 12),
-                ConstrainedBox(
-                  constraints: const BoxConstraints(maxHeight: 400),
-                  child: Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: theme.colorScheme.surfaceContainerHighest
-                          .withOpacity(0.3),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: SingleChildScrollView(
-                      child: SelectableText(
-                        snapshot.content,
-                        style: theme.textTheme.bodyMedium!.copyWith(
-                          height: 1.6,
-                        ),
+        bool showDiff = currentContent != null;
+        return StatefulBuilder(
+          builder: (context, setStateDialog) {
+            return AlertDialog(
+              backgroundColor: theme.colorScheme.surface,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+              title: Row(
+                children: [
+                  Icon(Icons.history,
+                      size: 20, color: theme.colorScheme.primary),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      formattedDate,
+                      style: theme.textTheme.titleMedium!.copyWith(
+                        fontWeight: FontWeight.bold,
                       ),
                     ),
                   ),
+                ],
+              ),
+              content: SizedBox(
+                width: double.maxFinite,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          '$wordCount words · ${snapshot.content.length} chars',
+                          style: theme.textTheme.labelMedium!.copyWith(
+                            color: theme.colorScheme.onSurfaceVariant,
+                          ),
+                        ),
+                        if (currentContent != null)
+                          Row(
+                            children: [
+                              ChoiceChip(
+                                label: const Text('Diff', style: TextStyle(fontSize: 11)),
+                                selected: showDiff,
+                                visualDensity: VisualDensity.compact,
+                                onSelected: (val) {
+                                  setStateDialog(() => showDiff = val);
+                                },
+                              ),
+                              const SizedBox(width: 6),
+                              ChoiceChip(
+                                label: const Text('Raw', style: TextStyle(fontSize: 11)),
+                                selected: !showDiff,
+                                visualDensity: VisualDensity.compact,
+                                onSelected: (val) {
+                                  setStateDialog(() => showDiff = !val);
+                                },
+                              ),
+                            ],
+                          ),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+                    ConstrainedBox(
+                      constraints: const BoxConstraints(maxHeight: 400),
+                      child: Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: theme.colorScheme.surfaceContainerHighest
+                              .withOpacity(0.3),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: SingleChildScrollView(
+                          child: showDiff && currentContent != null
+                              ? _buildDiffView(context, snapshot.content, currentContent!)
+                              : SelectableText(
+                                  snapshot.content,
+                                  style: theme.textTheme.bodyMedium!.copyWith(
+                                    height: 1.6,
+                                  ),
+                                ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(ctx),
+                  child: const Text('Close'),
+                ),
+                FilledButton.icon(
+                  icon: const Icon(Icons.restore, size: 18),
+                  label: const Text('Restore'),
+                  onPressed: () {
+                    Navigator.pop(ctx); // Close dialog
+                    onRestore(snapshot);
+                    Navigator.pop(context); // Close sheet
+                  },
                 ),
               ],
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(ctx),
-              child: const Text('Close'),
-            ),
-            FilledButton.icon(
-              icon: const Icon(Icons.restore, size: 18),
-              label: const Text('Restore'),
-              onPressed: () {
-                Navigator.pop(ctx); // Close dialog
-                onRestore(snapshot);
-                Navigator.pop(context); // Close sheet
-              },
-            ),
-          ],
+            );
+          },
         );
       },
     );
@@ -283,6 +367,7 @@ class SnapshotHistorySheet extends StatelessWidget {
     BuildContext context, {
     required List<ChapterSnapshot> snapshots,
     required void Function(ChapterSnapshot snapshot) onRestore,
+    String? currentContent,
   }) {
     return showModalBottomSheet(
       context: context,
@@ -297,6 +382,7 @@ class SnapshotHistorySheet extends StatelessWidget {
           return SnapshotHistorySheet(
             snapshots: snapshots,
             onRestore: onRestore,
+            currentContent: currentContent,
           );
         },
       ),

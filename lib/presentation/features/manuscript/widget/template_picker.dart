@@ -15,7 +15,14 @@ class WritingTemplate {
   });
 }
 
-/// Built-in writing templates available in the picker.
+/// Blank (start-fresh) & built-in writing templates available in the picker.
+const WritingTemplate blankTemplate = WritingTemplate(
+  name: 'Blank',
+  icon: Icons.auto_stories,
+  description: 'Start fresh — add chapters as you go',
+  chapterTitles: ['Untitled Chapter'],
+);
+
 const List<WritingTemplate> writingTemplates = [
   WritingTemplate(
     name: 'Novel',
@@ -79,14 +86,6 @@ const List<WritingTemplate> writingTemplates = [
       'Encounter 3',
       'Boss Fight',
       'Aftermath',
-    ],
-  ),
-  WritingTemplate(
-    name: 'Blank',
-    icon: Icons.auto_stories,
-    description: 'Start fresh — add chapters as you go',
-    chapterTitles: [
-      'Untitled Chapter',
     ],
   ),
 ];
@@ -181,12 +180,38 @@ class _TemplatePickerSheet extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 12),
-              const Divider(height: 1),
+              // ── Blank (start fresh) ─────────────────────────
+              _TemplateCard(
+                template: blankTemplate,
+                chapterCount: blankTemplate.chapterTitles.length,
+                onTap: () => Navigator.pop(ctx, blankTemplate.chapterTitles),
+              ),
+              const SizedBox(height: 4),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                child: Row(
+                  children: [
+                    const Expanded(child: Divider(height: 1)),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 12),
+                      child: Text(
+                        'Available Templates',
+                        style: Theme.of(ctx).textTheme.labelSmall?.copyWith(
+                          color: Theme.of(ctx).colorScheme.onSurfaceVariant.withOpacity(0.5),
+                          fontSize: 10,
+                          letterSpacing: 1.2,
+                        ),
+                      ),
+                    ),
+                    const Expanded(child: Divider(height: 1)),
+                  ],
+                ),
+              ),
               // Template list
               Expanded(
                 child: ListView.builder(
                   controller: scrollController,
-                  padding: const EdgeInsets.symmetric(vertical: 8),
+                  padding: const EdgeInsets.symmetric(vertical: 4),
                   itemCount: writingTemplates.length,
                   itemBuilder: (ctx, index) {
                     final template = writingTemplates[index];
@@ -194,8 +219,7 @@ class _TemplatePickerSheet extends StatelessWidget {
                     return _TemplateCard(
                       template: template,
                       chapterCount: chapterCount,
-                      onTap: () =>
-                          Navigator.pop(ctx, template.chapterTitles),
+                      onTap: () => Navigator.pop(ctx, template.chapterTitles),
                     );
                   },
                 ),

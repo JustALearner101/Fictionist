@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 
 class AppScaffold extends StatelessWidget {
@@ -14,7 +15,6 @@ class AppScaffold extends StatelessWidget {
     if (location.startsWith('/graph')) return 3;
     if (location.startsWith('/map')) return 4;
     if (location.startsWith('/plot')) return 5;
-    if (location.startsWith('/inbox')) return 6;
     return 0;
   }
 
@@ -26,7 +26,6 @@ class AppScaffold extends StatelessWidget {
       case 3: context.go('/graph');
       case 4: context.go('/map');
       case 5: context.go('/plot');
-      case 6: context.go('/inbox');
     }
   }
 
@@ -96,14 +95,6 @@ class AppScaffold extends StatelessWidget {
                   selectedIndex: selectedIndex,
                   onTap: () => _onItemTapped(5, context),
                 ),
-                _NavItem(
-                  icon: Icons.inbox_outlined,
-                  activeIcon: Icons.inbox,
-                  label: 'Inbox',
-                  index: 6,
-                  selectedIndex: selectedIndex,
-                  onTap: () => _onItemTapped(6, context),
-                ),
               ],
             ),
           ),
@@ -133,41 +124,63 @@ class _NavItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isSelected = index == selectedIndex;
+    final theme = Theme.of(context);
+    final activeColor = theme.colorScheme.primary;
+    final inactiveColor = theme.colorScheme.onSurfaceVariant.withOpacity(0.6);
+
     return GestureDetector(
-      onTap: onTap,
+      onTap: () {
+        HapticFeedback.selectionClick();
+        onTap();
+      },
       behavior: HitTestBehavior.opaque,
-      child: AnimatedContainer(
-        duration: Duration(milliseconds: 200),
-        padding: EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-        decoration: BoxDecoration(
-          color: isSelected
-              ? Theme.of(context).colorScheme.primary.withOpacity(0.1)
-              : Colors.transparent,
-          borderRadius: BorderRadius.circular(10),
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              isSelected ? activeIcon : icon,
-              size: 22,
-              color: isSelected
-                  ? Theme.of(context).colorScheme.primary
-                  : Theme.of(context).colorScheme.onSurfaceVariant.withOpacity(0.6),
-            ),
-            SizedBox(height: 2),
-            Text(
-              label,
-              style: TextStyle(
-                fontSize: 10,
-                fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
-                color: isSelected
-                    ? Theme.of(context).colorScheme.primary
-                    : Theme.of(context).colorScheme.onSurfaceVariant.withOpacity(0.5),
-                letterSpacing: 0.3,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 2),
+        child: SizedBox(
+          width: 50,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Pill background for active tab
+              AnimatedContainer(
+                duration: const Duration(milliseconds: 200),
+                curve: Curves.easeInOut,
+                width: isSelected ? 44 : 32,
+                height: 26,
+                decoration: BoxDecoration(
+                  color: isSelected
+                      ? activeColor.withOpacity(0.12)
+                      : Colors.transparent,
+                  borderRadius: BorderRadius.circular(13),
+                ),
+                child: TweenAnimationBuilder<double>(
+                  tween: Tween<double>(begin: isSelected ? 0.9 : 1.0, end: isSelected ? 1.08 : 1.0),
+                  duration: const Duration(milliseconds: 250),
+                  curve: Curves.easeOutBack,
+                  builder: (context, scale, child) {
+                    return Transform.scale(
+                      scale: scale,
+                      child: Icon(
+                        isSelected ? activeIcon : icon,
+                        size: 20,
+                        color: isSelected ? activeColor : inactiveColor,
+                      ),
+                    );
+                  },
+                ),
               ),
-            ),
-          ],
+              const SizedBox(height: 3),
+              Text(
+                label,
+                style: TextStyle(
+                  fontSize: 10,
+                  fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+                  color: isSelected ? activeColor : inactiveColor.withOpacity(0.8),
+                  letterSpacing: 0.3,
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

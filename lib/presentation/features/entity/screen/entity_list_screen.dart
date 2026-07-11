@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../domain/entity/entity.dart';
@@ -13,6 +15,8 @@ import '../../../../domain/use_case/continuity_check_use_case.dart';
 import '../../../../injection.dart';
 import '../provider/continuity_provider.dart';
 import '../provider/entity_list_provider.dart';
+import '../provider/unused_entities_provider.dart';
+import '../widget/bento_stats_widget.dart';
 
 class EntityListScreen extends ConsumerStatefulWidget {
   const EntityListScreen({super.key});
@@ -178,6 +182,13 @@ class _EntityListScreenState extends ConsumerState<EntityListScreen> {
             ),
           ),
 
+          // ── Bento Stats & Story Spark ──
+          _UnusedBanner(),
+          BentoStatsWidget(
+            selectedType: _selectedType,
+            onFilterType: (type) => setState(() => _selectedType = type),
+          ),
+
           // ── Entity type filter chips ──
           Container(
             height: 42,
@@ -315,117 +326,129 @@ class _EntityListScreenState extends ConsumerState<EntityListScreen> {
         final color = Color(entity.iconColor);
         return Padding(
           padding: EdgeInsets.only(bottom: 10),
-          child: Material(
-            color: Theme.of(context).colorScheme.surface,
-            borderRadius: BorderRadius.circular(14),
-            child: InkWell(
+          child: Hero(
+            tag: 'entity-card-${entity.id}',
+            child: Material(
+              color: Theme.of(context).colorScheme.surface,
               borderRadius: BorderRadius.circular(14),
-              onTap: () => context.push('/entities/${entity.id}'),
-              child: Container(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(14),
-                  border: Border.all(color: Theme.of(context).colorScheme.outline.withOpacity(0.4), width: 0.5),
-                ),
-                padding: const EdgeInsets.all(14),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Avatar
-                    Container(
-                      width: 42,
-                      height: 42,
-                      decoration: BoxDecoration(
-                        color: color.withOpacity(0.12),
-                        shape: BoxShape.circle,
-                        border: Border.all(color: color.withOpacity(0.5), width: 1.2),
-                      ),
-                      child: Center(
-                        child: Text(
-                          entity.name.isNotEmpty ? entity.name[0].toUpperCase() : '?',
-                          style: Theme.of(context).textTheme.titleMedium!.copyWith(
-                            color: color,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16,
+              child: InkWell(
+                borderRadius: BorderRadius.circular(14),
+                onTap: () {
+                  HapticFeedback.lightImpact();
+                  context.push('/entities/${entity.id}');
+                },
+                child: Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(14),
+                    border: Border.all(color: Theme.of(context).colorScheme.outline.withOpacity(0.4), width: 0.5),
+                  ),
+                  padding: const EdgeInsets.all(14),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Avatar
+                      Hero(
+                        tag: 'entity-avatar-${entity.id}',
+                        child: Material(
+                          type: MaterialType.transparency,
+                          child: Container(
+                            width: 42,
+                            height: 42,
+                            decoration: BoxDecoration(
+                              color: color.withOpacity(0.12),
+                              shape: BoxShape.circle,
+                              border: Border.all(color: color.withOpacity(0.5), width: 1.2),
+                            ),
+                            child: Center(
+                              child: Text(
+                                entity.name.isNotEmpty ? entity.name[0].toUpperCase() : '?',
+                                style: Theme.of(context).textTheme.titleMedium!.copyWith(
+                                  color: color,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 16,
+                                ),
+                              ),
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                    SizedBox(width: 14),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            children: [
-                              Expanded(
-                                child: Text(
-                                  entity.name,
-                                  style: Theme.of(context).textTheme.titleMedium!.copyWith(
-                                    fontFamily: 'Lora',
-                                    fontWeight: FontWeight.bold,
-                                    color: Theme.of(context).colorScheme.onSurface,
-                                    fontSize: 15,
+                      SizedBox(width: 14),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: Text(
+                                    entity.name,
+                                    style: Theme.of(context).textTheme.titleMedium!.copyWith(
+                                      fontFamily: 'Lora',
+                                      fontWeight: FontWeight.bold,
+                                      color: Theme.of(context).colorScheme.onSurface,
+                                      fontSize: 15,
+                                    ),
                                   ),
                                 ),
-                              ),
-                              SizedBox(width: 8),
-                              Container(
-                                padding: EdgeInsets.symmetric(horizontal: 7, vertical: 2),
-                                decoration: BoxDecoration(
-                                  color: _statusColor(entity.status).withOpacity(0.12),
-                                  borderRadius: BorderRadius.circular(5),
-                                ),
-                                child: Text(
-                                  entity.status.label.toUpperCase(),
-                                  style: Theme.of(context).textTheme.labelMedium!.copyWith(
-                                    color: _statusColor(entity.status),
-                                    fontWeight: FontWeight.w600,
-                                    fontSize: 9,
-                                    letterSpacing: 0.5,
+                                SizedBox(width: 8),
+                                Container(
+                                  padding: EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+                                  decoration: BoxDecoration(
+                                    color: _statusColor(entity.status).withOpacity(0.12),
+                                    borderRadius: BorderRadius.circular(5),
+                                  ),
+                                  child: Text(
+                                    entity.status.label.toUpperCase(),
+                                    style: Theme.of(context).textTheme.labelMedium!.copyWith(
+                                      color: _statusColor(entity.status),
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 9,
+                                      letterSpacing: 0.5,
+                                    ),
                                   ),
                                 ),
-                              ),
-                            ],
-                          ),
-                          SizedBox(height: 5),
-                          Row(
-                            children: [
-                              Icon(_typeIcon(entity.type), size: 13, color: Theme.of(context).colorScheme.onSurfaceVariant.withOpacity(0.6)),
-                              SizedBox(width: 4),
-                              Text(
-                                entity.type.label,
-                                style: Theme.of(context).textTheme.bodyLarge!.copyWith(
-                                  color: Theme.of(context).colorScheme.onSurfaceVariant,
-                                  fontSize: 12,
-                                ),
-                              ),
-                            ],
-                          ),
-                          if (entity.description != null &&
-                              entity.description!.trim().isNotEmpty) ...[
-                            SizedBox(height: 6),
-                            Text(
-                              entity.description!,
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                              style: Theme.of(context).textTheme.bodyLarge!.copyWith(
-                                color: Theme.of(context).colorScheme.onSurfaceVariant.withOpacity(0.7),
-                                fontSize: 13,
-                                height: 1.4,
-                              ),
+                              ],
                             ),
+                            SizedBox(height: 5),
+                            Row(
+                              children: [
+                                Icon(_typeIcon(entity.type), size: 13, color: Theme.of(context).colorScheme.onSurfaceVariant.withOpacity(0.6)),
+                                SizedBox(width: 4),
+                                Text(
+                                  entity.type.label,
+                                  style: Theme.of(context).textTheme.bodyLarge!.copyWith(
+                                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                    fontSize: 12,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            if (entity.description != null &&
+                                entity.description!.trim().isNotEmpty) ...[
+                              SizedBox(height: 6),
+                              Text(
+                                entity.description!,
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                                style: Theme.of(context).textTheme.bodyLarge!.copyWith(
+                                  color: Theme.of(context).colorScheme.onSurfaceVariant.withOpacity(0.7),
+                                  fontSize: 13,
+                                  height: 1.4,
+                                ),
+                              ),
+                            ],
                           ],
-                        ],
+                        ),
                       ),
-                    ),
-                    SizedBox(width: 4),
-                    Icon(Icons.chevron_right, size: 18, color: Theme.of(context).colorScheme.onSurfaceVariant.withOpacity(0.3)),
-                  ],
+                      SizedBox(width: 4),
+                      Icon(Icons.chevron_right, size: 18, color: Theme.of(context).colorScheme.onSurfaceVariant.withOpacity(0.3)),
+                    ],
+                  ),
                 ),
               ),
             ),
           ),
-        );
+        ).animate().fadeIn(duration: 250.ms, delay: (index * 40).ms).slideY(begin: 0.15, duration: 250.ms, delay: (index * 40).ms, curve: Curves.easeOutQuad);
       },
     );
   }
@@ -607,7 +630,10 @@ class _FilterChip extends StatelessWidget {
     return Padding(
       padding: EdgeInsets.only(right: 8),
       child: GestureDetector(
-        onTap: onTap,
+        onTap: () {
+          HapticFeedback.selectionClick();
+          onTap();
+        },
         child: AnimatedContainer(
           duration: Duration(milliseconds: 200),
           padding: EdgeInsets.symmetric(horizontal: 14, vertical: 8),
@@ -657,7 +683,60 @@ class _FilterChip extends StatelessWidget {
             ],
           ),
         ),
-      ),
+      ).animate(target: isSelected ? 1.0 : 0.0)
+       .scale(begin: const Offset(0.96, 0.96), end: const Offset(1.04, 1.04), duration: 150.ms, curve: Curves.easeOutBack),
+    );
+  }
+}
+
+class _UnusedBanner extends ConsumerWidget {
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final reportAsync = ref.watch(unusedEntitiesReportProvider);
+    final theme = Theme.of(context);
+
+    return reportAsync.maybeWhen(
+      data: (report) {
+        if (report.unused.isEmpty) return const SizedBox.shrink();
+        return GestureDetector(
+          onTap: () {
+            // ponytail: filter to show unused — for now just info banner
+          },
+          child: Container(
+            margin: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            decoration: BoxDecoration(
+              color: const Color(0xFFFBBF24).withOpacity(0.1),
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(
+                  color: const Color(0xFFFBBF24).withOpacity(0.3), width: 0.5),
+            ),
+            child: Row(
+              children: [
+                const Icon(Icons.warning_amber_rounded,
+                    size: 14, color: Color(0xFFFBBF24)),
+                const SizedBox(width: 8),
+                Text(
+                  '${report.unused.length} unused entit${report.unused.length == 1 ? 'y' : 'ies'}',
+                  style: theme.textTheme.labelSmall?.copyWith(
+                    color: const Color(0xFFFBBF24),
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                const Spacer(),
+                Text(
+                  '${report.used.length}/${report.total} used',
+                  style: theme.textTheme.labelSmall?.copyWith(
+                    color: theme.colorScheme.onSurfaceVariant.withOpacity(0.5),
+                    fontSize: 10,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+      orElse: () => const SizedBox.shrink(),
     );
   }
 }

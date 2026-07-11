@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 import 'package:graphview/GraphView.dart';
 import '../../../../domain/entity/entity.dart';
 import '../../../../domain/entity/entity_type.dart';
@@ -13,12 +13,14 @@ import '../../../../domain/use_case/trait/analyze_trait_inheritance_use_case.dar
 import '../../../../domain/use_case/continuity_check_use_case.dart';
 import '../../../../domain/use_case/timeline/get_timeline_use_case.dart';
 import '../../../../domain/use_case/relationship/create_relationship_use_case.dart';
+import '../../../../domain/use_case/relationship/delete_relationship_use_case.dart';
 import '../../../../injection.dart';
 import '../../../common/widget/empty_state.dart';
 import '../../../common/widget/error_display.dart';
 import '../../../common/widget/loading_indicator.dart';
 import '../provider/graph_provider.dart';
 import '../widget/timeline_scrubber.dart';
+import '../widget/relationship_matrix_widget.dart';
 import '../../entity/widget/entity_peek_sheet.dart';
 import '../../relationship/widget/relationship_picker_sheet.dart';
 
@@ -26,6 +28,7 @@ enum GraphLayoutMode {
   chronicleWeb,
   familyTree,
   factionMap,
+  relationshipMatrix,
 }
 
 class GraphScreen extends ConsumerStatefulWidget {
@@ -736,9 +739,14 @@ class _GraphScreenState extends ConsumerState<GraphScreen> {
                 value: GraphLayoutMode.factionMap,
                 child: Text('Faction', style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurface)),
               ),
+              DropdownMenuItem(
+                value: GraphLayoutMode.relationshipMatrix,
+                child: Text('Matrix', style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurface)),
+              ),
             ],
             onChanged: (val) {
               if (val != null) {
+                HapticFeedback.selectionClick();
                 setState(() => _layoutMode = val);
               }
             },
@@ -781,6 +789,95 @@ class _GraphScreenState extends ConsumerState<GraphScreen> {
           final entities = data.$1;
           final relationships = data.$2;
 
+          if (_layoutMode == GraphLayoutMode.relationshipMatrix) {
+            final characters = entities.where((e) => e.type == EntityType.character).toList();
+            return RelationshipMatrixWidget(
+              characters: characters,
+              relationships: relationships,
+              onForgeConnection: (source, target) async {
+                final result = await showModalBottomSheet<CreateRelationshipParams?>(
+                  context: context,
+                  isScrollControlled: true,
+                  backgroundColor: Colors.transparent,
+                  builder: (ctx) => RelationshipPickerSheet(
+                    sourceEntity: source,
+                    targetEntity: target,
+                  ),
+                );
+                if (result == null || !mounted) return;
+                final cr = getIt<CreateRelationshipUseCase>();
+                final res = await cr(result);
+                res.fold(
+                  (f) => ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text(f.message), backgroundColor: Theme.of(context).colorScheme.error),
+                  ),
+                  (success) {
+                    ref.invalidate(graphDataProvider);
+                    if (success.reciprocalSuggestionTypeKey != null) {
+                      final def = RelationshipTypeRegistry.getDef(success.reciprocalSuggestionTypeKey!);
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text('Connection forged. Create reciprocal link "${def?.label}" back?'),
+                          backgroundColor: Theme.of(context).colorScheme.primary,
+                          duration: const Duration(seconds: 8),
+                          action: SnackBarAction(
+                            label: 'Forge Link',
+                            textColor: Theme.of(context).colorScheme.surface,
+                            onPressed: () async {
+                              final recParams = CreateRelationshipParams(
+                                sourceId: result.targetId,
+                                targetId: result.sourceId,
+                                typeKey: success.reciprocalSuggestionTypeKey!,
+                                description: 'Reciprocal link created automatically',
+                              );
+                              final recRes = await getIt<CreateRelationshipUseCase>()(recParams);
+                              recRes.fold(
+                                (f) => ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(content: Text(f.message), backgroundColor: Theme.of(context).colorScheme.error),
+                                ),
+                                (_) {
+                                  ref.invalidate(graphDataProvider);
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: const Text('Reciprocal link successfully forged.'),
+                                      backgroundColor: Theme.of(context).colorScheme.tertiary,
+                                    ),
+                                  );
+                                },
+                              );
+                            },
+                          ),
+                        ),
+                      );
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: const Text('Connection forged.'),
+                          backgroundColor: Theme.of(context).colorScheme.tertiary,
+                        ),
+                      );
+                    }
+                  },
+                );
+              },
+              onDeleteConnection: (rel) async {
+                final deleteUseCase = getIt<DeleteRelationshipUseCase>();
+                final res = await deleteUseCase(rel.id);
+                res.fold(
+                  (f) => ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text(f.message), backgroundColor: Theme.of(context).colorScheme.error),
+                  ),
+                  (_) {
+                    ref.invalidate(graphDataProvider);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Connection severed.')),
+                    );
+                  },
+                );
+              },
+            );
+          }
+
           if (entities.isEmpty) {
             return const EmptyState(
               title: 'No Entities Exist',
@@ -791,7 +888,7 @@ class _GraphScreenState extends ConsumerState<GraphScreen> {
 
           // Apply filters depending on Layout Mode
           List<Entity> filteredEntities = [];
-          List<dynamic> activeRels = [];
+          List<Relationship> activeRels = [];
           Algorithm activeAlgorithm;
 
           switch (_layoutMode) {
@@ -849,6 +946,18 @@ class _GraphScreenState extends ConsumerState<GraphScreen> {
                   .toList();
               activeAlgorithm = _forceAlgorithm;
               break;
+
+            case GraphLayoutMode.relationshipMatrix:
+              filteredEntities =
+                  entities.where((e) => e.type == EntityType.character).toList();
+              final characterIds = filteredEntities.map((e) => e.id).toSet();
+              activeRels = relationships
+                  .where((r) =>
+                      characterIds.contains(r.sourceId) &&
+                      characterIds.contains(r.targetId))
+                  .toList();
+              activeAlgorithm = _forceAlgorithm;
+              break;
           }
 
           if (filteredEntities.isEmpty) {
@@ -871,7 +980,7 @@ class _GraphScreenState extends ConsumerState<GraphScreen> {
             final traitUseCase = getIt<AnalyzeTraitInheritanceUseCase>();
             final traitResult = traitUseCase(AnalyzeTraitInheritanceParams(
               characters: filteredEntities,
-              relationships: activeRels.cast<Relationship>(),
+              relationships: activeRels,
             ));
             traitResult.then((either) {
               either.fold((_) {}, (traits) {

@@ -7,7 +7,6 @@ import '../../repository/entity_repository.dart';
 import '../../entity/entity.dart';
 import '../../repository/entity_version_repository.dart';
 import '../../repository/map_repository.dart';
-import '../../repository/quick_capture_repository.dart';
 import '../../repository/relationship_repository.dart';
 import '../../repository/tag_repository.dart';
 import '../../repository/template_repository.dart';
@@ -21,7 +20,6 @@ class ExportDatabaseUseCase implements UseCaseNoParams<String> {
   final TagRepository _tagRepository;
   final TimelineRepository _timelineRepository;
   final TemplateRepository _templateRepository;
-  final QuickCaptureRepository _captureRepository;
   final EntityVersionRepository _versionRepository;
   final MapRepository _mapRepository;
 
@@ -31,7 +29,6 @@ class ExportDatabaseUseCase implements UseCaseNoParams<String> {
     this._tagRepository,
     this._timelineRepository,
     this._templateRepository,
-    this._captureRepository,
     this._versionRepository,
     this._mapRepository,
   );
@@ -44,7 +41,6 @@ class ExportDatabaseUseCase implements UseCaseNoParams<String> {
       final tags = await _tagRepository.getAllTags();
       final timeline = await _timelineRepository.getAllActiveOrdered();
       final templates = await _templateRepository.getAllTemplates();
-      final captures = await _captureRepository.getUnprocessedOrdered();
       final maps = await _mapRepository.getAllMaps();
 
       // Collect entity version histories
@@ -69,7 +65,6 @@ class ExportDatabaseUseCase implements UseCaseNoParams<String> {
           'tags': tags.getOrElse((_) => []),
           'timeline_entries': timeline.getOrElse((_) => []),
           'templates': templates.getOrElse((_) => []),
-          'quick_captures': captures.getOrElse((_) => []),
           'world_maps': maps.getOrElse((_) => []),
           'entity_versions': versions,
         }
