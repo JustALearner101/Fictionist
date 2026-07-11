@@ -1,0 +1,101 @@
+<svg width="360" height="640" viewBox="0 0 360 640" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Phone body -->
+  <rect width="360" height="640" rx="32" fill="#0D0B11"/>
+  <rect x="1" y="1" width="358" height="638" rx="31" stroke="#3A3445" stroke-width="2"/>
+
+  <!-- Status bar -->
+  <rect x="0" y="0" width="360" height="44" rx="32" fill="#120E16"/>
+  <rect x="0" y="32" width="360" height="12" fill="#120E16"/>
+  <text x="20" y="28" font-family="'Segoe UI', Arial, sans-serif" font-size="12" fill="#9E9AA6">9:41</text>
+
+  <!-- App bar / back -->
+  <rect x="0" y="44" width="360" height="52" fill="#1E1A24"/>
+  <text x="20" y="75" font-family="'Segoe UI', Arial" font-size="20" fill="#9E9AA6">←</text>
+  <text x="60" y="76" font-family="Georgia, serif" font-size="15" fill="#9E9AA6">Characters</text>
+  <!-- Edit icon -->
+  <circle cx="328" cy="70" r="14" fill="#2D2836"/>
+  <text x="328" y="75" font-family="Arial" font-size="13" fill="#9E9AA6" text-anchor="middle">✎</text>
+
+  <line x1="0" y1="96" x2="360" y2="96" stroke="#3A3445" stroke-width="1"/>
+
+  <!-- Content -->
+  <rect x="0" y="96" width="360" height="544" fill="#120E16"/>
+
+  <!-- Accent glow behind header -->
+  <radialGradient id="heroGlow" cx="50%" cy="0%" r="80%">
+    <stop offset="0%" stop-color="#A78BFA" stop-opacity="0.12"/>
+    <stop offset="100%" stop-color="#120E16" stop-opacity="0"/>
+  </radialGradient>
+  <rect x="0" y="96" width="360" height="120" fill="url(#heroGlow)"/>
+
+  <!-- Entity type badge -->
+  <rect x="20" y="112" width="90" height="20" rx="10" fill="#A78BFA" fill-opacity="0.15" stroke="#A78BFA" stroke-width="1"/>
+  <text x="65" y="126" font-family="'Segoe UI', Arial" font-size="10" fill="#A78BFA" text-anchor="middle">👤 CHARACTER</text>
+
+  <!-- Canon badge -->
+  <rect x="120" y="112" width="58" height="20" rx="10" fill="#34D399" fill-opacity="0.15" stroke="#34D399" stroke-width="1"/>
+  <text x="149" y="126" font-family="'Segoe UI', Arial" font-size="10" fill="#34D399" text-anchor="middle">● Canon</text>
+
+  <!-- Entity name -->
+  <text x="20" y="162" font-family="Georgia, serif" font-weight="700" font-size="28" fill="#E2E0E6">Elidor Thorne</text>
+
+  <!-- Tags -->
+  <rect x="20" y="174" width="36" height="18" rx="9" fill="#2D2836"/>
+  <text x="38" y="187" font-family="'Segoe UI', Arial" font-size="9" fill="#9E9AA6" text-anchor="middle">Elf</text>
+  <rect x="62" y="174" width="40" height="18" rx="9" fill="#2D2836"/>
+  <text x="82" y="187" font-family="'Segoe UI', Arial" font-size="9" fill="#9E9AA6" text-anchor="middle">Mage</text>
+  <rect x="108" y="174" width="48" height="18" rx="9" fill="#2D2836"/>
+  <text x="132" y="187" font-family="'Segoe UI', Arial" font-size="9" fill="#9E9AA6" text-anchor="middle">Scania</text>
+
+  <line x1="20" y1="202" x2="340" y2="202" stroke="#3A3445" stroke-width="1"/>
+
+  <!-- Tab bar -->
+  <text x="60" y="224" font-family="'Segoe UI', Arial" font-size="12" fill="#A78BFA" text-anchor="middle" font-weight="700">Fields</text>
+  <line x1="32" y1="230" x2="88" y2="230" stroke="#A78BFA" stroke-width="2"/>
+  <text x="155" y="224" font-family="'Segoe UI', Arial" font-size="12" fill="#9E9AA6" text-anchor="middle">Relationships</text>
+  <text x="265" y="224" font-family="'Segoe UI', Arial" font-size="12" fill="#9E9AA6" text-anchor="middle">Timeline</text>
+
+  <line x1="0" y1="234" x2="360" y2="234" stroke="#3A3445" stroke-width="1"/>
+
+  <!-- Description -->
+  <text x="20" y="258" font-family="Georgia, serif" font-style="italic" font-size="13" fill="#9E9AA6">A high scholar of the Genius Society who was</text>
+  <text x="20" y="274" font-family="Georgia, serif" font-style="italic" font-size="13" fill="#9E9AA6">exiled for investigating the Scania Valley anomaly.</text>
+
+  <!-- Fields -->
+  <text x="20" y="306" font-family="'Segoe UI', Arial" font-size="10" fill="#9E9AA6">AGE</text>
+  <text x="20" y="322" font-family="'Segoe UI', Arial" font-size="14" fill="#E2E0E6">142 years</text>
+  <line x1="20" y1="334" x2="340" y2="334" stroke="#3A3445" stroke-width="1"/>
+
+  <text x="20" y="350" font-family="'Segoe UI', Arial" font-size="10" fill="#9E9AA6">TITLE</text>
+  <text x="20" y="366" font-family="'Segoe UI', Arial" font-size="14" fill="#E2E0E6">Exiled Scholar</text>
+  <line x1="20" y1="378" x2="340" y2="378" stroke="#3A3445" stroke-width="1"/>
+
+  <text x="20" y="394" font-family="'Segoe UI', Arial" font-size="10" fill="#9E9AA6">AFFILIATION</text>
+  <!-- Link styled text -->
+  <text x="20" y="410" font-family="'Segoe UI', Arial" font-size="14" fill="#A78BFA" text-decoration="underline">Genius Society</text>
+  <line x1="20" y1="422" x2="340" y2="422" stroke="#3A3445" stroke-width="1"/>
+
+  <!-- Backlinks section -->
+  <text x="20" y="448" font-family="Georgia, serif" font-size="11" font-weight="700" fill="#9E9AA6" letter-spacing="1">BACKLINKS</text>
+  <line x1="20" y1="456" x2="340" y2="456" stroke="#3A3445" stroke-width="1"/>
+
+  <!-- Backlink item 1 -->
+  <rect x="16" y="464" width="328" height="44" rx="8" fill="#1E1A24"/>
+  <rect x="16" y="464" width="4" height="44" rx="2" fill="#FBBF24"/>
+  <text x="32" y="480" font-family="'Segoe UI', Arial" font-size="9" fill="#FBBF24">✨ ITEM</text>
+  <text x="32" y="498" font-family="'Segoe UI', Arial" font-size="13" fill="#E2E0E6">Iron Quill  <tspan fill="#9E9AA6" font-size="11">owned by Elidor</tspan></text>
+
+  <!-- Backlink item 2 -->
+  <rect x="16" y="516" width="328" height="44" rx="8" fill="#1E1A24"/>
+  <rect x="16" y="516" width="4" height="44" rx="2" fill="#F59E0B"/>
+  <text x="32" y="532" font-family="'Segoe UI', Arial" font-size="9" fill="#F59E0B">🛡 FACTION</text>
+  <text x="32" y="550" font-family="'Segoe UI', Arial" font-size="13" fill="#E2E0E6">Genius Society  <tspan fill="#9E9AA6" font-size="11">exiled Elidor</tspan></text>
+
+  <!-- Bottom nav bar -->
+  <rect x="0" y="596" width="360" height="44" fill="#1E1A24"/>
+  <line x1="0" y1="596" x2="360" y2="596" stroke="#3A3445" stroke-width="1"/>
+  <text x="45" y="622" font-size="18" text-anchor="middle">🏠</text>
+  <text x="135" y="622" font-size="18" text-anchor="middle">🔍</text>
+  <text x="225" y="622" font-size="18" text-anchor="middle">📅</text>
+  <text x="315" y="622" font-size="18" text-anchor="middle">⚙️</text>
+</svg>

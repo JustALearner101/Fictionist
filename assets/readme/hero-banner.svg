@@ -1,0 +1,122 @@
+<svg width="900" height="300" viewBox="0 0 900 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="900" height="300" fill="#120E16"/>
+  
+  <!-- Subtle grid lines -->
+  <g opacity="0.06" stroke="#A78BFA" stroke-width="1">
+    <line x1="0" y1="60" x2="900" y2="60"/>
+    <line x1="0" y1="120" x2="900" y2="120"/>
+    <line x1="0" y1="180" x2="900" y2="180"/>
+    <line x1="0" y1="240" x2="900" y2="240"/>
+    <line x1="150" y1="0" x2="150" y2="300"/>
+    <line x1="300" y1="0" x2="300" y2="300"/>
+    <line x1="450" y1="0" x2="450" y2="300"/>
+    <line x1="600" y1="0" x2="600" y2="300"/>
+    <line x1="750" y1="0" x2="750" y2="300"/>
+  </g>
+
+  <!-- Glowing orb left -->
+  <radialGradient id="glowLeft" cx="50%" cy="50%" r="50%">
+    <stop offset="0%" stop-color="#A78BFA" stop-opacity="0.18"/>
+    <stop offset="100%" stop-color="#120E16" stop-opacity="0"/>
+  </radialGradient>
+  <ellipse cx="150" cy="150" rx="200" ry="200" fill="url(#glowLeft)"/>
+
+  <!-- Glowing orb right -->
+  <radialGradient id="glowRight" cx="50%" cy="50%" r="50%">
+    <stop offset="0%" stop-color="#D4A373" stop-opacity="0.14"/>
+    <stop offset="100%" stop-color="#120E16" stop-opacity="0"/>
+  </radialGradient>
+  <ellipse cx="750" cy="150" rx="200" ry="200" fill="url(#glowRight)"/>
+
+  <!-- Decorative connection nodes (mimicking graph view) -->
+  <!-- Node connections -->
+  <g opacity="0.25" stroke="#A78BFA" stroke-width="1">
+    <line x1="60" y1="80" x2="110" y2="140"/>
+    <line x1="110" y1="140" x2="65" y2="200"/>
+    <line x1="110" y1="140" x2="165" y2="180"/>
+    <line x1="800" y1="90" x2="840" y2="150"/>
+    <line x1="840" y1="150" x2="795" y2="210"/>
+    <line x1="840" y1="150" x2="870" y2="200"/>
+  </g>
+  <!-- Nodes -->
+  <circle cx="60" cy="80" r="5" fill="#A78BFA" opacity="0.5"/>
+  <circle cx="110" cy="140" r="7" fill="#A78BFA" opacity="0.7"/>
+  <circle cx="65" cy="200" r="4" fill="#D4A373" opacity="0.5"/>
+  <circle cx="165" cy="180" r="5" fill="#34D399" opacity="0.5"/>
+  <circle cx="800" cy="90" r="5" fill="#A78BFA" opacity="0.5"/>
+  <circle cx="840" cy="150" r="7" fill="#A78BFA" opacity="0.7"/>
+  <circle cx="795" cy="210" r="4" fill="#D4A373" opacity="0.5"/>
+  <circle cx="870" cy="200" r="5" fill="#34D399" opacity="0.5"/>
+
+  <!-- Thin decorative line top -->
+  <line x1="200" y1="48" x2="700" y2="48" stroke="#3A3445" stroke-width="1"/>
+  
+  <!-- Main title -->
+  <text x="450" y="148" 
+    font-family="Georgia, 'Times New Roman', serif" 
+    font-weight="700" 
+    font-size="68" 
+    fill="url(#titleGrad)"
+    text-anchor="middle"
+    letter-spacing="12">FICTIONIST</text>
+
+  <!-- Title gradient -->
+  <linearGradient id="titleGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+    <stop offset="0%" stop-color="#A78BFA"/>
+    <stop offset="50%" stop-color="#C4B5FD"/>
+    <stop offset="100%" stop-color="#D4A373"/>
+  </linearGradient>
+
+  <!-- Tagline -->
+  <text x="450" y="188"
+    font-family="Georgia, 'Times New Roman', serif"
+    font-style="italic"
+    font-size="16"
+    fill="#9E9AA6"
+    text-anchor="middle"
+    letter-spacing="1">Your world deserves a real database.</text>
+
+  <!-- Bottom decorative line -->
+  <line x1="200" y1="208" x2="700" y2="208" stroke="#3A3445" stroke-width="1"/>
+
+  <!-- Entity type pills at the bottom -->
+  <g font-family="'Segoe UI', Arial, sans-serif" font-size="11" font-weight="600">
+    <!-- Character pill -->
+    <rect x="145" y="228" width="82" height="22" rx="11" fill="#1E1A24" stroke="#A78BFA" stroke-width="1" stroke-opacity="0.5"/>
+    <text x="186" y="243" fill="#A78BFA" text-anchor="middle">👤 Character</text>
+
+    <!-- Faction pill -->
+    <rect x="235" y="228" width="70" height="22" rx="11" fill="#1E1A24" stroke="#F59E0B" stroke-width="1" stroke-opacity="0.5"/>
+    <text x="270" y="243" fill="#F59E0B" text-anchor="middle">🛡 Faction</text>
+
+    <!-- Location pill -->
+    <rect x="313" y="228" width="76" height="22" rx="11" fill="#1E1A24" stroke="#3B82F6" stroke-width="1" stroke-opacity="0.5"/>
+    <text x="351" y="243" fill="#3B82F6" text-anchor="middle">🗺 Location</text>
+
+    <!-- Event pill -->
+    <rect x="397" y="228" width="64" height="22" rx="11" fill="#1E1A24" stroke="#F43F5E" stroke-width="1" stroke-opacity="0.5"/>
+    <text x="429" y="243" fill="#F43F5E" text-anchor="middle">📖 Event</text>
+
+    <!-- Power System pill -->
+    <rect x="469" y="228" width="104" height="22" rx="11" fill="#1E1A24" stroke="#EF4444" stroke-width="1" stroke-opacity="0.5"/>
+    <text x="521" y="243" fill="#EF4444" text-anchor="middle">⚡ Power System</text>
+
+    <!-- Item pill -->
+    <rect x="581" y="228" width="68" height="22" rx="11" fill="#1E1A24" stroke="#FBBF24" stroke-width="1" stroke-opacity="0.5"/>
+    <text x="615" y="243" fill="#FBBF24" text-anchor="middle">✨ Item</text>
+
+    <!-- Concept pill -->
+    <rect x="657" y="228" width="78" height="22" rx="11" fill="#1E1A24" stroke="#14B8A6" stroke-width="1" stroke-opacity="0.5"/>
+    <text x="696" y="243" fill="#14B8A6" text-anchor="middle">💡 Concept</text>
+  </g>
+
+  <!-- Bottom accent bar -->
+  <rect x="0" y="292" width="900" height="8" fill="url(#bottomBar)"/>
+  <linearGradient id="bottomBar" x1="0%" y1="0%" x2="100%" y2="0%">
+    <stop offset="0%" stop-color="#120E16" stop-opacity="0"/>
+    <stop offset="30%" stop-color="#A78BFA"/>
+    <stop offset="70%" stop-color="#D4A373"/>
+    <stop offset="100%" stop-color="#120E16" stop-opacity="0"/>
+  </linearGradient>
+</svg>
