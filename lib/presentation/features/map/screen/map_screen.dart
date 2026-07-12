@@ -13,6 +13,7 @@ import '../../../common/widget/empty_state.dart';
 import '../../../common/widget/error_display.dart';
 import '../../../common/widget/loading_indicator.dart';
 import '../../entity/provider/entity_list_provider.dart';
+import '../../../common/widget/page_header.dart';
 import '../../entity/widget/entity_peek_sheet.dart';
 import '../../graph/provider/graph_provider.dart';
 import '../../timeline/provider/timeline_provider.dart';
@@ -680,14 +681,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.surface,
         elevation: 0,
-        title: Text(
-          'World Maps',
-          style: Theme.of(context).textTheme.headlineMedium!.copyWith(
-            fontFamily: 'Lora',
-            color: Theme.of(context).colorScheme.primary,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
+        toolbarHeight: 48,
         actions: [
           IconButton(
             icon: Icon(Icons.auto_awesome, color: Theme.of(context).colorScheme.primary),
@@ -761,6 +755,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
             data: (entities) {
               return Column(
                 children: [
+                  const PageHeader(title: 'World Map', subtitle: 'Cartography and exploration'),
                   if (maps.length > 1)
                     Padding(
                       padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),

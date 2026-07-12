@@ -12,6 +12,7 @@ import '../../../common/widget/confirm_dialog.dart';
 import '../../../common/widget/empty_state.dart';
 import '../../../common/widget/error_display.dart';
 import '../../../common/widget/loading_indicator.dart';
+import '../../../common/widget/page_header.dart';
 import '../../entity/provider/entity_list_provider.dart';
 import '../provider/timeline_provider.dart';
 
@@ -384,9 +385,9 @@ class _TimelineScreenState extends ConsumerState<TimelineScreen> {
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.surface, elevation: 0,
-        title: Text('Chronicle of Eras',
-          style: Theme.of(context).textTheme.headlineMedium!.copyWith(fontFamily: 'Lora', color: Theme.of(context).colorScheme.primary, fontWeight: FontWeight.bold)),
+        backgroundColor: Theme.of(context).colorScheme.surface,
+        elevation: 0,
+        toolbarHeight: 48,
         actions: [
           IconButton(icon: Icon(_isEditing ? Icons.chrome_reader_mode : Icons.edit, color: Theme.of(context).colorScheme.onSurface, size: 20),
             tooltip: _isEditing ? 'Read Mode' : 'Edit Order',
@@ -395,7 +396,11 @@ class _TimelineScreenState extends ConsumerState<TimelineScreen> {
             onPressed: () => ref.refresh(timelineListProvider())),
         ],
       ),
-      body: timelineState.when(
+      body: Column(
+        children: [
+          const PageHeader(title: 'Timeline', subtitle: 'Chronicle of eras and historical events'),
+          Expanded(
+            child: timelineState.when(
         data: (entries) {
           if (entries.isEmpty) return EmptyState(
             title: 'Chronicle is Empty',
@@ -501,6 +506,9 @@ class _TimelineScreenState extends ConsumerState<TimelineScreen> {
         },
         loading: () => LoadingIndicator(),
         error: (e, _) => ErrorDisplay(message: e.toString(), onRetry: () => ref.refresh(timelineListProvider())),
+      ),
+          ),
+        ],
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: _createEntry,

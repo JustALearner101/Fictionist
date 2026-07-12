@@ -9,6 +9,7 @@ import '../../../../domain/entity/entity_type.dart';
 import '../../../common/widget/empty_state.dart';
 import '../../../common/widget/error_display.dart';
 import '../../../common/widget/loading_indicator.dart';
+import '../../../common/widget/page_header.dart';
 import '../../../common/widget/quick_switcher_dialog.dart';
 import '../../../../domain/use_case/bootstrap/sample_world_use_case.dart';
 import '../../../../domain/use_case/continuity_check_use_case.dart';
@@ -116,14 +117,7 @@ class _EntityListScreenState extends ConsumerState<EntityListScreen> {
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.surface,
         elevation: 0,
-        title: Text(
-          'Codex',
-          style: Theme.of(context).textTheme.headlineMedium!.copyWith(
-            fontFamily: 'Lora',
-            color: Theme.of(context).colorScheme.primary,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
+        toolbarHeight: 48,
         actions: [
           IconButton(
             icon: Icon(Icons.bolt, color: Theme.of(context).colorScheme.primary),
@@ -144,6 +138,10 @@ class _EntityListScreenState extends ConsumerState<EntityListScreen> {
       ),
       body: Column(
         children: [
+          const PageHeader(
+            title: 'Codex',
+            subtitle: 'Manage your world\'s inhabitants and lore',
+          ),
           // ── Search bar ──
           Padding(
             padding: EdgeInsets.symmetric(horizontal: 14, vertical: 6),

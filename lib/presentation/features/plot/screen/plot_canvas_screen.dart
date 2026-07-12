@@ -6,6 +6,7 @@ import 'package:fictionist/domain/plot/plot_card.dart';
 import 'package:fictionist/injection.dart';
 import 'package:fictionist/presentation/common/widget/empty_state.dart';
 import 'package:fictionist/presentation/common/widget/loading_indicator.dart';
+import 'package:fictionist/presentation/common/widget/page_header.dart';
 
 class PlotCanvasScreen extends ConsumerStatefulWidget {
   const PlotCanvasScreen({super.key});
@@ -107,7 +108,7 @@ class _PlotCanvasScreenState extends ConsumerState<PlotCanvasScreen> {
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.surface,
         elevation: 0,
-        title: Text('Plot Corkboard', style: Theme.of(context).textTheme.headlineMedium!.copyWith(fontFamily: 'Lora', color: Theme.of(context).colorScheme.primary, fontWeight: FontWeight.bold)),
+        toolbarHeight: 48,
         actions: [
           if (_connectingFromId != null)
             TextButton.icon(
@@ -129,6 +130,13 @@ class _PlotCanvasScreenState extends ConsumerState<PlotCanvasScreen> {
             )
           : Stack(
               children: [
+                Positioned(
+                  top: 0, left: 0, right: 0,
+                  child: PageHeader(
+                    title: 'Plot',
+                    subtitle: 'Story outline and plot cards',
+                  ),
+                ),
                 InteractiveViewer(
                   constrained: false,
                   boundaryMargin: const EdgeInsets.all(500),

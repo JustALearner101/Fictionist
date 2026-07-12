@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import 'package:fictionist/domain/manuscript/manuscript_chapter.dart';
 import 'package:fictionist/presentation/common/widget/confirm_dialog.dart';
 import 'package:fictionist/presentation/common/widget/loading_indicator.dart';
+import 'package:fictionist/presentation/common/widget/page_header.dart';
 import 'package:fictionist/presentation/features/manuscript/provider/manuscript_provider.dart';
 import 'package:fictionist/presentation/features/manuscript/widget/dashboard_view.dart';
 import 'package:fictionist/presentation/features/manuscript/widget/template_picker.dart';
@@ -113,15 +114,7 @@ class _ManuscriptScreenState extends ConsumerState<ManuscriptScreen> {
       appBar: AppBar(
         backgroundColor: theme.colorScheme.surface,
         elevation: 0,
-        titleSpacing: 20,
-        title: Text(
-          'Manuscript',
-          style: theme.textTheme.headlineMedium!.copyWith(
-            fontFamily: 'Lora',
-            color: theme.colorScheme.primary,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
+        toolbarHeight: 48,
         actions: [
           if (chapters.isNotEmpty)
             IconButton(
@@ -142,6 +135,11 @@ class _ManuscriptScreenState extends ConsumerState<ManuscriptScreen> {
           ? _EmptyManuscript(onCreate: _createChapter)
           : Column(
               children: [
+                // ── Page header ─────────────────────────────────────────────
+                const PageHeader(
+                  title: 'Manuscript',
+                  subtitle: 'Write and organize your story',
+                ),
                 // ── Summary strip ───────────────────────────────────────────
                 _SummaryStrip(
                   totalChapters: chapters.length,

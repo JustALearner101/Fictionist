@@ -18,6 +18,7 @@ import '../../../../injection.dart';
 import '../../../common/widget/empty_state.dart';
 import '../../../common/widget/error_display.dart';
 import '../../../common/widget/loading_indicator.dart';
+import '../../../common/widget/page_header.dart';
 import '../provider/graph_provider.dart';
 import '../widget/timeline_scrubber.dart';
 import '../widget/relationship_matrix_widget.dart';
@@ -710,48 +711,8 @@ class _GraphScreenState extends ConsumerState<GraphScreen> {
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.surface,
         elevation: 0,
-        title: Text(
-          'Relationship Graph',
-          style: Theme.of(context).textTheme.headlineMedium!.copyWith(
-            fontFamily: 'Lora',
-            color: Theme.of(context).colorScheme.primary,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
+        toolbarHeight: 48,
         actions: [
-          SizedBox(
-            width: 100,
-            child: DropdownButton<GraphLayoutMode>(
-            value: _layoutMode,
-            dropdownColor: Theme.of(context).colorScheme.surface,
-            underline: SizedBox(),
-            icon: Icon(Icons.layers_outlined, color: Theme.of(context).colorScheme.onSurface),
-            items: [
-              DropdownMenuItem(
-                value: GraphLayoutMode.chronicleWeb,
-                child: Text('Web', style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurface)),
-              ),
-              DropdownMenuItem(
-                value: GraphLayoutMode.familyTree,
-                child: Text('Family', style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurface)),
-              ),
-              DropdownMenuItem(
-                value: GraphLayoutMode.factionMap,
-                child: Text('Faction', style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurface)),
-              ),
-              DropdownMenuItem(
-                value: GraphLayoutMode.relationshipMatrix,
-                child: Text('Matrix', style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurface)),
-              ),
-            ],
-            onChanged: (val) {
-              if (val != null) {
-                HapticFeedback.selectionClick();
-                setState(() => _layoutMode = val);
-              }
-            },
-          ),
-          ),
           IconButton(
             icon: Icon(Icons.refresh, color: Theme.of(context).colorScheme.onSurface),
             tooltip: 'Refresh Graph',
@@ -1035,6 +996,37 @@ class _GraphScreenState extends ConsumerState<GraphScreen> {
 
           return Column(
             children: [
+              PageHeader(
+                title: 'Web',
+                subtitle: 'Entity relationship graph',
+                trailing: SizedBox(
+                  width: 120,
+                  child: DropdownButton<GraphLayoutMode>(
+                    value: _layoutMode,
+                    isExpanded: true,
+                    dropdownColor: Theme.of(context).colorScheme.surface,
+                    underline: SizedBox(),
+                    icon: Icon(Icons.layers_outlined, size: 18, color: Theme.of(context).colorScheme.primary),
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                      color: Theme.of(context).colorScheme.onSurface,
+                    ),
+                    items: [
+                      DropdownMenuItem(value: GraphLayoutMode.chronicleWeb, child: Text('Web')),
+                      DropdownMenuItem(value: GraphLayoutMode.familyTree, child: Text('Family')),
+                      DropdownMenuItem(value: GraphLayoutMode.factionMap, child: Text('Faction')),
+                      DropdownMenuItem(value: GraphLayoutMode.relationshipMatrix, child: Text('Matrix')),
+                    ],
+                    onChanged: (val) {
+                      if (val != null) {
+                        HapticFeedback.selectionClick();
+                        setState(() => _layoutMode = val);
+                      }
+                    },
+                  ),
+                ),
+              ),
               // Filters Chip Bar (Only in Web Mode)
               if (_layoutMode == GraphLayoutMode.chronicleWeb)
                 Container(
