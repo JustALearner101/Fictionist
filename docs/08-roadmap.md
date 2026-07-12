@@ -102,14 +102,14 @@ gantt
 
 | Feature | Description | Effort |
 |---|---|---|
-| Graph View | Interactive node-link diagram of entities and relationships. Tap node to navigate. Zoom/pan. | 2 weeks |
-| Family Tree | Hierarchical tree view for Character entities with parent/child/sibling relationships | 1 week |
-| Faction Map | Network visualization of faction membership and alliances | Bundled with graph view |
-| Version History | Track changes per entity. View diffs. Restore previous versions. Stored in Drift. | 1 week |
-| Rich Text | Replace plain text descriptions with a rich text editor. Support `@mentions` that link to other entities. | 1 week |
-| JSON Import | Import a previously exported JSON file. Merge or replace. Conflict resolution UI. | 3 days |
-| Bulk Operations | Multi-select entities. Batch tag, batch delete, batch status change. | 3 days |
-| Performance Optimization | Profile and fix jank. Lazy loading for large worlds. Pagination for entity lists. Index tuning. | 4 days |
+| Graph View | [✓] Interactive node-link diagram of entities and relationships. Tap node to navigate. Zoom/pan. | 2 weeks |
+| Family Tree | [✓] Hierarchical tree view for Character entities with parent/child/sibling relationships | 1 week |
+| Faction Map | [✓] Network visualization of faction membership and alliances | Bundled with graph view |
+| Version History | [✓] Track changes per entity. View diffs. Restore previous versions. Stored in Drift. | 1 week |
+| Rich Text | [✓] Replace plain text descriptions with a rich text editor. Support `@mentions` that link to other entities. | 1 week |
+| JSON Import | [✓] Import a previously exported JSON file. Merge or replace. Conflict resolution UI. | 3 days |
+| Bulk Operations | [✓] Multi-select entities. Batch tag, batch delete, batch status change. | 3 days |
+| Performance Optimization | [✓] Profile and fix jank. Lazy loading for large worlds. Pagination for entity lists. Index tuning. | 4 days |
 
 ### Dependencies
 
@@ -139,10 +139,10 @@ gantt
 
 | Feature | Description | Effort |
 |---|---|---|
-| World Map | Interactive 2D canvas. Pin entities to locations on a user-uploaded image. Zoom/pan, tap to navigate. | 3 weeks |
+| World Map | [✓] Interactive 2D canvas. Pin entities to locations on a user-uploaded image. Zoom/pan, tap to navigate. | 3 weeks |
 | Custom Calendars | Define fictional calendar systems (custom months, days, epochs). Timeline uses the custom calendar. | 2 weeks |
-| Name Generator | Configurable name generation by culture/phoneme pattern. Markov chain or rule-based. | 1 week |
-| Conflict Detection | Flag logical inconsistencies: dead characters attending events, circular timelines, contradictory relationships | 1 week |
+| Name Generator | [✓] Configurable name generation by culture/phoneme pattern. Markov chain or rule-based. | 1 week |
+| Conflict Detection | [✓] Flag logical inconsistencies: dead characters attending events, circular timelines, contradictory relationships | 1 week |
 | Tablet Layout | Responsive layout with master-detail pane. Side-by-side entity editing. | 2 weeks |
 | iOS Support | Build, test, and polish for iOS. Handle platform differences (file paths, permissions, UI conventions). | 3 weeks |
 

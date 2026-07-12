@@ -48,6 +48,7 @@ import 'package:fictionist/domain/repository/manuscript_repository.dart'
 import 'package:fictionist/domain/repository/map_repository.dart' as _i308;
 import 'package:fictionist/domain/repository/name_generator_repository.dart'
     as _i553;
+import 'package:fictionist/domain/repository/plot_repository.dart' as _i772;
 import 'package:fictionist/domain/repository/relationship_repository.dart'
     as _i838;
 import 'package:fictionist/domain/repository/sync_repository.dart' as _i226;
@@ -168,14 +169,14 @@ extension GetItInjectableX on _i174.GetIt {
         () => _i573.TemplateDao(gh<_i92.AppDatabase>()));
     gh.lazySingleton<_i651.TimelineDao>(
         () => _i651.TimelineDao(gh<_i92.AppDatabase>()));
+    gh.lazySingleton<_i772.PlotRepository>(
+        () => _i89.PlotRepositoryImpl(gh<_i476.PlotDao>()));
     gh.lazySingleton<_i577.TimelineRepository>(
         () => _i753.TimelineRepositoryImpl(gh<_i651.TimelineDao>()));
     gh.lazySingleton<_i339.EntityRepository>(
         () => _i392.EntityRepositoryImpl(gh<_i573.EntityDao>()));
     gh.lazySingleton<_i838.RelationshipRepository>(
         () => _i868.RelationshipRepositoryImpl(gh<_i499.RelationshipDao>()));
-    gh.lazySingleton<_i89.PlotRepository>(
-        () => _i89.PlotRepository(gh<_i476.PlotDao>()));
     gh.lazySingleton<_i36.EntityVersionRepository>(
         () => _i1027.EntityVersionRepositoryImpl(gh<_i983.EntityVersionDao>()));
     gh.lazySingleton<_i523.TagRepository>(
@@ -260,6 +261,9 @@ extension GetItInjectableX on _i174.GetIt {
           gh<_i36.EntityVersionRepository>(),
           gh<_i838.RelationshipRepository>(),
           gh<_i577.TimelineRepository>(),
+          gh<_i743.ManuscriptRepository>(),
+          gh<_i308.MapRepository>(),
+          gh<_i772.PlotRepository>(),
         ));
     gh.lazySingleton<_i431.GetTemplatesUseCase>(
         () => _i431.GetTemplatesUseCase(gh<_i179.TemplateRepository>()));

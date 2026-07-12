@@ -151,7 +151,7 @@ class _BentoStatsWidgetState extends ConsumerState<BentoStatsWidget> with Single
                   _buildBentoCard(
                     context,
                     title: 'Entities',
-                    value: '$totalEntities',
+                    value: totalEntities,
                     icon: Icons.auto_stories_rounded,
                     color: Theme.of(context).colorScheme.primary,
                     isSelected: widget.selectedType == null,
@@ -163,7 +163,7 @@ class _BentoStatsWidgetState extends ConsumerState<BentoStatsWidget> with Single
                   _buildBentoCard(
                     context,
                     title: 'Links',
-                    value: '$totalConnections',
+                    value: totalConnections,
                     icon: Icons.hub_rounded,
                     color: Theme.of(context).colorScheme.secondary,
                     isSelected: false,
@@ -174,7 +174,7 @@ class _BentoStatsWidgetState extends ConsumerState<BentoStatsWidget> with Single
                   _buildBentoCard(
                     context,
                     title: 'Orphans',
-                    value: '$orphansCount',
+                    value: orphansCount,
                     icon: Icons.warning_amber_rounded,
                     color: orphansCount > 0 ? Colors.amber : Colors.green,
                     isSelected: false,
@@ -286,73 +286,19 @@ class _BentoStatsWidgetState extends ConsumerState<BentoStatsWidget> with Single
   Widget _buildBentoCard(
     BuildContext context, {
     required String title,
-    required String value,
+    required int value,
     required IconData icon,
     required Color color,
     required bool isSelected,
     required VoidCallback onTap,
   }) {
-    return Material(
-      color: Theme.of(context).colorScheme.surface,
-      borderRadius: BorderRadius.circular(12),
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(12),
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 200),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(
-              color: isSelected
-                  ? Theme.of(context).colorScheme.primary
-                  : Theme.of(context).colorScheme.outline.withOpacity(0.35),
-              width: isSelected ? 1.2 : 0.6,
-            ),
-            gradient: LinearGradient(
-              colors: [
-                Theme.of(context).colorScheme.surface,
-                color.withOpacity(0.04),
-              ],
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-            ),
-          ),
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Icon(
-                    icon,
-                    size: 16,
-                    color: isSelected ? Theme.of(context).colorScheme.primary : color.withOpacity(0.8),
-                  ),
-                  Text(
-                    title,
-                    style: TextStyle(
-                      fontSize: 10.5,
-                      fontWeight: FontWeight.w500,
-                      color: Theme.of(context).colorScheme.onSurfaceVariant.withOpacity(0.8),
-                    ),
-                  ),
-                ],
-              ),
-              Text(
-                value,
-                style: Theme.of(context).textTheme.titleLarge!.copyWith(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 20,
-                  fontFamily: 'Lora',
-                  color: isSelected ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.onSurface,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
+    return _HoverBentoCard(
+      title: title,
+      value: value,
+      icon: icon,
+      color: color,
+      isSelected: isSelected,
+      onTap: onTap,
     );
   }
 
@@ -397,6 +343,205 @@ class _BentoStatsWidgetState extends ConsumerState<BentoStatsWidget> with Single
 
     return RichText(
       text: TextSpan(children: spans),
+    );
+  }
+}
+
+class AnimatedCounterText extends StatefulWidget {
+  final int targetValue;
+  final TextStyle style;
+
+  const AnimatedCounterText({
+    super.key,
+    required this.targetValue,
+    required this.style,
+  });
+
+  @override
+  State<AnimatedCounterText> createState() => _AnimatedCounterTextState();
+}
+
+class _AnimatedCounterTextState extends State<AnimatedCounterText> with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _animation;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1000),
+    );
+    _animation = Tween<double>(begin: 0, end: widget.targetValue.toDouble()).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.easeOutCubic),
+    );
+    _controller.forward();
+  }
+
+  @override
+  void didUpdateWidget(covariant AnimatedCounterText oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.targetValue != widget.targetValue) {
+      _animation = Tween<double>(begin: _animation.value, end: widget.targetValue.toDouble()).animate(
+        CurvedAnimation(parent: _controller, curve: Curves.easeOutCubic),
+      );
+      _controller.forward(from: 0.0);
+    }
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: _animation,
+      builder: (context, child) {
+        return Text(
+          '${_animation.value.toInt()}',
+          style: widget.style,
+        );
+      },
+    );
+  }
+}
+
+class _HoverBentoCard extends StatefulWidget {
+  final String title;
+  final int value;
+  final IconData icon;
+  final Color color;
+  final bool isSelected;
+  final VoidCallback onTap;
+
+  const _HoverBentoCard({
+    required this.title,
+    required this.value,
+    required this.icon,
+    required this.color,
+    required this.isSelected,
+    required this.onTap,
+  });
+
+  @override
+  State<_HoverBentoCard> createState() => _HoverBentoCardState();
+}
+
+class _HoverBentoCardState extends State<_HoverBentoCard> {
+  bool _isHovered = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    
+    final glowColor = widget.isSelected 
+        ? theme.colorScheme.primary.withOpacity(0.25)
+        : (_isHovered ? widget.color.withOpacity(0.2) : Colors.transparent);
+
+    return MouseRegion(
+      onEnter: (_) => setState(() => _isHovered = true),
+      onExit: (_) => setState(() => _isHovered = false),
+      child: GestureDetector(
+        onTapDown: (_) => setState(() => _isHovered = true),
+        onTapUp: (_) => setState(() => _isHovered = false),
+        onTapCancel: () => setState(() => _isHovered = false),
+        child: AnimatedScale(
+          scale: _isHovered ? 1.03 : 1.0,
+          duration: const Duration(milliseconds: 150),
+          curve: Curves.easeOutBack,
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 200),
+            decoration: BoxDecoration(
+              color: isDark ? theme.colorScheme.surfaceContainer : theme.colorScheme.surface,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(
+                color: widget.isSelected
+                    ? theme.colorScheme.primary
+                    : (_isHovered 
+                        ? widget.color.withOpacity(0.6) 
+                        : theme.colorScheme.outline.withOpacity(0.25)),
+                width: widget.isSelected || _isHovered ? 1.2 : 0.8,
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: glowColor,
+                  blurRadius: 10,
+                  spreadRadius: 1,
+                  offset: const Offset(0, 4),
+                ),
+                BoxShadow(
+                  color: Colors.black.withOpacity(isDark ? 0.2 : 0.04),
+                  blurRadius: 6,
+                  offset: const Offset(0, 2),
+                ),
+              ],
+              gradient: LinearGradient(
+                colors: [
+                  isDark ? theme.colorScheme.surfaceContainerLow : theme.colorScheme.surface,
+                  widget.color.withOpacity(widget.isSelected ? 0.08 : (_isHovered ? 0.06 : 0.03)),
+                ],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+            ),
+            child: Material(
+              color: Colors.transparent,
+              child: InkWell(
+                onTap: widget.onTap,
+                borderRadius: BorderRadius.circular(16),
+                child: Padding(
+                  padding: const EdgeInsets.all(12),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(6),
+                            decoration: BoxDecoration(
+                              color: widget.color.withOpacity(widget.isSelected ? 0.15 : 0.08),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Icon(
+                              widget.icon,
+                              size: 15,
+                              color: widget.isSelected ? theme.colorScheme.primary : widget.color.withOpacity(0.9),
+                            ),
+                          ),
+                          Text(
+                            widget.title,
+                            style: TextStyle(
+                              fontSize: 10,
+                              fontWeight: FontWeight.w600,
+                              letterSpacing: 0.5,
+                              color: theme.colorScheme.onSurfaceVariant.withOpacity(0.8),
+                            ),
+                          ),
+                        ],
+                      ),
+                      AnimatedCounterText(
+                        targetValue: widget.value,
+                        style: theme.textTheme.titleLarge!.copyWith(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 22,
+                          fontFamily: 'Lora',
+                          color: widget.isSelected ? theme.colorScheme.primary : theme.colorScheme.onSurface,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
     );
   }
 }

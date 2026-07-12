@@ -1,3 +1,6 @@
+import 'dart:io';
+import 'package:path/path.dart' as p;
+import 'package:path_provider/path_provider.dart';
 import 'package:fpdart/fpdart.dart';
 import 'package:injectable/injectable.dart';
 import '../../core/error/failure.dart';
@@ -111,6 +114,24 @@ class MapRepositoryImpl implements MapRepository {
     } catch (e) {
       return Left(Failure.database(
         message: 'Failed to retrieve pins for map',
+        originalError: e,
+      ));
+    }
+  }
+
+  @override
+  Future<Either<Failure, Unit>> saveMapImage(String relativePath, List<int> bytes) async {
+    try {
+      final docs = await getApplicationDocumentsDirectory();
+      final file = File(p.join(docs.path, relativePath));
+      if (!await file.parent.exists()) {
+        await file.parent.create(recursive: true);
+      }
+      await file.writeAsBytes(bytes);
+      return const Right(unit);
+    } catch (e) {
+      return Left(Failure.database(
+        message: 'Failed to save map image file',
         originalError: e,
       ));
     }

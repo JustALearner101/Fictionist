@@ -9,6 +9,7 @@ import '../../../../domain/timeline/chronicle_item.dart';
 import '../../../../domain/use_case/manuscript/manuscript_use_cases.dart';
 import '../../../../injection.dart';
 import '../../../common/widget/confirm_dialog.dart';
+import '../../../common/widget/fictionist_dropdown.dart';
 import '../../../common/widget/empty_state.dart';
 import '../../../common/widget/error_display.dart';
 import '../../../common/widget/loading_indicator.dart';
@@ -65,10 +66,13 @@ class _TimelineScreenState extends ConsumerState<TimelineScreen> {
               const SizedBox(width: 10),
               Expanded(child: _dialogField(eraCtrl, 'Era (e.g. Third Age)')),
             ]),
-            SizedBox(height: 10),
-            _dialogDropdown<Entity>(
-              items: [DropdownMenuItem(value: null, child: Text('None (General Event)')),
-                ...entitiesResult.map((e) => DropdownMenuItem(value: e, child: Text(e.name)))],
+            const SizedBox(height: 10),
+            _dialogDropdown<Entity?>(
+              value: selEntity,
+              items: [
+                const FictionistDropdownItem(value: null, child: Text('None (General Event)')),
+                ...entitiesResult.map((e) => FictionistDropdownItem(value: e, child: Text(e.name))),
+              ],
               onChanged: (v) => setD(() => selEntity = v),
             ),
           ]),
@@ -112,17 +116,14 @@ class _TimelineScreenState extends ConsumerState<TimelineScreen> {
     ),
   );
 
-  Widget _dialogDropdown<T>({required List<DropdownMenuItem<T>> items, required void Function(T?)? onChanged}) => Container(
-    padding: EdgeInsets.symmetric(horizontal: 12),
-    decoration: BoxDecoration(
-      color: Theme.of(context).colorScheme.surfaceContainerHighest, borderRadius: BorderRadius.circular(10),
-      border: Border.all(color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.5), width: 0.6),
-    ),
-    child: DropdownButtonHideUnderline(child: DropdownButton<T>(
-      items: items, onChanged: onChanged, isExpanded: true, dropdownColor: Theme.of(context).colorScheme.surface,
-      menuMaxHeight: 280,
-      style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurface),
-    )),
+  Widget _dialogDropdown<T>({
+    required T value,
+    required List<FictionistDropdownItem<T>> items,
+    required void Function(T)? onChanged,
+  }) => FictionistDropdown<T>(
+    value: value,
+    items: items,
+    onChanged: onChanged,
   );
 
   Future<void> _deleteEntry(String id) async {
@@ -150,6 +151,7 @@ class _TimelineScreenState extends ConsumerState<TimelineScreen> {
   }
 
   Widget _entryCard(TimelineEntry entry, Entity? linked, {bool showDrag = false, EdgeInsetsGeometry padding = const EdgeInsets.symmetric(horizontal: 14, vertical: 5)}) {
+    final dotColor = linked != null ? Color(linked.iconColor) : Theme.of(context).colorScheme.primary;
     return Padding(
       padding: padding,
       child: Material(
@@ -158,54 +160,112 @@ class _TimelineScreenState extends ConsumerState<TimelineScreen> {
         child: InkWell(
           borderRadius: BorderRadius.circular(12),
           onTap: linked != null ? () => context.push('/entities/${linked.id}') : null,
-          child: Container(
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.3), width: 0.5),
-            ),
-            padding: EdgeInsets.all(14),
-            child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              if (showDrag) ...[
-                Icon(Icons.drag_indicator, color: Theme.of(context).colorScheme.onSurfaceVariant, size: 18),
-                SizedBox(width: 10),
-              ],
-              Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                Row(children: [
-                  if (entry.dateLabel != null && entry.dateLabel!.isNotEmpty) ...[
-                    Container(
-                      padding: EdgeInsets.symmetric(horizontal: 7, vertical: 2),
-                      margin: EdgeInsets.only(right: 8),
-                      decoration: BoxDecoration(
-                        color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.12),
-                        borderRadius: BorderRadius.circular(5),
-                        border: Border.all(color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.3), width: 0.5),
+          child: IntrinsicHeight(
+            child: Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: Theme.of(context).colorScheme.outline.withOpacity(0.2), width: 0.6),
+              ),
+              clipBehavior: Clip.antiAlias,
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Container(
+                    width: 4,
+                    color: dotColor,
+                  ),
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.all(12),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          if (showDrag) ...[
+                            Icon(Icons.drag_indicator, color: Theme.of(context).colorScheme.onSurfaceVariant, size: 18),
+                            const SizedBox(width: 10),
+                          ],
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  children: [
+                                    if (entry.dateLabel != null && entry.dateLabel!.isNotEmpty) ...[
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+                                        margin: const EdgeInsets.only(right: 8),
+                                        decoration: BoxDecoration(
+                                          color: dotColor.withOpacity(0.12),
+                                          borderRadius: BorderRadius.circular(5),
+                                          border: Border.all(color: dotColor.withOpacity(0.3), width: 0.5),
+                                        ),
+                                        child: Text(
+                                          entry.dateLabel!,
+                                          style: Theme.of(context).textTheme.labelMedium!.copyWith(
+                                            color: dotColor,
+                                            fontWeight: FontWeight.w600,
+                                            fontSize: 10,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                    Expanded(
+                                      child: Text(
+                                        entry.title,
+                                        style: Theme.of(context).textTheme.bodyLarge!.copyWith(
+                                          fontFamily: 'Lora',
+                                          fontWeight: FontWeight.w600,
+                                          fontSize: 14,
+                                          color: Theme.of(context).colorScheme.onSurface,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                if (entry.description != null && entry.description!.trim().isNotEmpty) ...[
+                                  const SizedBox(height: 6),
+                                  Text(
+                                    entry.description!,
+                                    style: Theme.of(context).textTheme.bodyLarge!.copyWith(
+                                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                      fontSize: 13,
+                                    ),
+                                  ),
+                                ],
+                                if (linked != null) ...[
+                                  const SizedBox(height: 8),
+                                  Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Icon(Icons.link, size: 13, color: dotColor),
+                                      const SizedBox(width: 4),
+                                      Text(
+                                        linked.name,
+                                        style: Theme.of(context).textTheme.bodyLarge!.copyWith(
+                                          color: dotColor,
+                                          fontWeight: FontWeight.w600,
+                                          fontSize: 12,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ],
+                            ),
+                          ),
+                          IconButton(
+                            icon: Icon(Icons.delete_outline, size: 16, color: Theme.of(context).colorScheme.error),
+                            onPressed: () => _deleteEntry(entry.id),
+                            padding: EdgeInsets.zero,
+                            constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+                          ),
+                        ],
                       ),
-                      child: Text(entry.dateLabel!,
-                        style: Theme.of(context).textTheme.labelMedium!.copyWith(color: Theme.of(context).colorScheme.primary, fontWeight: FontWeight.w600, fontSize: 10)),
                     ),
-                  ],
-                  Expanded(child: Text(entry.title,
-                    style: Theme.of(context).textTheme.bodyLarge!.copyWith(fontFamily: 'Lora', fontWeight: FontWeight.w600, fontSize: 14, color: Theme.of(context).colorScheme.onSurface))),
-                ]),
-                if (entry.description != null && entry.description!.trim().isNotEmpty) ...[
-                  SizedBox(height: 6),
-                  Text(entry.description!,
-                    style: Theme.of(context).textTheme.bodyLarge!.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 13)),
+                  ),
                 ],
-                if (linked != null) ...[
-                  SizedBox(height: 8),
-                  Row(mainAxisSize: MainAxisSize.min, children: [
-                    Icon(Icons.link, size: 13, color: Color(linked.iconColor)),
-                    SizedBox(width: 4),
-                    Text(linked.name, style: Theme.of(context).textTheme.bodyLarge!.copyWith(
-                      color: Color(linked.iconColor), fontWeight: FontWeight.w600, fontSize: 12)),
-                  ]),
-                ],
-              ])),
-              IconButton(icon: Icon(Icons.delete_outline, size: 16, color: Theme.of(context).colorScheme.error),
-                onPressed: () => _deleteEntry(entry.id), padding: EdgeInsets.zero,
-                constraints: const BoxConstraints(minWidth: 32, minHeight: 32)),
-            ]),
+              ),
+            ),
           ),
         ),
       ),
@@ -213,60 +273,117 @@ class _TimelineScreenState extends ConsumerState<TimelineScreen> {
   }
 
   Widget _chapterCard(ChronicleChapter ch, {EdgeInsetsGeometry padding = const EdgeInsets.symmetric(horizontal: 14, vertical: 5)}) {
+    final theme = Theme.of(context);
+    final accentColor = theme.colorScheme.secondary;
     return Padding(
       padding: padding,
       child: Material(
-        color: Theme.of(context).colorScheme.surface,
+        color: theme.colorScheme.surface,
         borderRadius: BorderRadius.circular(12),
-        child: Container(
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: Theme.of(context).colorScheme.secondary.withValues(alpha: 0.3), width: 0.5),
-          ),
-          padding: EdgeInsets.all(14),
-          child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Container(
-              width: 34, height: 34,
-              decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.secondary.withValues(alpha: 0.12),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Icon(Icons.auto_stories, color: Theme.of(context).colorScheme.secondary, size: 16),
+        child: IntrinsicHeight(
+          child: Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: theme.colorScheme.outline.withOpacity(0.2), width: 0.6),
             ),
-            SizedBox(width: 12),
-            Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Row(children: [
-                if (ch.dateLabel != null && ch.dateLabel!.isNotEmpty) ...[
-                  Container(
-                    padding: EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                    margin: EdgeInsets.only(right: 8),
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.secondary.withValues(alpha: 0.12),
-                      borderRadius: BorderRadius.circular(5),
-                    ),
-                    child: Text(ch.dateLabel!,
-                      style: Theme.of(context).textTheme.labelMedium!.copyWith(color: Theme.of(context).colorScheme.secondary, fontWeight: FontWeight.w600, fontSize: 10)),
-                  ),
-                ],
-                Expanded(child: Text(ch.chapter.title,
-                  style: Theme.of(context).textTheme.bodyLarge!.copyWith(fontFamily: 'Lora', fontWeight: FontWeight.w600, fontSize: 14))),
+            clipBehavior: Clip.antiAlias,
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
                 Container(
-                  padding: EdgeInsets.symmetric(horizontal: 5, vertical: 2),
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.secondary.withValues(alpha: 0.08),
-                    borderRadius: BorderRadius.circular(4),
-                  ),
-                  child: Text('CHAPTER', style: Theme.of(context).textTheme.labelMedium!.copyWith(
-                    color: Theme.of(context).colorScheme.secondary, fontSize: 8, fontWeight: FontWeight.w700, letterSpacing: 0.5)),
+                  width: 4,
+                  color: accentColor,
                 ),
-              ]),
-              if (ch.description != null && ch.description!.trim().isNotEmpty) ...[
-                SizedBox(height: 4),
-                Text(ch.description!, maxLines: 2, overflow: TextOverflow.ellipsis,
-                  style: Theme.of(context).textTheme.bodyLarge!.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 12)),
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.all(12),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Container(
+                          width: 32,
+                          height: 32,
+                          decoration: BoxDecoration(
+                            color: accentColor.withOpacity(0.12),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Icon(Icons.auto_stories, color: accentColor, size: 16),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  if (ch.dateLabel != null && ch.dateLabel!.isNotEmpty) ...[
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                      margin: const EdgeInsets.only(right: 8),
+                                      decoration: BoxDecoration(
+                                        color: accentColor.withOpacity(0.12),
+                                        borderRadius: BorderRadius.circular(5),
+                                      ),
+                                      child: Text(
+                                        ch.dateLabel!,
+                                        style: theme.textTheme.labelMedium!.copyWith(
+                                          color: accentColor,
+                                          fontWeight: FontWeight.w600,
+                                          fontSize: 10,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                  Expanded(
+                                    child: Text(
+                                      ch.chapter.title,
+                                      style: theme.textTheme.bodyLarge!.copyWith(
+                                        fontFamily: 'Lora',
+                                        fontWeight: FontWeight.w600,
+                                        fontSize: 14,
+                                      ),
+                                    ),
+                                  ),
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+                                    decoration: BoxDecoration(
+                                      color: accentColor.withOpacity(0.08),
+                                      borderRadius: BorderRadius.circular(4),
+                                    ),
+                                    child: Text(
+                                      'CHAPTER',
+                                      style: theme.textTheme.labelMedium!.copyWith(
+                                        color: accentColor,
+                                        fontSize: 8,
+                                        fontWeight: FontWeight.w700,
+                                        letterSpacing: 0.5,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              if (ch.description != null && ch.description!.trim().isNotEmpty) ...[
+                                const SizedBox(height: 4),
+                                Text(
+                                  ch.description!,
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: theme.textTheme.bodyLarge!.copyWith(
+                                    color: theme.colorScheme.onSurfaceVariant,
+                                    fontSize: 12,
+                                  ),
+                                ),
+                              ],
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
               ],
-            ])),
-          ]),
+            ),
+          ),
         ),
       ),
     );
@@ -384,21 +501,27 @@ class _TimelineScreenState extends ConsumerState<TimelineScreen> {
 
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
-      appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.surface,
-        elevation: 0,
-        toolbarHeight: 48,
-        actions: [
-          IconButton(icon: Icon(_isEditing ? Icons.chrome_reader_mode : Icons.edit, color: Theme.of(context).colorScheme.onSurface, size: 20),
-            tooltip: _isEditing ? 'Read Mode' : 'Edit Order',
-            onPressed: () => setState(() => _isEditing = !_isEditing)),
-          IconButton(icon: Icon(Icons.refresh, color: Theme.of(context).colorScheme.onSurface, size: 20),
-            onPressed: () => ref.refresh(timelineListProvider())),
-        ],
-      ),
       body: Column(
         children: [
-          const PageHeader(title: 'Timeline', subtitle: 'Chronicle of eras and historical events'),
+          PageHeader(
+            title: 'Timeline',
+            subtitle: 'Chronicle of eras and historical events',
+            trailing: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                IconButton(
+                  icon: Icon(_isEditing ? Icons.chrome_reader_mode : Icons.edit, color: Theme.of(context).colorScheme.onSurface, size: 20),
+                  tooltip: _isEditing ? 'Read Mode' : 'Edit Order',
+                  onPressed: () => setState(() => _isEditing = !_isEditing),
+                ),
+                IconButton(
+                  icon: Icon(Icons.refresh, color: Theme.of(context).colorScheme.onSurface, size: 20),
+                  tooltip: 'Refresh',
+                  onPressed: () => ref.refresh(timelineListProvider()),
+                ),
+              ],
+            ),
+          ),
           Expanded(
             child: timelineState.when(
         data: (entries) {
@@ -478,7 +601,10 @@ class _TimelineScreenState extends ConsumerState<TimelineScreen> {
                         if (item is ChronicleTimelineEntry) {
                           final linked = entitiesList.where((x) => x.id == item.entry.entityId).firstOrNull;
                           return _buildTimelineItemRow(
-                            customDot: _getEventIcon(item.entry.title, Theme.of(context).colorScheme.primary),
+                            customDot: _getEventIcon(
+                              item.entry.title,
+                              linked != null ? Color(linked.iconColor) : Theme.of(context).colorScheme.primary,
+                            ),
                             card: _entryCard(
                               item.entry,
                               linked,

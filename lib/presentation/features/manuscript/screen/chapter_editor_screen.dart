@@ -57,6 +57,7 @@ class _ChapterEditorScreenState extends ConsumerState<ChapterEditorScreen> {
   bool _isSaving = false;
   bool _hasUnsavedChanges = false;
   bool _initialized = false;
+  bool _zenMode = false;
 
   QuillController? _quillController;
 
@@ -297,130 +298,134 @@ class _ChapterEditorScreenState extends ConsumerState<ChapterEditorScreen> {
         child: Column(
           children: [
             // ── Top Bar ────────────────────────────────────────────────────
-            _EditorTopBar(
-              status: status,
-              showPreview: _showPreview,
-              showCodex: _showCodexDrawer,
-              canUndo: _undoStack.isNotEmpty,
-              onBack: () {
-                _saveContent();
-                context.pop();
-              },
-              onCycleStatus: _cycleStatus,
-              onTogglePreview: () => setState(() => _showPreview = !_showPreview),
-              onToggleCodex: () => setState(() => _showCodexDrawer = !_showCodexDrawer),
-              onUndo: _performUndo,
-              onSearch: _showSearch,
-              onHistory: _showSnapshotHistory,
-              onCompile: _compileAndExport,
-              onDelete: _deleteChapter,
-              onDashboard: () => showDashboardSheet(context, ref),
-            ),
+            if (!_zenMode)
+              _EditorTopBar(
+                status: status,
+                showPreview: _showPreview,
+                showCodex: _showCodexDrawer,
+                showZen: _zenMode,
+                canUndo: _undoStack.isNotEmpty,
+                onBack: () {
+                  _saveContent();
+                  context.pop();
+                },
+                onCycleStatus: _cycleStatus,
+                onTogglePreview: () => setState(() => _showPreview = !_showPreview),
+                onToggleCodex: () => setState(() => _showCodexDrawer = !_showCodexDrawer),
+                onToggleZen: () => setState(() => _zenMode = !_zenMode),
+                onUndo: _performUndo,
+                onSearch: _showSearch,
+                onHistory: _showSnapshotHistory,
+                onCompile: _compileAndExport,
+                onDelete: _deleteChapter,
+                onDashboard: () => showDashboardSheet(context, ref),
+              ),
 
             // ── Title + Synopsis card ────────────────────────────────────
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
-              child: Container(
-                decoration: BoxDecoration(
-                  color: theme.colorScheme.surfaceVariant.withOpacity(0.12),
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                padding: const EdgeInsets.fromLTRB(16, 14, 12, 10),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Title row + status chip
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Expanded(
-                          child: TextField(
-                            controller: _titleController,
-                            style: theme.textTheme.headlineMedium!.copyWith(
-                              fontFamily: 'Lora',
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                            ),
-                            decoration: InputDecoration(
-                              hintText: 'Chapter Title',
-                              hintStyle:
-                                  theme.textTheme.headlineMedium!.copyWith(
+            if (!_zenMode)
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: theme.colorScheme.surfaceVariant.withOpacity(0.12),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  padding: const EdgeInsets.fromLTRB(16, 14, 12, 10),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Title row + status chip
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Expanded(
+                            child: TextField(
+                              controller: _titleController,
+                              style: theme.textTheme.headlineMedium!.copyWith(
                                 fontFamily: 'Lora',
                                 fontSize: 20,
-                                color: theme.colorScheme.onSurfaceVariant
-                                    .withOpacity(0.35),
-                              ),
-                              border: InputBorder.none,
-                              isDense: true,
-                              contentPadding:
-                                  const EdgeInsets.symmetric(vertical: 4),
-                            ),
-                            onChanged: (_) => _saveContent(),
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        GestureDetector(
-                          onTap: _cycleStatus,
-                          child: AnimatedContainer(
-                            duration: const Duration(milliseconds: 200),
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 10, vertical: 4),
-                            decoration: BoxDecoration(
-                              color: _statusColor(status, theme)
-                                  .withOpacity(0.15),
-                              borderRadius: BorderRadius.circular(20),
-                              border: Border.all(
-                                color: _statusColor(status, theme)
-                                    .withOpacity(0.4),
-                              ),
-                            ),
-                            child: Text(
-                              status.label,
-                              style: theme.textTheme.labelSmall!.copyWith(
-                                color: _statusColor(status, theme),
                                 fontWeight: FontWeight.bold,
                               ),
+                              decoration: InputDecoration(
+                                hintText: 'Chapter Title',
+                                hintStyle:
+                                    theme.textTheme.headlineMedium!.copyWith(
+                                  fontFamily: 'Lora',
+                                  fontSize: 20,
+                                  color: theme.colorScheme.onSurfaceVariant
+                                      .withOpacity(0.35),
+                                ),
+                                border: InputBorder.none,
+                                isDense: true,
+                                contentPadding:
+                                    const EdgeInsets.symmetric(vertical: 4),
+                              ),
+                              onChanged: (_) => _saveContent(),
                             ),
                           ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 6),
-                    // Synopsis
-                    TextField(
-                      controller: _synopsisController,
-                      style: theme.textTheme.bodySmall!.copyWith(
-                        fontStyle: FontStyle.italic,
-                        color: theme.colorScheme.onSurfaceVariant,
+                          const SizedBox(width: 8),
+                          GestureDetector(
+                            onTap: _cycleStatus,
+                            child: AnimatedContainer(
+                              duration: const Duration(milliseconds: 200),
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 10, vertical: 4),
+                              decoration: BoxDecoration(
+                                color: _statusColor(status, theme)
+                                    .withOpacity(0.15),
+                                borderRadius: BorderRadius.circular(20),
+                                border: Border.all(
+                                  color: _statusColor(status, theme)
+                                      .withOpacity(0.4),
+                                ),
+                              ),
+                              child: Text(
+                                status.label,
+                                style: theme.textTheme.labelSmall!.copyWith(
+                                  color: _statusColor(status, theme),
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
-                      decoration: InputDecoration(
-                        hintText: 'Synopsis...',
-                        hintStyle: theme.textTheme.bodySmall!.copyWith(
+                      const SizedBox(height: 6),
+                      // Synopsis
+                      TextField(
+                        controller: _synopsisController,
+                        style: theme.textTheme.bodySmall!.copyWith(
                           fontStyle: FontStyle.italic,
-                          color: theme.colorScheme.onSurfaceVariant
-                              .withOpacity(0.35),
+                          color: theme.colorScheme.onSurfaceVariant,
                         ),
-                        border: InputBorder.none,
-                        isDense: true,
-                        contentPadding:
-                            const EdgeInsets.symmetric(vertical: 2),
+                        decoration: InputDecoration(
+                          hintText: 'Synopsis...',
+                          hintStyle: theme.textTheme.bodySmall!.copyWith(
+                            fontStyle: FontStyle.italic,
+                            color: theme.colorScheme.onSurfaceVariant
+                                .withOpacity(0.35),
+                          ),
+                          border: InputBorder.none,
+                          isDense: true,
+                          contentPadding:
+                              const EdgeInsets.symmetric(vertical: 2),
+                        ),
+                        maxLines: 2,
+                        onChanged: (_) => _saveSynopsis(),
                       ),
-                      maxLines: 2,
-                      onChanged: (_) => _saveSynopsis(),
-                    ),
-                    const SizedBox(height: 4),
-                    // POV + Location quick picks
-                    _PovLocationRow(chapterId: widget.chapterId),
-                    const SizedBox(height: 2),
-                    WritingStatsBar(
-                      wordCountNotifier: _wordCount,
-                      charCountNotifier: _charCount,
-                      lastEdited: _lastEdited,
-                    ),
-                  ],
+                      const SizedBox(height: 4),
+                      // POV + Location quick picks
+                      _PovLocationRow(chapterId: widget.chapterId),
+                      const SizedBox(height: 2),
+                      WritingStatsBar(
+                        wordCountNotifier: _wordCount,
+                        charCountNotifier: _charCount,
+                        lastEdited: _lastEdited,
+                      ),
+                    ],
+                  ),
                 ),
               ),
-            ),
 
             // ── Editor + Codex drawer ──────────────────────────────────────
             Expanded(
@@ -457,24 +462,102 @@ class _ChapterEditorScreenState extends ConsumerState<ChapterEditorScreen> {
                           ),
                   ),
                   // ── Codex overlay (slides in from right) ──────────────
-                  AnimatedPositioned(
-                    duration: const Duration(milliseconds: 280),
-                    curve: Curves.easeInOut,
-                    right: _showCodexDrawer ? 0 : -300,
-                    top: 0,
-                    bottom: 0,
-                    width: 300,
-                    child: _CodexPanel(
-                      onClose: () => setState(
-                          () => _showCodexDrawer = false),
+                  if (!_zenMode)
+                    AnimatedPositioned(
+                      duration: const Duration(milliseconds: 280),
+                      curve: Curves.easeInOut,
+                      right: _showCodexDrawer ? 0 : -300,
+                      top: 0,
+                      bottom: 0,
+                      width: 300,
+                      child: _CodexPanel(
+                        onClose: () => setState(
+                            () => _showCodexDrawer = false),
+                      ),
                     ),
-                  ),
+                  
+                  // ── Zen Mode Overlay Elements ──────────────
+                  if (_zenMode) ...[
+                    // Floating button to exit Zen Mode
+                    Positioned(
+                      top: 16,
+                      right: 16,
+                      child: FloatingActionButton.small(
+                        backgroundColor: theme.colorScheme.surface.withOpacity(0.85),
+                        foregroundColor: theme.colorScheme.primary,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          side: BorderSide(color: theme.colorScheme.outline.withOpacity(0.2)),
+                        ),
+                        onPressed: () => setState(() => _zenMode = false),
+                        child: const Icon(Icons.close_fullscreen_rounded, size: 18),
+                      ),
+                    ),
+                    
+                    // Floating glassmorphic stats / toolbar
+                    Positioned(
+                      bottom: 24,
+                      left: 0,
+                      right: 0,
+                      child: Center(
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                          decoration: BoxDecoration(
+                            color: theme.colorScheme.surface.withOpacity(0.9),
+                            borderRadius: BorderRadius.circular(24),
+                            border: Border.all(color: theme.colorScheme.outline.withOpacity(0.25)),
+                            boxShadow: [
+                              BoxShadow(
+                                color: theme.colorScheme.primary.withOpacity(0.08),
+                                blurRadius: 16,
+                                spreadRadius: 1,
+                                offset: const Offset(0, 4),
+                              ),
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.05),
+                                blurRadius: 8,
+                                offset: const Offset(0, 2),
+                              ),
+                            ],
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(Icons.auto_awesome_rounded, size: 14, color: theme.colorScheme.primary),
+                              const SizedBox(width: 8),
+                              ValueListenableBuilder<int>(
+                                valueListenable: _wordCount,
+                                builder: (_, count, __) => Text(
+                                  '$count words',
+                                  style: theme.textTheme.labelMedium!.copyWith(
+                                    fontWeight: FontWeight.w700,
+                                    color: theme.colorScheme.onSurface,
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 12),
+                              Container(width: 1, height: 14, color: theme.colorScheme.outline.withOpacity(0.3)),
+                              const SizedBox(width: 12),
+                              Text(
+                                'Zen Mode',
+                                style: theme.textTheme.labelMedium!.copyWith(
+                                  color: theme.colorScheme.primary,
+                                  fontWeight: FontWeight.w800,
+                                  letterSpacing: 0.5,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
                 ],
               ),
             ),
 
             // ── Bottom toolbar bar ───────────────────────────────────────
-            if (_quillController != null) _BottomToolbarBar(
+            if (_quillController != null && !_zenMode) _BottomToolbarBar(
               controller: _quillController!,
               expanded: _toolbarExpanded,
               onToggle: () =>
@@ -482,15 +565,16 @@ class _ChapterEditorScreenState extends ConsumerState<ChapterEditorScreen> {
             ),
 
             // ── Status Bar ─────────────────────────────────────────────────
-            EditorStatusBar(
-              wordCountNotifier: _wordCount,
-              charCountNotifier: _charCount,
-              chapterTitle: _titleController.text.isNotEmpty
-                  ? _titleController.text
-                  : null,
-              isSaving: _isSaving,
-              hasUnsavedChanges: _hasUnsavedChanges,
-            ),
+            if (!_zenMode)
+              EditorStatusBar(
+                wordCountNotifier: _wordCount,
+                charCountNotifier: _charCount,
+                chapterTitle: _titleController.text.isNotEmpty
+                    ? _titleController.text
+                    : null,
+                isSaving: _isSaving,
+                hasUnsavedChanges: _hasUnsavedChanges,
+              ),
           ],
         ),
       ),
@@ -515,11 +599,13 @@ class _EditorTopBar extends StatelessWidget {
   final ChapterStatus status;
   final bool showPreview;
   final bool showCodex;
+  final bool showZen;
   final bool canUndo;
   final VoidCallback onBack;
   final VoidCallback onCycleStatus;
   final VoidCallback onTogglePreview;
   final VoidCallback onToggleCodex;
+  final VoidCallback onToggleZen;
   final VoidCallback onUndo;
   final VoidCallback onSearch;
   final VoidCallback onHistory;
@@ -531,11 +617,13 @@ class _EditorTopBar extends StatelessWidget {
     required this.status,
     required this.showPreview,
     required this.showCodex,
+    required this.showZen,
     required this.canUndo,
     required this.onBack,
     required this.onCycleStatus,
     required this.onTogglePreview,
     required this.onToggleCodex,
+    required this.onToggleZen,
     required this.onUndo,
     required this.onSearch,
     required this.onHistory,
@@ -609,6 +697,17 @@ class _EditorTopBar extends StatelessWidget {
             ),
             tooltip: showCodex ? 'Hide Codex' : 'Open Codex',
             onPressed: onToggleCodex,
+            visualDensity: VisualDensity.compact,
+          ),
+
+          // Zen Mode
+          IconButton(
+            icon: Icon(
+              showZen ? Icons.fullscreen_exit_rounded : Icons.fullscreen_rounded,
+              size: 22, color: showZen ? primary : onSurface,
+            ),
+            tooltip: showZen ? 'Normal Mode' : 'Zen Mode',
+            onPressed: onToggleZen,
             visualDensity: VisualDensity.compact,
           ),
 

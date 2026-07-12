@@ -14,6 +14,7 @@ import '../../../common/widget/error_display.dart';
 import '../../../common/widget/loading_indicator.dart';
 import '../../entity/provider/entity_list_provider.dart';
 import '../../../common/widget/page_header.dart';
+import '../../../common/widget/fictionist_dropdown.dart';
 import '../../entity/widget/entity_peek_sheet.dart';
 import '../../graph/provider/graph_provider.dart';
 import '../../timeline/provider/timeline_provider.dart';
@@ -32,6 +33,8 @@ class _MapScreenState extends ConsumerState<MapScreen> {
   WorldMap? _selectedMap;
   MapFilterMode _filterMode = MapFilterMode.original;
   final List<Offset> _activeRipples = [];
+  String? _selectedPinId;
+  Entity? _selectedPinEntity;
 
   Future<void> _uploadMap() async {
     final result = await FilePicker.platform.pickFiles(
@@ -678,57 +681,6 @@ class _MapScreenState extends ConsumerState<MapScreen> {
 
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
-      appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.surface,
-        elevation: 0,
-        toolbarHeight: 48,
-        actions: [
-          IconButton(
-            icon: Icon(Icons.auto_awesome, color: Theme.of(context).colorScheme.primary),
-            tooltip: 'Forge Procedural Map',
-            onPressed: () {
-              HapticFeedback.lightImpact();
-              context.push('/map/generator');
-            },
-          ),
-          IconButton(
-            icon: Icon(Icons.upload_file, color: Theme.of(context).colorScheme.onSurface),
-            tooltip: 'Upload Map Image',
-            onPressed: _uploadMap,
-          ),
-          PopupMenuButton<MapFilterMode>(
-            icon: Icon(Icons.filter_hdr_outlined, color: Theme.of(context).colorScheme.onSurface),
-            tooltip: 'Map Filters',
-            onSelected: (mode) {
-              setState(() => _filterMode = mode);
-            },
-            itemBuilder: (ctx) => [
-              const PopupMenuItem(
-                value: MapFilterMode.original,
-                child: Text('Original Map'),
-              ),
-              const PopupMenuItem(
-                value: MapFilterMode.sepia,
-                child: Text('Antique Sepia'),
-              ),
-              const PopupMenuItem(
-                value: MapFilterMode.dark,
-                child: Text('High Contrast Dark'),
-              ),
-              const PopupMenuItem(
-                value: MapFilterMode.satellite,
-                child: Text('Satellite Blueprint'),
-              ),
-            ],
-          ),
-          if (_selectedMap != null)
-            IconButton(
-              icon: Icon(Icons.delete_outline, color: Theme.of(context).colorScheme.error),
-              tooltip: 'Delete Map',
-              onPressed: () => _deleteMap(_selectedMap!),
-            ),
-        ],
-      ),
       body: mapsState.when(
         data: (maps) {
           if (maps.isEmpty) {
@@ -753,9 +705,63 @@ class _MapScreenState extends ConsumerState<MapScreen> {
 
           return entitiesState.when(
             data: (entities) {
-              return Column(
+              return Stack(
                 children: [
-                  const PageHeader(title: 'World Map', subtitle: 'Cartography and exploration'),
+                  Column(
+                    children: [
+                      PageHeader(
+                        title: 'World Map',
+                        subtitle: 'Cartography and exploration',
+                        trailing: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            IconButton(
+                              icon: Icon(Icons.auto_awesome, color: Theme.of(context).colorScheme.primary, size: 20),
+                              tooltip: 'Forge Procedural Map',
+                              onPressed: () {
+                                HapticFeedback.lightImpact();
+                                context.push('/map/generator');
+                              },
+                            ),
+                            IconButton(
+                              icon: Icon(Icons.upload_file, color: Theme.of(context).colorScheme.onSurface, size: 20),
+                              tooltip: 'Upload Map Image',
+                              onPressed: _uploadMap,
+                            ),
+                            PopupMenuButton<MapFilterMode>(
+                              icon: Icon(Icons.filter_hdr_outlined, color: Theme.of(context).colorScheme.onSurface, size: 20),
+                              tooltip: 'Map Filters',
+                              onSelected: (mode) {
+                                setState(() => _filterMode = mode);
+                              },
+                              itemBuilder: (ctx) => [
+                                const PopupMenuItem(
+                                  value: MapFilterMode.original,
+                                  child: Text('Original Map'),
+                                ),
+                                const PopupMenuItem(
+                                  value: MapFilterMode.sepia,
+                                  child: Text('Antique Sepia'),
+                                ),
+                                const PopupMenuItem(
+                                  value: MapFilterMode.dark,
+                                  child: Text('High Contrast Dark'),
+                                ),
+                                const PopupMenuItem(
+                                  value: MapFilterMode.satellite,
+                                  child: Text('Satellite Blueprint'),
+                                ),
+                              ],
+                            ),
+                            if (_selectedMap != null)
+                              IconButton(
+                                icon: Icon(Icons.delete_outline, color: Theme.of(context).colorScheme.error, size: 20),
+                                tooltip: 'Delete Map',
+                                onPressed: () => _deleteMap(_selectedMap!),
+                              ),
+                          ],
+                        ),
+                      ),
                   if (maps.length > 1)
                     Padding(
                       padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
@@ -764,20 +770,16 @@ class _MapScreenState extends ConsumerState<MapScreen> {
                           Text('Map selector:', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant)),
                           SizedBox(width: 12),
                           Expanded(
-                            child: DropdownButton<WorldMap>(
+                            child: FictionistDropdown<WorldMap>(
                               value: selectedMap,
-                              dropdownColor: Theme.of(context).colorScheme.surface,
-                              isExpanded: true,
                               items: maps.map((m) {
-                                return DropdownMenuItem(
+                                return FictionistDropdownItem<WorldMap>(
                                   value: m,
-                                  child: Text(m.name, style: Theme.of(context).textTheme.bodyLarge!),
+                                  child: Text(m.name, style: Theme.of(context).textTheme.bodyLarge!.copyWith(fontSize: 12)),
                                 );
                               }).toList(),
                               onChanged: (val) {
-                                if (val != null) {
-                                  setState(() => _selectedMap = val);
-                                }
+                                setState(() => _selectedMap = val);
                               },
                             ),
                           ),
@@ -802,6 +804,12 @@ class _MapScreenState extends ConsumerState<MapScreen> {
                               child: LayoutBuilder(
                                 builder: (context, constraints) {
                                   return GestureDetector(
+                                    onTap: () {
+                                      setState(() {
+                                        _selectedPinId = null;
+                                        _selectedPinEntity = null;
+                                      });
+                                    },
                                     onLongPressStart: (details) => _onMapLongPress(
                                       context,
                                       details,
@@ -897,51 +905,81 @@ class _MapScreenState extends ConsumerState<MapScreen> {
                                                 final top = pin.yPercent * constraints.maxHeight - 36;
                                                 final iconColor = Color(peerEntity.iconColor);
 
+                                                final isSelected = pin.id == _selectedPinId;
                                                 return Positioned(
                                                   left: left,
                                                   top: top,
                                                   child: GestureDetector(
                                                     onTap: () {
                                                       HapticFeedback.lightImpact();
-                                                      _showPinDetails(
-                                                        context,
-                                                        peerEntity,
-                                                        pin.id,
-                                                        selectedMap.id,
-                                                      );
+                                                      setState(() {
+                                                        _selectedPinId = pin.id;
+                                                        _selectedPinEntity = peerEntity;
+                                                      });
                                                     },
                                                     child: Column(
                                                       mainAxisSize: MainAxisSize.min,
                                                       children: [
-                                                        Icon(
-                                                          _getPinIcon(peerEntity),
-                                                          size: 24,
-                                                          color: iconColor,
+                                                        Stack(
+                                                          alignment: Alignment.center,
+                                                          children: [
+                                                            if (isSelected)
+                                                              Container(
+                                                                width: 42,
+                                                                height: 42,
+                                                                decoration: BoxDecoration(
+                                                                  shape: BoxShape.circle,
+                                                                  color: iconColor.withOpacity(0.25),
+                                                                  border: Border.all(color: iconColor.withOpacity(0.3), width: 1.5),
+                                                                ),
+                                                              ).animate(onPlay: (c) => c.repeat())
+                                                               .scale(begin: const Offset(0.7, 0.7), end: const Offset(1.4, 1.4), duration: 1200.ms, curve: Curves.easeOut)
+                                                               .fadeOut(duration: 1200.ms),
+                                                            Icon(
+                                                              _getPinIcon(peerEntity),
+                                                              size: isSelected ? 30 : 24,
+                                                              color: iconColor,
+                                                            ).animate(target: isSelected ? 1 : 0)
+                                                             .shimmer(duration: 1000.ms, color: Colors.white.withOpacity(0.5)),
+                                                          ],
                                                         ),
+                                                        const SizedBox(height: 2),
                                                         Container(
-                                                          padding: EdgeInsets.symmetric(
-                                                            horizontal: 4,
+                                                          padding: const EdgeInsets.symmetric(
+                                                            horizontal: 5,
                                                             vertical: 2,
                                                           ),
                                                           decoration: BoxDecoration(
-                                                            color: Theme.of(context).colorScheme.surface.withOpacity(0.85),
-                                                            borderRadius: BorderRadius.circular(4),
-                                                            border: Border.all(color: Theme.of(context).colorScheme.outline),
+                                                            color: isSelected 
+                                                                ? Theme.of(context).colorScheme.primary 
+                                                                : Theme.of(context).colorScheme.surface.withOpacity(0.85),
+                                                            borderRadius: BorderRadius.circular(6),
+                                                            border: Border.all(
+                                                              color: isSelected 
+                                                                  ? Theme.of(context).colorScheme.primary 
+                                                                  : Theme.of(context).colorScheme.outline,
+                                                            ),
+                                                            boxShadow: isSelected ? [
+                                                              BoxShadow(
+                                                                color: Theme.of(context).colorScheme.primary.withOpacity(0.2),
+                                                                blurRadius: 6,
+                                                                spreadRadius: 1,
+                                                              )
+                                                            ] : null,
                                                           ),
                                                           child: Text(
                                                             peerEntity.name,
                                                             style: TextStyle(
-                                                              fontSize: 8,
-                                                              color: Theme.of(context).colorScheme.onSurface,
+                                                              fontSize: 8.5,
+                                                              color: isSelected 
+                                                                  ? Theme.of(context).colorScheme.onPrimary 
+                                                                  : Theme.of(context).colorScheme.onSurface,
                                                               fontWeight: FontWeight.bold,
                                                             ),
                                                           ),
                                                         ),
                                                       ],
-                                                    ).animate()
-                                                     .scale(duration: 400.ms, curve: Curves.easeOutBack)
-                                                     .animate(onPlay: (c) => c.repeat(reverse: true))
-                                                     .slideY(begin: 0.0, end: -0.08, duration: 1500.ms, curve: Curves.easeInOut),
+                                                    ),
                                                   ),
                                                 );
                                               }).toList(),
@@ -962,8 +1000,12 @@ class _MapScreenState extends ConsumerState<MapScreen> {
                         ),
                   ),
                 ],
-              );
-            },
+              ),
+              if (_selectedPinId != null && _selectedPinEntity != null)
+                _buildBottomPreviewCard(context, _selectedPinEntity!, _selectedPinId!, selectedMap.id),
+              ],
+            );
+          },
             loading: () => LoadingIndicator(),
             error: (e, _) => ErrorDisplay(message: e.toString()),
           );
@@ -971,6 +1013,122 @@ class _MapScreenState extends ConsumerState<MapScreen> {
         loading: () => LoadingIndicator(),
         error: (err, _) => ErrorDisplay(message: err.toString()),
       ),
+    );
+  }
+
+  Widget _buildBottomPreviewCard(BuildContext context, Entity entity, String pinId, String mapId) {
+    final theme = Theme.of(context);
+    
+    return Positioned(
+      bottom: 16,
+      left: 16,
+      right: 16,
+      child: Container(
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: theme.colorScheme.surface.withOpacity(0.92),
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+            color: theme.colorScheme.primary.withOpacity(0.25),
+            width: 1.2,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: theme.colorScheme.primary.withOpacity(0.08),
+              blurRadius: 16,
+              spreadRadius: 1,
+              offset: const Offset(0, 4),
+            ),
+            BoxShadow(
+              color: Colors.black.withOpacity(0.15),
+              blurRadius: 8,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: Color(entity.iconColor).withOpacity(0.15),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                _getPinIcon(entity),
+                size: 24,
+                color: Color(entity.iconColor),
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    entity.name,
+                    style: theme.textTheme.titleMedium!.copyWith(
+                      fontWeight: FontWeight.bold,
+                      fontFamily: 'Lora',
+                      fontSize: 15,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    entity.description ?? 'No description available.',
+                    style: theme.textTheme.bodySmall!.copyWith(
+                      color: theme.colorScheme.onSurfaceVariant,
+                      fontSize: 11,
+                    ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(width: 8),
+            Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                ElevatedButton.icon(
+                  onPressed: () {
+                    HapticFeedback.selectionClick();
+                    _showPinDetails(context, entity, pinId, mapId);
+                  },
+                  icon: const Icon(Icons.explore_outlined, size: 12),
+                  label: const Text('Codex', style: TextStyle(fontSize: 10)),
+                  style: ElevatedButton.styleFrom(
+                    visualDensity: VisualDensity.compact,
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                    backgroundColor: theme.colorScheme.primary,
+                    foregroundColor: theme.colorScheme.onPrimary,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                  ),
+                ),
+                const SizedBox(height: 4),
+                TextButton.icon(
+                  onPressed: () {
+                    setState(() {
+                      _selectedPinId = null;
+                      _selectedPinEntity = null;
+                    });
+                  },
+                  icon: const Icon(Icons.close, size: 12, color: Colors.grey),
+                  label: const Text('Close', style: TextStyle(fontSize: 10, color: Colors.grey)),
+                  style: TextButton.styleFrom(
+                    visualDensity: VisualDensity.compact,
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ).animate().slideY(begin: 0.2, end: 0.0, curve: Curves.easeOutBack, duration: 300.ms).fadeIn(),
     );
   }
 }

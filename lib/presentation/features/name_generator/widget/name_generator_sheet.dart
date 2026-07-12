@@ -8,6 +8,7 @@ import 'package:fictionist/injection.dart';
 import 'package:fictionist/presentation/features/name_generator/provider/name_generator_provider.dart';
 import 'package:go_router/go_router.dart';
 import 'package:fictionist/presentation/common/widget/loading_indicator.dart';
+import 'package:fictionist/presentation/common/widget/fictionist_dropdown.dart';
 
 /// A reusable bottom sheet that generates fantasy names.
 ///
@@ -155,28 +156,23 @@ class _NameGeneratorSheetState extends ConsumerState<NameGeneratorSheet>
                   ),
                   const SizedBox(width: 8),
                   Expanded(
-                    child: DropdownButton<String>(
+                    child: FictionistDropdown<String>(
                       value: archetypes.contains(state.selectedArchetype)
                           ? state.selectedArchetype
                           : archetypes.first,
-                      isExpanded: true,
-                      underline: const SizedBox(),
-                      style: TextStyle(
-                        color: Theme.of(context).colorScheme.secondary,
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                      ),
                       items: archetypes
-                          .map((a) => DropdownMenuItem(
+                          .map((a) => FictionistDropdownItem<String>(
                                 value: a,
-                                child: Text(a),
+                                child: Text(a, style: TextStyle(
+                                  color: Theme.of(context).colorScheme.secondary,
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w600,
+                                )),
                               ))
                           .toList(),
-                      onChanged: (String? value) {
-                        if (value != null) {
-                          notifier.setArchetype(value);
-                          notifier.generate();
-                        }
+                      onChanged: (String value) {
+                        notifier.setArchetype(value);
+                        notifier.generate();
                       },
                     ),
                   ),

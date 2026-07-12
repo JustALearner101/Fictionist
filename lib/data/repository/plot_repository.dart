@@ -7,11 +7,12 @@ import 'package:fictionist/core/error/failure.dart';
 import 'package:fictionist/data/dao/plot_dao.dart';
 import 'package:fictionist/data/database/app_database.dart';
 import 'package:fictionist/domain/plot/plot_card.dart';
+import 'package:fictionist/domain/repository/plot_repository.dart';
 
-@LazySingleton()
-class PlotRepository {
+@LazySingleton(as: PlotRepository)
+class PlotRepositoryImpl implements PlotRepository {
   final PlotDao _dao;
-  PlotRepository(this._dao);
+  PlotRepositoryImpl(this._dao);
 
   Future<Either<Failure, PlotCard>> createCard({
     required String title,

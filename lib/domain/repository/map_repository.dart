@@ -11,4 +11,5 @@ abstract class MapRepository {
   Future<Either<Failure, MapPin>> createPin(MapPin pin);
   Future<Either<Failure, Unit>> deletePin(String id);
   Future<Either<Failure, List<MapPin>>> getPinsForMap(String mapId);
+  Future<Either<Failure, Unit>> saveMapImage(String relativePath, List<int> bytes);
 }

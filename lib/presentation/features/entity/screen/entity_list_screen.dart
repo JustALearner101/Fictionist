@@ -18,6 +18,10 @@ import '../provider/continuity_provider.dart';
 import '../provider/entity_list_provider.dart';
 import '../provider/unused_entities_provider.dart';
 import '../widget/bento_stats_widget.dart';
+import '../../manuscript/provider/manuscript_provider.dart';
+import '../../map/provider/map_provider.dart';
+import '../../timeline/provider/timeline_provider.dart';
+import '../../graph/provider/graph_provider.dart';
 
 class EntityListScreen extends ConsumerStatefulWidget {
   const EntityListScreen({super.key});
@@ -60,6 +64,10 @@ class _EntityListScreenState extends ConsumerState<EntityListScreen> {
       },
       (_) {
         ref.invalidate(entityListProvider);
+        ref.invalidate(manuscriptNotifierProvider);
+        ref.invalidate(worldMapListProvider);
+        ref.invalidate(timelineListProvider());
+        ref.invalidate(graphDataProvider);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Sample world forged successfully!'),
@@ -114,34 +122,33 @@ class _EntityListScreenState extends ConsumerState<EntityListScreen> {
 
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
-      appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.surface,
-        elevation: 0,
-        toolbarHeight: 48,
-        actions: [
-          IconButton(
-            icon: Icon(Icons.bolt, color: Theme.of(context).colorScheme.primary),
-            tooltip: 'Quick Switcher',
-            onPressed: () => _showQuickSwitcher(context),
-          ),
-          IconButton(
-            icon: Icon(Icons.search, color: Theme.of(context).colorScheme.onSurface),
-            tooltip: 'Codex Search',
-            onPressed: () => context.push('/search'),
-          ),
-          IconButton(
-            icon: Icon(Icons.settings, color: Theme.of(context).colorScheme.onSurface),
-            tooltip: 'Settings',
-            onPressed: () => context.push('/settings'),
-          ),
-        ],
-      ),
-      body: Column(
-        children: [
-          const PageHeader(
-            title: 'Codex',
-            subtitle: 'Manage your world\'s inhabitants and lore',
-          ),
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            PageHeader(
+              title: 'Codex',
+              subtitle: 'Manage your world\'s inhabitants and lore',
+              trailing: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  IconButton(
+                    icon: Icon(Icons.bolt, color: Theme.of(context).colorScheme.primary, size: 20),
+                    tooltip: 'Quick Switcher',
+                    onPressed: () => _showQuickSwitcher(context),
+                  ),
+                  IconButton(
+                    icon: Icon(Icons.search, color: Theme.of(context).colorScheme.onSurface, size: 20),
+                    tooltip: 'Codex Search',
+                    onPressed: () => context.push('/search'),
+                  ),
+                  IconButton(
+                    icon: Icon(Icons.settings, color: Theme.of(context).colorScheme.onSurface, size: 20),
+                    tooltip: 'Settings',
+                    onPressed: () => context.push('/settings'),
+                  ),
+                ],
+              ),
+            ),
           // ── Search bar ──
           Padding(
             padding: EdgeInsets.symmetric(horizontal: 14, vertical: 6),
@@ -217,30 +224,32 @@ class _EntityListScreenState extends ConsumerState<EntityListScreen> {
           ),
 
           // ── Content ──
-          Expanded(
-            child: entitiesState.when(
-              data: (list) {
-                if (list.isEmpty) {
-                  return _buildEmptyState(context);
-                }
-                final filtered = _filterEntities(list);
-                if (filtered.isEmpty) {
-                  return const EmptyState(
-                    title: 'No Entities Found',
-                    message: 'Create a new entity to begin worldbuilding.',
-                    icon: Icons.book_outlined,
-                  );
-                }
-                return _buildEntityList(filtered);
-              },
-              loading: () => LoadingIndicator(),
-              error: (err, stack) => ErrorDisplay(
-                message: err.toString(),
-                onRetry: () => ref.refresh(entityListProvider),
-              ),
+          entitiesState.when(
+            data: (list) {
+              if (list.isEmpty) {
+                return _buildEmptyState(context);
+              }
+              final filtered = _filterEntities(list);
+              if (filtered.isEmpty) {
+                return const EmptyState(
+                  title: 'No Entities Found',
+                  message: 'Create a new entity to begin worldbuilding.',
+                  icon: Icons.book_outlined,
+                );
+              }
+              return _buildEntityList(filtered);
+            },
+            loading: () => const SizedBox(
+              height: 200,
+              child: LoadingIndicator(),
+            ),
+            error: (err, stack) => ErrorDisplay(
+              message: err.toString(),
+              onRetry: () => ref.refresh(entityListProvider),
             ),
           ),
-        ],
+          ],
+        ),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => context.push('/entities/create'),
@@ -254,69 +263,69 @@ class _EntityListScreenState extends ConsumerState<EntityListScreen> {
   }
 
   Widget _buildEmptyState(BuildContext context) {
-    return Center(
-      child: SingleChildScrollView(
-        padding: EdgeInsets.all(24),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            // Decorative top ornament
-            Text('❦', style: TextStyle(fontSize: 40, color: Theme.of(context).colorScheme.primary.withOpacity(0.4))),
-            SizedBox(height: 12),
-            Text(
-              'Welcome, Archivist',
-              style: Theme.of(context).textTheme.displayLarge!.copyWith(
-                fontSize: 26,
-                fontFamily: 'Lora',
-                color: Theme.of(context).colorScheme.primary,
-              ),
-              textAlign: TextAlign.center,
+    return Padding(
+      padding: EdgeInsets.fromLTRB(24, 24, 24, 80),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          // Decorative top ornament
+          Text('❦', style: TextStyle(fontSize: 40, color: Theme.of(context).colorScheme.primary.withOpacity(0.4))),
+          SizedBox(height: 12),
+          Text(
+            'Welcome, Archivist',
+            style: Theme.of(context).textTheme.displayLarge!.copyWith(
+              fontSize: 26,
+              fontFamily: 'Lora',
+              color: Theme.of(context).colorScheme.primary,
             ),
-            SizedBox(height: 10),
-            Text(
-              'Your legendary grimoire is currently blank. '
-              'Create a new entity manually, or forge a pre-built '
-              'fantasy setting to begin exploring.',
-              style: Theme.of(context).textTheme.bodyLarge!.copyWith(
-                color: Theme.of(context).colorScheme.onSurfaceVariant,
-                height: 1.5,
-              ),
-              textAlign: TextAlign.center,
+            textAlign: TextAlign.center,
+          ),
+          SizedBox(height: 10),
+          Text(
+            'Your legendary grimoire is currently blank. '
+            'Create a new entity manually, or forge a pre-built '
+            'fantasy setting to begin exploring.',
+            style: Theme.of(context).textTheme.bodyLarge!.copyWith(
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+              height: 1.5,
             ),
-            SizedBox(height: 28),
-            FilledButton.icon(
-              icon: Icon(Icons.auto_awesome, size: 18),
-              label: Text('Forge Sample World'),
-              style: FilledButton.styleFrom(
-                backgroundColor: Theme.of(context).colorScheme.primary,
-                foregroundColor: Theme.of(context).colorScheme.surface,
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
-                textStyle: TextStyle(fontWeight: FontWeight.bold),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-              ),
-              onPressed: () => _forgeSampleWorld(context),
+            textAlign: TextAlign.center,
+          ),
+          SizedBox(height: 28),
+          FilledButton.icon(
+            icon: Icon(Icons.auto_awesome, size: 18),
+            label: Text('Forge Sample World'),
+            style: FilledButton.styleFrom(
+              backgroundColor: Theme.of(context).colorScheme.primary,
+              foregroundColor: Theme.of(context).colorScheme.surface,
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+              textStyle: TextStyle(fontWeight: FontWeight.bold),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
             ),
-            SizedBox(height: 12),
-            OutlinedButton.icon(
-              icon: Icon(Icons.add, size: 18),
-              label: Text('Create New Entity'),
-              style: OutlinedButton.styleFrom(
-                foregroundColor: Theme.of(context).colorScheme.onSurface,
-                side: BorderSide(color: Theme.of(context).colorScheme.outline),
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-              ),
-              onPressed: () => context.push('/entities/create'),
+            onPressed: () => _forgeSampleWorld(context),
+          ),
+          SizedBox(height: 12),
+          OutlinedButton.icon(
+            icon: Icon(Icons.add, size: 18),
+            label: Text('Create New Entity'),
+            style: OutlinedButton.styleFrom(
+              foregroundColor: Theme.of(context).colorScheme.onSurface,
+              side: BorderSide(color: Theme.of(context).colorScheme.outline),
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
             ),
-          ],
-        ),
+            onPressed: () => context.push('/entities/create'),
+          ),
+        ],
       ),
     );
   }
 
   Widget _buildEntityList(List<Entity> entities) {
     return ListView.builder(
+      shrinkWrap: true,
+      physics: NeverScrollableScrollPhysics(),
       padding: EdgeInsets.fromLTRB(14, 4, 14, 80),
       itemCount: entities.length,
       itemBuilder: (context, index) {

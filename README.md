@@ -189,17 +189,17 @@ Powered by **SQLite FTS5** — searches across entity names, descriptions, and a
 <tr>
 <td>🕸</td>
 <td><b>Graph View</b> — interactive force-directed graph, filterable by entity type and relationship label</td>
-<td align="right"><code>Phase 2 📋</code></td>
+<td align="right"><code>Phase 2 ✅</code></td>
 </tr>
 <tr>
 <td>🌳</td>
 <td><b>Family Tree</b> — hierarchical character relationship visualization</td>
-<td align="right"><code>Phase 2 📋</code></td>
+<td align="right"><code>Phase 2 ✅</code></td>
 </tr>
 <tr>
 <td>🗺</td>
-<td><b>World Map</b> — pin entities to a user-uploaded image canvas</td>
-<td align="right"><code>Phase 3 🔭</code></td>
+<td><b>World Map</b> — pin entities to a user-uploaded image canvas with glowing pulses & bottom preview cards</td>
+<td align="right"><code>Phase 3 ✅</code></td>
 </tr>
 </table>
 

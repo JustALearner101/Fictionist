@@ -12,6 +12,10 @@ import '../../../../injection.dart';
 import '../../../common/widget/confirm_dialog.dart';
 import '../../../common/widget/loading_indicator.dart';
 import '../../entity/provider/entity_list_provider.dart';
+import '../../manuscript/provider/manuscript_provider.dart';
+import '../../map/provider/map_provider.dart';
+import '../../timeline/provider/timeline_provider.dart';
+import '../../graph/provider/graph_provider.dart';
 
 class SettingsScreen extends ConsumerStatefulWidget {
   const SettingsScreen({super.key});
@@ -153,6 +157,154 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     );
   }
 
+  Future<void> _purgeAll() async {
+    // Two-step confirmation for critical action
+    final step1 = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: Theme.of(context).colorScheme.surface,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+        title: Row(
+          children: [
+            Icon(Icons.warning_amber_rounded, color: Colors.redAccent, size: 24),
+            const SizedBox(width: 10),
+            Text(
+              'Purge ALL Data?',
+              style: Theme.of(context).textTheme.titleMedium!.copyWith(
+                fontFamily: 'Lora',
+                color: Theme.of(context).colorScheme.error,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'This will permanently delete EVERYTHING:\n'
+              '• All entities (characters, factions, locations…)\n'
+              '• All relationships and connections\n'
+              '• All manuscript chapters and snapshots\n'
+              '• All timeline entries\n'
+              '• All world maps and pins\n'
+              '• All plot cards and connections\n'
+              '• All templates, tags, and versions\n'
+              '\n'
+              'This is IRREVERSIBLE and cannot be undone.',
+              style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+                height: 1.5,
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: Text('Cancel', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant)),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Theme.of(context).colorScheme.error,
+              foregroundColor: Theme.of(context).colorScheme.surface,
+            ),
+            child: const Text('Continue', style: TextStyle(fontWeight: FontWeight.bold)),
+          ),
+        ],
+      ),
+    );
+    if (step1 != true) return;
+
+    // Second confirmation — type confirmation
+    final textCtrl = TextEditingController();
+    final step2 = await showDialog<bool>(
+      context: context,
+      builder: (ctx) {
+        String typed = '';
+        return StatefulBuilder(
+          builder: (context, setDialogState) => AlertDialog(
+            backgroundColor: Theme.of(context).colorScheme.surface,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+            title: Text(
+              'Confirm Irreversible Action',
+              style: Theme.of(context).textTheme.titleMedium!.copyWith(
+                fontFamily: 'Lora',
+                color: Theme.of(context).colorScheme.error,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Type DELETE to confirm you want to erase every piece of data in your codex.',
+                  style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                TextField(
+                  controller: textCtrl,
+                  autofocus: true,
+                  onChanged: (val) => setDialogState(() => typed = val),
+                  decoration: InputDecoration(
+                    hintText: 'Type DELETE',
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    filled: true,
+                    fillColor: Theme.of(context).colorScheme.surfaceContainerHighest,
+                  ),
+                  style: Theme.of(context).textTheme.bodyLarge!.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(ctx, false),
+                child: Text('Cancel', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant)),
+              ),
+              ElevatedButton(
+                onPressed: typed.trim() == 'DELETE'
+                    ? () => Navigator.pop(ctx, true)
+                    : null,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Theme.of(context).colorScheme.error,
+                  foregroundColor: Theme.of(context).colorScheme.surface,
+                  disabledBackgroundColor: Theme.of(context).colorScheme.error.withOpacity(0.4),
+                ),
+                child: const Text('Purge Everything', style: TextStyle(fontWeight: FontWeight.bold)),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+    if (step2 != true) return;
+
+    setState(() => _loading = true);
+    final repo = getIt<EntityRepository>();
+    final result = await repo.purgeAllData();
+    setState(() => _loading = false);
+    result.fold(
+      (f) => _snack(f.message, Theme.of(context).colorScheme.error),
+      (_) {
+        ref.invalidate(entityListProvider);
+        ref.invalidate(manuscriptNotifierProvider);
+        ref.invalidate(worldMapListProvider);
+        ref.invalidate(timelineListProvider());
+        ref.invalidate(graphDataProvider);
+        _snack('All data purged.', Theme.of(context).colorScheme.error);
+      },
+    );
+  }
+
   void _showExportDone(String jsonStr) {
     final counts = _parseExportDataCounts(jsonStr);
     showDialog<void>(
@@ -283,6 +435,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 onTap: _importCodex),
               _tile(Icons.delete_sweep, 'Purge Soft-Deleted Entities', 'Permanently erase all trash',
                 onTap: _purgeDeleted, destructive: true),
+              _tile(Icons.delete_forever, 'Purge ALL Data', 'Irreversibly wipe every entity, chapter, map, and record',
+                onTap: _purgeAll, destructive: true),
               const SizedBox(height: 24),
               _section('Appearance'),
               _tile(Icons.palette, 'Theme', 'Customize colors, fonts, and presets',

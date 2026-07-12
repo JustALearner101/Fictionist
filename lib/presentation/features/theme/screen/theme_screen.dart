@@ -6,6 +6,7 @@ import 'package:fictionist/core/theme/theme_config.dart';
 import 'package:fictionist/core/theme/theme_presets.dart';
 import 'package:fictionist/presentation/features/theme/provider/theme_provider.dart';
 import 'package:fictionist/presentation/common/widget/loading_indicator.dart';
+import 'package:fictionist/presentation/common/widget/fictionist_dropdown.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 /// Full theme customization screen.
@@ -300,23 +301,20 @@ class _FontDropdown extends StatelessWidget {
             ),
             const SizedBox(width: 12),
             Expanded(
-              child: DropdownButton<String>(
+              child: FictionistDropdown<String>(
                 value: value.isNotEmpty ? value : options.first,
-                isExpanded: true,
-                underline: const SizedBox(),
-                style: TextStyle(
-                  color: Theme.of(context).colorScheme.primary,
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                ),
                 items: options
-                    .map((f) => DropdownMenuItem(
+                    .map((f) => FictionistDropdownItem<String>(
                           value: f,
-                          child: Text(f),
+                          child: Text(f, style: TextStyle(
+                            color: Theme.of(context).colorScheme.primary,
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                          )),
                         ))
                     .toList(),
                 onChanged: (v) {
-                  if (v != null) onChanged(v);
+                  onChanged(v);
                 },
               ),
             ),

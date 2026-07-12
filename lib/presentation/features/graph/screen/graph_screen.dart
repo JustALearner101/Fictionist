@@ -19,6 +19,7 @@ import '../../../common/widget/empty_state.dart';
 import '../../../common/widget/error_display.dart';
 import '../../../common/widget/loading_indicator.dart';
 import '../../../common/widget/page_header.dart';
+import '../../../common/widget/fictionist_dropdown.dart';
 import '../provider/graph_provider.dart';
 import '../widget/timeline_scrubber.dart';
 import '../widget/relationship_matrix_widget.dart';
@@ -708,43 +709,6 @@ class _GraphScreenState extends ConsumerState<GraphScreen> {
 
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
-      appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.surface,
-        elevation: 0,
-        toolbarHeight: 48,
-        actions: [
-          IconButton(
-            icon: Icon(Icons.refresh, color: Theme.of(context).colorScheme.onSurface),
-            tooltip: 'Refresh Graph',
-            onPressed: () => ref.invalidate(graphDataProvider),
-          ),
-          IconButton(
-            icon: Icon(Icons.plagiarism_outlined,
-                color: Theme.of(context).colorScheme.secondary),
-            tooltip: 'Continuity Check',
-            onPressed: () async {
-              final graphData = ref.read(graphDataProvider).valueOrNull;
-              if (graphData == null || !mounted) return;
-              _showContinuityCheck(
-                graphData.$1,
-                graphData.$2,
-              );
-            },
-          ),
-          IconButton(
-            icon: Icon(
-              _scrubberVisible ? Icons.timeline : Icons.timeline_outlined,
-              color: _scrubberVisible
-                  ? Theme.of(context).colorScheme.primary
-                  : Theme.of(context).colorScheme.onSurfaceVariant,
-            ),
-            tooltip: 'Timeline Scrubber',
-            onPressed: () {
-              setState(() => _scrubberVisible = !_scrubberVisible);
-            },
-          ),
-        ],
-      ),
       body: graphState.when(
         data: (data) {
           final entities = data.$1;
@@ -999,32 +963,66 @@ class _GraphScreenState extends ConsumerState<GraphScreen> {
               PageHeader(
                 title: 'Web',
                 subtitle: 'Entity relationship graph',
-                trailing: SizedBox(
-                  width: 120,
-                  child: DropdownButton<GraphLayoutMode>(
-                    value: _layoutMode,
-                    isExpanded: true,
-                    dropdownColor: Theme.of(context).colorScheme.surface,
-                    underline: SizedBox(),
-                    icon: Icon(Icons.layers_outlined, size: 18, color: Theme.of(context).colorScheme.primary),
-                    style: TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w600,
-                      color: Theme.of(context).colorScheme.onSurface,
+                trailing: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    IconButton(
+                      icon: Icon(Icons.refresh, color: Theme.of(context).colorScheme.onSurface, size: 20),
+                      tooltip: 'Refresh Graph',
+                      onPressed: () => ref.invalidate(graphDataProvider),
                     ),
-                    items: [
-                      DropdownMenuItem(value: GraphLayoutMode.chronicleWeb, child: Text('Web')),
-                      DropdownMenuItem(value: GraphLayoutMode.familyTree, child: Text('Family')),
-                      DropdownMenuItem(value: GraphLayoutMode.factionMap, child: Text('Faction')),
-                      DropdownMenuItem(value: GraphLayoutMode.relationshipMatrix, child: Text('Matrix')),
-                    ],
-                    onChanged: (val) {
-                      if (val != null) {
-                        HapticFeedback.selectionClick();
-                        setState(() => _layoutMode = val);
-                      }
-                    },
-                  ),
+                    IconButton(
+                      icon: Icon(Icons.plagiarism_outlined, color: Theme.of(context).colorScheme.secondary, size: 20),
+                      tooltip: 'Continuity Check',
+                      onPressed: () async {
+                        final graphData = ref.read(graphDataProvider).valueOrNull;
+                        if (graphData == null || !mounted) return;
+                        _showContinuityCheck(
+                          graphData.$1,
+                          graphData.$2,
+                        );
+                      },
+                    ),
+                    IconButton(
+                      icon: Icon(
+                        _scrubberVisible ? Icons.timeline : Icons.timeline_outlined,
+                        color: _scrubberVisible
+                            ? Theme.of(context).colorScheme.primary
+                            : Theme.of(context).colorScheme.onSurfaceVariant,
+                        size: 20,
+                      ),
+                      tooltip: 'Timeline Scrubber',
+                      onPressed: () {
+                        setState(() => _scrubberVisible = !_scrubberVisible);
+                      },
+                    ),
+                    SizedBox(
+                      width: 140,
+                      child: FictionistDropdown<GraphLayoutMode>(
+                        value: _layoutMode,
+                        items: [
+                          DropdownMenuItem(value: GraphLayoutMode.chronicleWeb, child: Text('Web')),
+                          DropdownMenuItem(value: GraphLayoutMode.familyTree, child: Text('Family')),
+                          DropdownMenuItem(value: GraphLayoutMode.factionMap, child: Text('Faction')),
+                          DropdownMenuItem(value: GraphLayoutMode.relationshipMatrix, child: Text('Matrix')),
+                        ].map((item) => FictionistDropdownItem<GraphLayoutMode>(
+                          value: item.value!,
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(Icons.layers_outlined, size: 14, color: Theme.of(context).colorScheme.primary),
+                              const SizedBox(width: 6),
+                              Text((item.child as Text).data!, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
+                            ],
+                          ),
+                        )).toList(),
+                        onChanged: (val) {
+                          HapticFeedback.selectionClick();
+                          setState(() => _layoutMode = val);
+                        },
+                      ),
+                    ),
+                  ],
                 ),
               ),
               // Filters Chip Bar (Only in Web Mode)
@@ -1121,20 +1119,32 @@ class _GraphScreenState extends ConsumerState<GraphScreen> {
                                             width: isFaction ? 56 : 48,
                                             height: isFaction ? 56 : 48,
                                             decoration: BoxDecoration(
-                                              color: iconColor.withOpacity(0.15),
+                                              color: iconColor.withOpacity(0.12),
                                               shape: BoxShape.rectangle,
                                               borderRadius: _getNodeBorderRadius(entity.type),
                                               border: Border.all(
                                                 color: iconColor,
-                                                width: isFaction ? 3 : 2,
+                                                width: isFaction ? 2.5 : 1.5,
                                               ),
                                               boxShadow: [
                                                 BoxShadow(
-                                                  color: iconColor.withOpacity(0.1),
-                                                  blurRadius: 8,
-                                                  spreadRadius: 2,
+                                                  color: iconColor.withOpacity(0.3),
+                                                  blurRadius: 10,
+                                                  spreadRadius: 1,
+                                                ),
+                                                BoxShadow(
+                                                  color: iconColor.withOpacity(0.15),
+                                                  blurRadius: 4,
+                                                  offset: const Offset(0, 2),
                                                 ),
                                               ],
+                                              gradient: RadialGradient(
+                                                colors: [
+                                                  iconColor.withOpacity(0.2),
+                                                  iconColor.withOpacity(0.04),
+                                                ],
+                                                radius: 0.85,
+                                              ),
                                             ),
                                             child: Center(
                                               child: Icon(
@@ -1149,23 +1159,34 @@ class _GraphScreenState extends ConsumerState<GraphScreen> {
                                             ..._buildTraitBadges(traits),
                                         ],
                                       ),
-                                      SizedBox(height: 6),
+                                      const SizedBox(height: 6),
                                       Container(
                                         padding: const EdgeInsets.symmetric(
                                           horizontal: 8,
-                                          vertical: 2,
+                                          vertical: 3,
                                         ),
                                         decoration: BoxDecoration(
-                                          color: Theme.of(context).colorScheme.surface,
-                                          borderRadius: BorderRadius.circular(4),
-                                          border: Border.all(color: Theme.of(context).colorScheme.outline),
+                                          color: Theme.of(context).colorScheme.surface.withOpacity(0.9),
+                                          borderRadius: BorderRadius.circular(8),
+                                          border: Border.all(
+                                            color: iconColor.withOpacity(0.3),
+                                            width: 0.8,
+                                          ),
+                                          boxShadow: [
+                                            BoxShadow(
+                                              color: Colors.black.withOpacity(0.06),
+                                              blurRadius: 4,
+                                              offset: const Offset(0, 1),
+                                            ),
+                                          ],
                                         ),
                                         child: Text(
                                           entity.name,
                                           style: TextStyle(
                                             color: Theme.of(context).colorScheme.onSurface,
-                                            fontSize: 10,
+                                            fontSize: 9.5,
                                             fontWeight: FontWeight.bold,
+                                            letterSpacing: 0.2,
                                           ),
                                         ),
                                       ),

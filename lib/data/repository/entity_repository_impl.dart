@@ -194,4 +194,33 @@ class EntityRepositoryImpl implements EntityRepository {
       ));
     }
   }
+
+  @override
+  Future<Either<Failure, Unit>> purgeAllData() async {
+    try {
+      // This must be done in order respecting foreign keys:
+      // tables with FK dependencies first, then parents
+      await _dao.customStatement('DELETE FROM entity_fts');
+      await _dao.customStatement('DELETE FROM entity_tags');
+      await _dao.customStatement('DELETE FROM chapter_snapshots');
+      await _dao.customStatement('DELETE FROM map_pins');
+      await _dao.customStatement('DELETE FROM plot_connections');
+      await _dao.customStatement('DELETE FROM setup_payoffs');
+      await _dao.customStatement('DELETE FROM entity_versions');
+      await _dao.customStatement('DELETE FROM timeline_entries');
+      await _dao.customStatement('DELETE FROM relationships');
+      await _dao.customStatement('DELETE FROM plot_cards');
+      await _dao.customStatement('DELETE FROM manuscript_chapters');
+      await _dao.customStatement('DELETE FROM world_maps');
+      await _dao.customStatement('DELETE FROM templates');
+      await _dao.customStatement('DELETE FROM tags');
+      await _dao.customStatement('DELETE FROM entities');
+      return const Right(unit);
+    } catch (e) {
+      return Left(Failure.database(
+        message: 'Failed to purge all data from database',
+        originalError: e,
+      ));
+    }
+  }
 }

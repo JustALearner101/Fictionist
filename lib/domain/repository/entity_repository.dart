@@ -16,4 +16,5 @@ abstract class EntityRepository {
   Future<Either<Failure, List<Entity>>> getActiveByType(EntityType type);
   Future<Either<Failure, List<Entity>>> getActiveByStatus(EntityStatus status);
   Future<Either<Failure, Unit>> purgeSoftDeleted();
+  Future<Either<Failure, Unit>> purgeAllData();
 }

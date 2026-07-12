@@ -5,6 +5,7 @@ import '../../../../domain/relationship/relationship_type_def.dart';
 import '../../../../domain/relationship/relationship_type_registry.dart';
 import '../../../../domain/use_case/relationship/create_relationship_use_case.dart';
 import '../../entity/provider/entity_list_provider.dart';
+import '../../../common/widget/fictionist_dropdown.dart';
 
 class RelationshipPickerSheet extends ConsumerStatefulWidget {
   final Entity sourceEntity;
@@ -124,20 +125,23 @@ class _RelationshipPickerSheetState extends ConsumerState<RelationshipPickerShee
                   ),
             ),
             const SizedBox(height: 8),
-            DropdownButtonFormField<RelationshipTypeDef>(
+            FictionistDropdown<RelationshipTypeDef?>(
               value: _selectedDef,
-              dropdownColor: Theme.of(context).colorScheme.surface,
-              decoration: InputDecoration(
-                prefixIcon: Icon(Icons.link, color: Theme.of(context).colorScheme.primary),
-                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                border: const OutlineInputBorder(),
-              ),
               items: eligibleDefs.map((def) {
-                return DropdownMenuItem(
+                return FictionistDropdownItem<RelationshipTypeDef?>(
                   value: def,
-                  child: Text(
-                    '${def.label} (➔ ${def.applicableTargetTypes.map((t) => t.label).join(", ")})',
-                    style: Theme.of(context).textTheme.bodyLarge!,
+                  child: Row(
+                    children: [
+                      Icon(Icons.link, size: 14, color: Theme.of(context).colorScheme.primary),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          '${def.label} (➔ ${def.applicableTargetTypes.map((t) => t.label).join(", ")})',
+                          style: const TextStyle(fontSize: 12),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ],
                   ),
                 );
               }).toList(),

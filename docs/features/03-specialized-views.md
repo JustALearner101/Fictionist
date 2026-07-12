@@ -10,10 +10,10 @@ Four sub-features:
 
 | View | Data Source | Release |
 |---|---|---|
-| **A. Graph View** | All entities + all relationships | V1.x |
-| **B. Family Tree** | Characters + `parent_of` / `child_of` / `sibling_of` / `married_to` | V1.x |
-| **C. Faction Map** | Factions + Characters + political relationship types | V1.x |
-| **D. World Map** | Locations + user-uploaded map image | V2+ |
+| **A. Graph View** | All entities + all relationships | V1.x (Completed) |
+| **B. Family Tree** | Characters + `parent_of` / `child_of` / `sibling_of` / `married_to` | V1.x (Completed) |
+| **C. Faction Map** | Factions + Characters + political relationship types | V1.x (Completed) |
+| **D. World Map** | Locations + user-uploaded map image | V1.x (Completed) |
 
 ---
 
@@ -223,7 +223,6 @@ CREATE TABLE map_pins (
 
 | Scope | Features |
 |---|---|
-| **V1.x** | Graph View (FR-SV-01–06), Family Tree (FR-SV-07–10), Faction Map (FR-SV-11–13). All read-only, derived from existing entity/relationship data. |
-| **V2+** | World Map (FR-SV-14–18). Requires image storage, new tables, pin management UI. |
+| **V1.x** | Graph View (FR-SV-01–06), Family Tree (FR-SV-07–10), Faction Map (FR-SV-11–13), World Map (FR-SV-14–18) (all completed). |
 | **V2+** | Export graph/tree as PNG/SVG. Share world map as image. |
 | **V2+** | Animated timeline overlay on graph view — scrub through events and see relationships appear/disappear over time. |

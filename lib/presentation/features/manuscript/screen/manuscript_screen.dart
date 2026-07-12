@@ -111,34 +111,29 @@ class _ManuscriptScreenState extends ConsumerState<ManuscriptScreen> {
 
     return Scaffold(
       backgroundColor: theme.colorScheme.surface,
-      appBar: AppBar(
-        backgroundColor: theme.colorScheme.surface,
-        elevation: 0,
-        toolbarHeight: 48,
-        actions: [
-          if (chapters.isNotEmpty)
-            IconButton(
-              icon: Icon(Icons.dashboard_outlined,
-                  color: theme.colorScheme.onSurface),
-              tooltip: 'Dashboard',
-              onPressed: () => showDashboardSheet(context, ref),
-            ),
-          IconButton(
-            icon: Icon(Icons.add_circle_outline,
-                color: theme.colorScheme.primary),
-            tooltip: 'New Chapter',
-            onPressed: _createChapter,
-          ),
-        ],
-      ),
       body: chapters.isEmpty
           ? _EmptyManuscript(onCreate: _createChapter)
           : Column(
               children: [
                 // ── Page header ─────────────────────────────────────────────
-                const PageHeader(
+                PageHeader(
                   title: 'Manuscript',
                   subtitle: 'Write and organize your story',
+                  trailing: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      IconButton(
+                        icon: Icon(Icons.dashboard_outlined, color: theme.colorScheme.onSurface, size: 20),
+                        tooltip: 'Dashboard',
+                        onPressed: () => showDashboardSheet(context, ref),
+                      ),
+                      IconButton(
+                        icon: Icon(Icons.add_circle_outline, color: theme.colorScheme.primary, size: 20),
+                        tooltip: 'New Chapter',
+                        onPressed: _createChapter,
+                      ),
+                    ],
+                  ),
                 ),
                 // ── Summary strip ───────────────────────────────────────────
                 _SummaryStrip(

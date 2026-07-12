@@ -1,9 +1,16 @@
 import 'package:fictionist/core/error/failure.dart';
 import 'package:fictionist/domain/entity/entity.dart';
 import 'package:fictionist/domain/entity/entity_type.dart';
+import 'package:fictionist/domain/manuscript/manuscript_chapter.dart';
+import 'package:fictionist/domain/map/map_pin.dart';
+import 'package:fictionist/domain/map/world_map.dart';
+import 'package:fictionist/domain/plot/plot_card.dart';
 import 'package:fictionist/domain/relationship/relationship.dart';
 import 'package:fictionist/domain/repository/entity_repository.dart';
 import 'package:fictionist/domain/repository/entity_version_repository.dart';
+import 'package:fictionist/domain/repository/manuscript_repository.dart';
+import 'package:fictionist/domain/repository/map_repository.dart';
+import 'package:fictionist/domain/repository/plot_repository.dart';
 import 'package:fictionist/domain/repository/relationship_repository.dart';
 import 'package:fictionist/domain/repository/timeline_repository.dart';
 import 'package:fictionist/domain/timeline/timeline_entry.dart';
@@ -23,12 +30,21 @@ class MockRelationshipRepository extends Mock
 
 class MockTimelineRepository extends Mock implements TimelineRepository {}
 
+class MockManuscriptRepository extends Mock implements ManuscriptRepository {}
+
+class MockMapRepository extends Mock implements MapRepository {}
+
+class MockPlotRepository extends Mock implements PlotRepository {}
+
 void main() {
   late SampleWorldUseCase useCase;
   late MockEntityRepository mockEntityRepo;
   late MockEntityVersionRepository mockVersionRepo;
   late MockRelationshipRepository mockRelationshipRepo;
   late MockTimelineRepository mockTimelineRepo;
+  late MockManuscriptRepository mockManuscriptRepo;
+  late MockMapRepository mockMapRepo;
+  late MockPlotRepository mockPlotRepo;
 
   setUpAll(() {
     registerFallbackValue(
@@ -68,6 +84,31 @@ void main() {
         updatedAt: DateTime.now(),
       ),
     );
+    registerFallbackValue(
+      ManuscriptChapter(
+        id: '',
+        title: '',
+        content: '',
+        createdAt: DateTime.now(),
+        updatedAt: DateTime.now(),
+      ),
+    );
+    registerFallbackValue(
+      WorldMap(
+        id: '',
+        name: '',
+        imagePath: '',
+      ),
+    );
+    registerFallbackValue(
+      MapPin(
+        id: '',
+        mapId: '',
+        entityId: '',
+        xPercent: 0,
+        yPercent: 0,
+      ),
+    );
   });
 
   setUp(() {
@@ -75,16 +116,22 @@ void main() {
     mockVersionRepo = MockEntityVersionRepository();
     mockRelationshipRepo = MockRelationshipRepository();
     mockTimelineRepo = MockTimelineRepository();
+    mockManuscriptRepo = MockManuscriptRepository();
+    mockMapRepo = MockMapRepository();
+    mockPlotRepo = MockPlotRepository();
     useCase = SampleWorldUseCase(
       mockEntityRepo,
       mockVersionRepo,
       mockRelationshipRepo,
       mockTimelineRepo,
+      mockManuscriptRepo,
+      mockMapRepo,
+      mockPlotRepo,
     );
   });
 
   test(
-      'should successfully save sample entities, relationships, timeline entries and snapshots',
+      'should successfully save sample entities, relationships, timeline entries, chapters, plots, maps and pins',
       () async {
     when(() => mockEntityRepo.create(any())).thenAnswer((invocation) =>
         Future.value(Right(invocation.positionalArguments[0] as Entity)));
@@ -95,6 +142,55 @@ void main() {
         Future.value(Right(invocation.positionalArguments[0] as Relationship)));
     when(() => mockTimelineRepo.create(any())).thenAnswer((invocation) =>
         Future.value(Right(invocation.positionalArguments[0] as TimelineEntry)));
+    when(() => mockManuscriptRepo.create(any())).thenAnswer((invocation) =>
+        Future.value(Right(invocation.positionalArguments[0] as ManuscriptChapter)));
+    
+    when(() => mockPlotRepo.createCard(
+      title: any(named: 'title'),
+      summary: any(named: 'summary'),
+      xPosition: any(named: 'xPosition'),
+      yPosition: any(named: 'yPosition'),
+      colorHex: any(named: 'colorHex'),
+    )).thenAnswer((invocation) {
+      final title = invocation.namedArguments[#title] as String;
+      final summary = invocation.namedArguments[#summary] as String?;
+      final x = invocation.namedArguments[#xPosition] as double;
+      final y = invocation.namedArguments[#yPosition] as double;
+      final col = invocation.namedArguments[#colorHex] as int;
+      return Future.value(Right(PlotCard(
+        id: 'mock-card-id',
+        title: title,
+        summary: summary,
+        xPosition: x,
+        yPosition: y,
+        colorHex: col,
+        createdAt: DateTime.now(),
+        updatedAt: DateTime.now(),
+      )));
+    });
+
+    when(() => mockPlotRepo.createConnection(
+      any(),
+      any(),
+      label: any(named: 'label'),
+    )).thenAnswer((invocation) {
+      final s = invocation.positionalArguments[0] as String;
+      final t = invocation.positionalArguments[1] as String;
+      final lbl = invocation.namedArguments[#label] as String?;
+      return Future.value(Right(PlotConnection(
+        id: 'mock-conn-id',
+        sourceId: s,
+        targetId: t,
+        label: lbl,
+        createdAt: DateTime.now(),
+      )));
+    });
+
+    when(() => mockMapRepo.saveMapImage(any(), any())).thenAnswer((_) => Future.value(const Right(unit)));
+    when(() => mockMapRepo.createMap(any())).thenAnswer((invocation) =>
+        Future.value(Right(invocation.positionalArguments[0] as WorldMap)));
+    when(() => mockMapRepo.createPin(any())).thenAnswer((invocation) =>
+        Future.value(Right(invocation.positionalArguments[0] as MapPin)));
 
     final result = await useCase();
 
@@ -104,10 +200,26 @@ void main() {
       (val) => expect(val, unit),
     );
 
-    verify(() => mockEntityRepo.create(any())).called(6);
-    verify(() => mockVersionRepo.create(any())).called(6);
-    verify(() => mockRelationshipRepo.create(any())).called(4);
-    verify(() => mockTimelineRepo.create(any())).called(3);
+    verify(() => mockEntityRepo.create(any())).called(22);
+    verify(() => mockVersionRepo.create(any())).called(22);
+    verify(() => mockRelationshipRepo.create(any())).called(12);
+    verify(() => mockTimelineRepo.create(any())).called(4);
+    verify(() => mockManuscriptRepo.create(any())).called(3);
+    verify(() => mockPlotRepo.createCard(
+      title: any(named: 'title'),
+      summary: any(named: 'summary'),
+      xPosition: any(named: 'xPosition'),
+      yPosition: any(named: 'yPosition'),
+      colorHex: any(named: 'colorHex'),
+    )).called(4);
+    verify(() => mockPlotRepo.createConnection(
+      any(),
+      any(),
+      label: any(named: 'label'),
+    )).called(3);
+    verify(() => mockMapRepo.saveMapImage(any(), any())).called(1);
+    verify(() => mockMapRepo.createMap(any())).called(1);
+    verify(() => mockMapRepo.createPin(any())).called(3);
   });
 
   test('should halt and return failure if entity insertion fails', () async {
@@ -129,5 +241,14 @@ void main() {
     verifyNever(() => mockVersionRepo.create(any()));
     verifyNever(() => mockRelationshipRepo.create(any()));
     verifyNever(() => mockTimelineRepo.create(any()));
+    verifyNever(() => mockManuscriptRepo.create(any()));
+    verifyNever(() => mockPlotRepo.createCard(
+      title: any(named: 'title'),
+      summary: any(named: 'summary'),
+      xPosition: any(named: 'xPosition'),
+      yPosition: any(named: 'yPosition'),
+      colorHex: any(named: 'colorHex'),
+    ));
+    verifyNever(() => mockMapRepo.saveMapImage(any(), any()));
   });
 }

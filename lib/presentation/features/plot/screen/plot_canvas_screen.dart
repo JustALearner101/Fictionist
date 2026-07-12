@@ -1,7 +1,7 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:fictionist/data/repository/plot_repository.dart';
+import 'package:fictionist/domain/repository/plot_repository.dart';
 import 'package:fictionist/domain/plot/plot_card.dart';
 import 'package:fictionist/injection.dart';
 import 'package:fictionist/presentation/common/widget/empty_state.dart';
@@ -105,21 +105,6 @@ class _PlotCanvasScreenState extends ConsumerState<PlotCanvasScreen> {
 
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
-      appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.surface,
-        elevation: 0,
-        toolbarHeight: 48,
-        actions: [
-          if (_connectingFromId != null)
-            TextButton.icon(
-              onPressed: () => setState(() => _connectingFromId = null),
-              icon: Icon(Icons.close, color: Theme.of(context).colorScheme.error, size: 18),
-              label: Text('Cancel Link', style: TextStyle(color: Theme.of(context).colorScheme.error)),
-            ),
-          IconButton(icon: Icon(Icons.add, color: Theme.of(context).colorScheme.primary), tooltip: 'Add Card', onPressed: _addCard),
-          IconButton(icon: Icon(Icons.refresh, color: Theme.of(context).colorScheme.onSurfaceVariant), onPressed: _loadData),
-        ],
-      ),
       body: _cards.isEmpty
           ? Center(
               child: EmptyState(
@@ -135,6 +120,19 @@ class _PlotCanvasScreenState extends ConsumerState<PlotCanvasScreen> {
                   child: PageHeader(
                     title: 'Plot',
                     subtitle: 'Story outline and plot cards',
+                    trailing: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        if (_connectingFromId != null)
+                          TextButton.icon(
+                            onPressed: () => setState(() => _connectingFromId = null),
+                            icon: Icon(Icons.close, color: Theme.of(context).colorScheme.error, size: 18),
+                            label: Text('Cancel Link', style: TextStyle(color: Theme.of(context).colorScheme.error)),
+                          ),
+                        IconButton(icon: Icon(Icons.add, color: Theme.of(context).colorScheme.primary, size: 20), tooltip: 'Add Card', onPressed: _addCard),
+                        IconButton(icon: Icon(Icons.refresh, color: Theme.of(context).colorScheme.onSurfaceVariant, size: 20), tooltip: 'Refresh', onPressed: _loadData),
+                      ],
+                    ),
                   ),
                 ),
                 InteractiveViewer(
