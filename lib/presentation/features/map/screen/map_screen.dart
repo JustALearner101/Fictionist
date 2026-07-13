@@ -1013,170 +1013,134 @@ class _MapScreenState extends ConsumerState<MapScreen> {
 
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
-      body: mapsState.when(
-        data: (maps) {
-          if (maps.isEmpty) {
-            return const EmptyState(
-              title: 'No World Maps Found',
-              message: 'Upload your fantasy cartography image to begin mapping out historical sites and cities.',
-              icon: Icons.map_outlined,
-            );
-          }
-
-          // Default selection
-          if (_selectedMap == null) {
-            _selectedMap = maps.first;
-          } else {
-            // Verify selected map still exists
-            if (!maps.any((m) => m.id == _selectedMap!.id)) {
-              _selectedMap = maps.first;
-            }
-          }
-
-          if (_lastLoadedMapId != _selectedMap!.id) {
-            _lastLoadedMapId = _selectedMap!.id;
-            WidgetsBinding.instance.addPostFrameCallback((_) {
-              _loadMapConfig(_selectedMap!.id);
-            });
-          }
-
-          final selectedMap = _selectedMap!;
-
-          return entitiesState.when(
-            data: (entities) {
-              return Stack(
-                children: [
-                  Column(
-                    children: [
-                      PageHeader(
-                        title: 'World Map',
-                        subtitle: 'Cartography and exploration',
-                        trailing: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            IconButton(
-                              icon: Icon(
-                                _showHeatmap ? Icons.blur_on : Icons.blur_off,
-                                color: _showHeatmap 
-                                    ? Theme.of(context).colorScheme.primary 
-                                    : Theme.of(context).colorScheme.onSurface,
-                                size: 20,
-                              ),
-                              tooltip: 'Lore Heatmap',
-                              onPressed: () {
-                                HapticFeedback.selectionClick();
-                                setState(() => _showHeatmap = !_showHeatmap);
-                              },
-                            ),
-                            IconButton(
-                              icon: Icon(
-                                _measuringMode ? Icons.straighten : Icons.straighten_outlined,
-                                color: _measuringMode 
-                                    ? Theme.of(context).colorScheme.primary 
-                                    : Theme.of(context).colorScheme.onSurface,
-                                size: 20,
-                              ),
-                              tooltip: 'Calculate Distance',
-                              onPressed: () {
-                                HapticFeedback.selectionClick();
-                                setState(() {
-                                  _measuringMode = !_measuringMode;
-                                  _measureStartPin = null;
-                                  _measureTargetPin = null;
-                                });
-                              },
-                            ),
-                            IconButton(
-                              icon: Icon(
-                                _showTimelineScrubber ? Icons.history : Icons.history_toggle_off,
-                                color: _showTimelineScrubber 
-                                    ? Theme.of(context).colorScheme.primary 
-                                    : Theme.of(context).colorScheme.onSurface,
-                                size: 20,
-                              ),
-                              tooltip: 'Timeline Scrubber',
-                              onPressed: () {
-                                HapticFeedback.selectionClick();
-                                setState(() => _showTimelineScrubber = !_showTimelineScrubber);
-                              },
-                            ),
-                            IconButton(
-                              icon: Icon(
-                                _showJourneyTracker ? Icons.person_pin : Icons.person_pin_outlined,
-                                color: _showJourneyTracker 
-                                    ? Theme.of(context).colorScheme.primary 
-                                    : Theme.of(context).colorScheme.onSurface,
-                                size: 20,
-                              ),
-                              tooltip: 'Journey Tracker',
-                              onPressed: () {
-                                HapticFeedback.selectionClick();
-                                setState(() {
-                                  _showJourneyTracker = !_showJourneyTracker;
-                                  if (!_showJourneyTracker) {
-                                    _selectedJourneyCharacterId = null;
-                                  }
-                                });
-                              },
-                            ),
-                            IconButton(
-                              icon: Icon(
-                                _showGridControls ? Icons.grid_on : Icons.grid_off,
-                                color: _showGridControls 
-                                    ? Theme.of(context).colorScheme.primary 
-                                    : Theme.of(context).colorScheme.onSurface,
-                                size: 20,
-                              ),
-                              tooltip: 'Tactical Grid',
-                              onPressed: () {
-                                HapticFeedback.selectionClick();
-                                setState(() => _showGridControls = !_showGridControls);
-                              },
-                            ),
-                            IconButton(
-                              icon: Icon(
-                                _showFogControls ? Icons.cloud : Icons.cloud_outlined,
-                                color: _showFogControls 
-                                    ? Theme.of(context).colorScheme.primary 
-                                    : Theme.of(context).colorScheme.onSurface,
-                                size: 20,
-                              ),
-                              tooltip: 'Fog of War',
-                              onPressed: () {
-                                HapticFeedback.selectionClick();
-                                setState(() => _showFogControls = !_showFogControls);
-                              },
-                            ),
-                            IconButton(
-                              icon: Icon(
-                                _showRouteControls ? Icons.edit_road : Icons.edit_road_outlined,
-                                color: _showRouteControls 
-                                    ? Theme.of(context).colorScheme.primary 
-                                    : Theme.of(context).colorScheme.onSurface,
-                                size: 20,
-                              ),
-                              tooltip: 'Draw Custom Routes',
-                              onPressed: () {
-                                HapticFeedback.selectionClick();
-                                setState(() {
-                                  _showRouteControls = !_showRouteControls;
-                                  if (!_showRouteControls) {
-                                    _isDrawingRoute = false;
-                                    _activeRoutePoints.clear();
-                                  }
-                                });
-                              },
-                            ),
-                            IconButton(
-                              icon: Icon(Icons.auto_awesome, color: Theme.of(context).colorScheme.primary, size: 20),
-                              tooltip: 'Forge Procedural Map',
-                              onPressed: () {
-                                HapticFeedback.lightImpact();
-                                context.push('/map/generator');
-                              },
-                            ),
-                            IconButton(
-                              icon: Icon(Icons.upload_file, color: Theme.of(context).colorScheme.onSurface, size: 20),
+      appBar: AppBar(
+        backgroundColor: Theme.of(context).colorScheme.surface,
+        elevation: 0,
+        toolbarHeight: 48,
+        actions: [
+          IconButton(
+            icon: Icon(
+              _showHeatmap ? Icons.blur_on : Icons.blur_off,
+              color: _showHeatmap 
+                  ? Theme.of(context).colorScheme.primary 
+                  : Theme.of(context).colorScheme.onSurface,
+              size: 20,
+            ),
+            tooltip: 'Lore Heatmap',
+            onPressed: () {
+              HapticFeedback.selectionClick();
+              setState(() => _showHeatmap = !_showHeatmap);
+            },
+          ),
+          IconButton(
+            icon: Icon(
+              _measuringMode ? Icons.straighten : Icons.straighten_outlined,
+              color: _measuringMode 
+                  ? Theme.of(context).colorScheme.primary 
+                  : Theme.of(context).colorScheme.onSurface,
+              size: 20,
+            ),
+            tooltip: 'Calculate Distance',
+            onPressed: () {
+              HapticFeedback.selectionClick();
+              setState(() {
+                _measuringMode = !_measuringMode;
+                _measureStartPin = null;
+                _measureTargetPin = null;
+              });
+            },
+          ),
+          IconButton(
+            icon: Icon(
+              _showTimelineScrubber ? Icons.history : Icons.history_toggle_off,
+              color: _showTimelineScrubber 
+                  ? Theme.of(context).colorScheme.primary 
+                  : Theme.of(context).colorScheme.onSurface,
+              size: 20,
+            ),
+            tooltip: 'Timeline Scrubber',
+            onPressed: () {
+              HapticFeedback.selectionClick();
+              setState(() => _showTimelineScrubber = !_showTimelineScrubber);
+            },
+          ),
+          IconButton(
+            icon: Icon(
+              _showJourneyTracker ? Icons.person_pin : Icons.person_pin_outlined,
+              color: _showJourneyTracker 
+                  ? Theme.of(context).colorScheme.primary 
+                  : Theme.of(context).colorScheme.onSurface,
+              size: 20,
+            ),
+            tooltip: 'Journey Tracker',
+            onPressed: () {
+              HapticFeedback.selectionClick();
+              setState(() {
+                _showJourneyTracker = !_showJourneyTracker;
+                if (!_showJourneyTracker) {
+                  _selectedJourneyCharacterId = null;
+                }
+              });
+            },
+          ),
+          IconButton(
+            icon: Icon(
+              _showGridControls ? Icons.grid_on : Icons.grid_off,
+              color: _showGridControls 
+                  ? Theme.of(context).colorScheme.primary 
+                  : Theme.of(context).colorScheme.onSurface,
+              size: 20,
+            ),
+            tooltip: 'Tactical Grid',
+            onPressed: () {
+              HapticFeedback.selectionClick();
+              setState(() => _showGridControls = !_showGridControls);
+            },
+          ),
+          IconButton(
+            icon: Icon(
+              _showFogControls ? Icons.cloud : Icons.cloud_outlined,
+              color: _showFogControls 
+                  ? Theme.of(context).colorScheme.primary 
+                  : Theme.of(context).colorScheme.onSurface,
+              size: 20,
+            ),
+            tooltip: 'Fog of War',
+            onPressed: () {
+              HapticFeedback.selectionClick();
+              setState(() => _showFogControls = !_showFogControls);
+            },
+          ),
+          IconButton(
+            icon: Icon(
+              _showRouteControls ? Icons.edit_road : Icons.edit_road_outlined,
+              color: _showRouteControls 
+                  ? Theme.of(context).colorScheme.primary 
+                  : Theme.of(context).colorScheme.onSurface,
+              size: 20,
+            ),
+            tooltip: 'Draw Custom Routes',
+            onPressed: () {
+              HapticFeedback.selectionClick();
+              setState(() {
+                _showRouteControls = !_showRouteControls;
+                if (!_showRouteControls) {
+                  _isDrawingRoute = false;
+                  _activeRoutePoints.clear();
+                }
+              });
+            },
+          ),
+          IconButton(
+            icon: Icon(Icons.auto_awesome, color: Theme.of(context).colorScheme.primary, size: 20),
+            tooltip: 'Forge Procedural Map',
+            onPressed: () {
+              HapticFeedback.lightImpact();
+              context.push('/map/generator');
+            },
+          ),
+          IconButton(
+            icon: Icon(Icons.upload_file, color: Theme.of(context).colorScheme.onSurface, size: 20),
                               tooltip: 'Upload Map Image',
                               onPressed: _uploadMap,
                             ),
@@ -1211,9 +1175,42 @@ class _MapScreenState extends ConsumerState<MapScreen> {
                                 tooltip: 'Delete Map',
                                 onPressed: () => _deleteMap(_selectedMap!),
                               ),
-                          ],
-                        ),
-                      ),
+                        ], // end AppBar actions
+                      ), // end AppBar
+      body: mapsState.when(
+        data: (maps) {
+          if (maps.isEmpty) {
+            return const EmptyState(
+              title: 'No World Maps Found',
+              message: 'Upload your fantasy cartography image to begin mapping out historical sites and cities.',
+              icon: Icons.map_outlined,
+            );
+          }
+
+          // Default selection
+          if (_selectedMap == null) {
+            _selectedMap = maps.first;
+          } else {
+            // Verify selected map still exists
+            if (!maps.any((m) => m.id == _selectedMap!.id)) {
+              _selectedMap = maps.first;
+            }
+          }
+
+          if (_lastLoadedMapId != _selectedMap!.id) {
+            _lastLoadedMapId = _selectedMap!.id;
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              _loadMapConfig(_selectedMap!.id);
+            });
+          }
+
+          final selectedMap = _selectedMap!;
+
+          return entitiesState.when(
+            data: (entities) {
+              return Column(
+                children: [
+                  const PageHeader(title: 'World Map', subtitle: 'Cartography and exploration'),
                   if (maps.length > 1)
                     Padding(
                       padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
