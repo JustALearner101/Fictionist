@@ -269,6 +269,7 @@ class _ChapterEditorScreenState extends ConsumerState<ChapterEditorScreen> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final prefs = ref.watch(writingPreferencesProvider);
+    final entities = ref.watch(entityListProvider).valueOrNull ?? [];
     // ponytail: read not watch — provider updates from _saveContent()
     // would rebuild QuillEditor on every keystroke, killing keyboard focus.
     final manuscriptState = ref.read(manuscriptNotifierProvider);
@@ -319,6 +320,7 @@ class _ChapterEditorScreenState extends ConsumerState<ChapterEditorScreen> {
                 onCompile: _compileAndExport,
                 onDelete: _deleteChapter,
                 onDashboard: () => showDashboardSheet(context, ref),
+                onPreferences: _showPreferencesSheet,
               ),
 
             // ── Title + Synopsis card ────────────────────────────────────
@@ -445,6 +447,13 @@ class _ChapterEditorScreenState extends ConsumerState<ChapterEditorScreen> {
                                 '${widget.chapterId}_v$_editorVersion'),
                             initialContent: _currentContent,
                             typewriterMode: prefs.typewriterMode,
+                            layoutMode: prefs.layoutMode,
+                            focusHighlight: prefs.focusHighlight,
+                            editorFontSize: prefs.editorFontSize,
+                            entities: entities,
+                            onEntityLinkTapped: (entityId) {
+                              showEntityPeekSheet(context, entityId: entityId);
+                            },
                             onControllerReady: (c) {
                               _quillController = c;
                             },
@@ -591,6 +600,139 @@ class _ChapterEditorScreenState extends ConsumerState<ChapterEditorScreen> {
         return const Color(0xFF34D399);
     }
   }
+
+  void _showPreferencesSheet() {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Theme.of(context).colorScheme.surface,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (ctx) {
+        final theme = Theme.of(ctx);
+        return Consumer(
+          builder: (context, ref, _) {
+            final prefs = ref.watch(writingPreferencesProvider);
+            return Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'Editor Settings',
+                        style: theme.textTheme.titleMedium!.copyWith(
+                          color: theme.colorScheme.primary,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.close, size: 18),
+                        onPressed: () => Navigator.pop(ctx),
+                      ),
+                    ],
+                  ),
+                  const Divider(),
+                  const SizedBox(height: 8),
+                  
+                  // Typewriter mode
+                  SwitchListTile(
+                    title: const Text('Typewriter Mode', style: TextStyle(fontSize: 14)),
+                    subtitle: const Text('Keep active cursor centered vertically', style: TextStyle(fontSize: 11)),
+                    value: prefs.typewriterMode,
+                    onChanged: (val) {
+                      ref.read(writingPreferencesProvider.notifier).update(
+                            (p) => p.copyWith(typewriterMode: val),
+                          );
+                    },
+                  ),
+                  
+                  // Layout mode
+                  const SizedBox(height: 12),
+                  const Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 16.0),
+                    child: Text('Layout Comfort Mode', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
+                  ),
+                  const SizedBox(height: 8),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                    child: SegmentedButton<String>(
+                      segments: const [
+                        ButtonSegment(value: 'normal', label: Text('Normal', style: TextStyle(fontSize: 12))),
+                        ButtonSegment(value: 'comfort', label: Text('Comfort', style: TextStyle(fontSize: 12))),
+                        ButtonSegment(value: 'book', label: Text('Book', style: TextStyle(fontSize: 12))),
+                      ],
+                      selected: {prefs.layoutMode},
+                      onSelectionChanged: (val) {
+                        ref.read(writingPreferencesProvider.notifier).update(
+                              (p) => p.copyWith(layoutMode: val.first),
+                            );
+                      },
+                    ),
+                  ),
+
+                  // ADHD Focus highlighting
+                  const SizedBox(height: 16),
+                  const Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 16.0),
+                    child: Text('ADHD Focus Highlight', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
+                  ),
+                  const SizedBox(height: 8),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                    child: SegmentedButton<String>(
+                      segments: const [
+                        ButtonSegment(value: 'none', label: Text('None', style: TextStyle(fontSize: 12))),
+                        ButtonSegment(value: 'sentence', label: Text('Sentence', style: TextStyle(fontSize: 12))),
+                        ButtonSegment(value: 'paragraph', label: Text('Paragraph', style: TextStyle(fontSize: 12))),
+                      ],
+                      selected: {prefs.focusHighlight},
+                      onSelectionChanged: (val) {
+                        ref.read(writingPreferencesProvider.notifier).update(
+                              (p) => p.copyWith(focusHighlight: val.first),
+                            );
+                      },
+                    ),
+                  ),
+
+                  // Font Size
+                  const SizedBox(height: 16),
+                  const Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 16.0),
+                    child: Text('Font Size', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
+                  ),
+                  Row(
+                    children: [
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: Slider(
+                          value: prefs.editorFontSize,
+                          min: 12.0,
+                          max: 24.0,
+                          divisions: 12,
+                          onChanged: (val) {
+                            ref.read(writingPreferencesProvider.notifier).update(
+                                  (p) => p.copyWith(editorFontSize: val),
+                                );
+                          },
+                        ),
+                      ),
+                      Text('${prefs.editorFontSize.round()} px', style: const TextStyle(fontSize: 12)),
+                      const SizedBox(width: 16),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                ],
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
 }
 
 // ─── Top Bar ────────────────────────────────────────────────────────────────
@@ -612,6 +754,7 @@ class _EditorTopBar extends StatelessWidget {
   final VoidCallback onCompile;
   final VoidCallback onDelete;
   final VoidCallback onDashboard;
+  final VoidCallback onPreferences;
 
   const _EditorTopBar({
     required this.status,
@@ -630,6 +773,7 @@ class _EditorTopBar extends StatelessWidget {
     required this.onCompile,
     required this.onDelete,
     required this.onDashboard,
+    required this.onPreferences,
   });
 
   @override
@@ -718,6 +862,7 @@ class _EditorTopBar extends StatelessWidget {
             color: theme.colorScheme.surface,
             onSelected: (val) {
               switch (val) {
+                case 'preferences': onPreferences();
                 case 'history': onHistory();
                 case 'compile': onCompile();
                 case 'dashboard': onDashboard();
@@ -725,6 +870,8 @@ class _EditorTopBar extends StatelessWidget {
               }
             },
             itemBuilder: (_) => [
+              const PopupMenuItem(value: 'preferences',
+                child: ListTile(dense: true, leading: Icon(Icons.tune), title: Text('Editor Settings'))),
               const PopupMenuItem(value: 'history',
                 child: ListTile(dense: true, leading: Icon(Icons.history), title: Text('Snapshot History'))),
               const PopupMenuItem(value: 'compile',

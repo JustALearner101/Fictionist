@@ -7,6 +7,8 @@ class WritingPreferences {
   final bool corkboardView;
   final int wordCountGoal;
   final double editorFontSize;
+  final String layoutMode; // 'normal', 'comfort', 'book'
+  final String focusHighlight; // 'none', 'sentence', 'paragraph'
 
   const WritingPreferences({
     this.sidebarCollapsed = false,
@@ -15,6 +17,8 @@ class WritingPreferences {
     this.corkboardView = false,
     this.wordCountGoal = 0,
     this.editorFontSize = 16.0,
+    this.layoutMode = 'normal',
+    this.focusHighlight = 'none',
   });
 
   WritingPreferences copyWith({
@@ -24,6 +28,8 @@ class WritingPreferences {
     bool? corkboardView,
     int? wordCountGoal,
     double? editorFontSize,
+    String? layoutMode,
+    String? focusHighlight,
   }) {
     return WritingPreferences(
       sidebarCollapsed: sidebarCollapsed ?? this.sidebarCollapsed,
@@ -32,6 +38,8 @@ class WritingPreferences {
       corkboardView: corkboardView ?? this.corkboardView,
       wordCountGoal: wordCountGoal ?? this.wordCountGoal,
       editorFontSize: editorFontSize ?? this.editorFontSize,
+      layoutMode: layoutMode ?? this.layoutMode,
+      focusHighlight: focusHighlight ?? this.focusHighlight,
     );
   }
 }

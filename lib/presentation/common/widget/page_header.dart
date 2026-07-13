@@ -19,59 +19,63 @@ class PageHeader extends StatelessWidget {
     final theme = Theme.of(context);
     final color = accentColor ?? theme.colorScheme.primary;
 
-    return Container(
-      padding: EdgeInsets.fromLTRB(20, 12, 4, 8),
-      decoration: BoxDecoration(
-        border: Border(
-          bottom: BorderSide(
-            color: theme.colorScheme.outline.withOpacity(0.08),
-            width: 1,
+    return SafeArea(
+      top: true,
+      bottom: false,
+      child: Container(
+        padding: const EdgeInsets.fromLTRB(20, 12, 4, 8),
+        decoration: BoxDecoration(
+          border: Border(
+            bottom: BorderSide(
+              color: theme.colorScheme.outline.withOpacity(0.08),
+              width: 1,
+            ),
           ),
         ),
-      ),
-      child: Row(
-        children: [
-          // Left: decorative accent bar
-          Container(
-            width: 3,
-            height: 28,
-            margin: EdgeInsets.only(right: 12),
-            decoration: BoxDecoration(
-              color: color,
-              borderRadius: BorderRadius.circular(2),
+        child: Row(
+          children: [
+            // Left: decorative accent bar
+            Container(
+              width: 3,
+              height: 28,
+              margin: const EdgeInsets.only(right: 12),
+              decoration: BoxDecoration(
+                color: color,
+                borderRadius: BorderRadius.circular(2),
+              ),
             ),
-          ),
-          // Title + subtitle
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  title,
-                  style: theme.textTheme.headlineMedium!.copyWith(
-                    fontFamily: 'Lora',
-                    color: theme.colorScheme.onSurface,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 22,
-                  ),
-                ),
-                if (subtitle != null) ...[
-                  SizedBox(height: 2),
+            // Title + subtitle
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
                   Text(
-                    subtitle!,
-                    style: theme.textTheme.bodySmall!.copyWith(
-                      color: theme.colorScheme.onSurfaceVariant.withOpacity(0.6),
-                      fontSize: 12,
+                    title,
+                    style: theme.textTheme.headlineMedium!.copyWith(
+                      fontFamily: 'Lora',
+                      color: theme.colorScheme.onSurface,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 22,
                     ),
                   ),
+                  if (subtitle != null) ...[
+                    const SizedBox(height: 2),
+                    Text(
+                      subtitle!,
+                      style: theme.textTheme.bodySmall!.copyWith(
+                        color: theme.colorScheme.onSurfaceVariant.withOpacity(0.6),
+                        fontSize: 12,
+                      ),
+                    ),
+                  ],
                 ],
-              ],
+              ),
             ),
-          ),
-          // Trailing widget (actions, dropdown, etc.)
-          if (trailing != null) trailing!,
-        ],
+            // Trailing widget (actions, dropdown, etc.)
+            if (trailing != null) trailing!,
+          ],
+        ),
       ),
     );
   }

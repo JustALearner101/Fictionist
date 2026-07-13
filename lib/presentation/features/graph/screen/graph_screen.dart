@@ -703,6 +703,69 @@ class _GraphScreenState extends ConsumerState<GraphScreen> {
     );
   }
 
+  Widget _buildLayoutDropdown() {
+    return Positioned(
+      top: 16,
+      right: 16,
+      child: Container(
+        width: 130,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(10),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.1),
+              blurRadius: 8,
+              offset: const Offset(0, 3),
+            ),
+          ],
+        ),
+        child: FictionistDropdown<GraphLayoutMode>(
+          value: _layoutMode,
+          items: [
+            DropdownMenuItem(value: GraphLayoutMode.chronicleWeb, child: Text('Web')),
+            DropdownMenuItem(value: GraphLayoutMode.familyTree, child: Text('Family')),
+            DropdownMenuItem(value: GraphLayoutMode.factionMap, child: Text('Faction')),
+            DropdownMenuItem(value: GraphLayoutMode.relationshipMatrix, child: Text('Matrix')),
+          ].map((item) => FictionistDropdownItem<GraphLayoutMode>(
+            value: item.value!,
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  _getLayoutIcon(item.value!),
+                  size: 14,
+                  color: Theme.of(context).colorScheme.primary,
+                ),
+                const SizedBox(width: 6),
+                Text(
+                  (item.child as Text).data!,
+                  style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
+                ),
+              ],
+            ),
+          )).toList(),
+          onChanged: (val) {
+            HapticFeedback.selectionClick();
+            setState(() => _layoutMode = val);
+          },
+        ),
+      ),
+    );
+  }
+
+  IconData _getLayoutIcon(GraphLayoutMode mode) {
+    switch (mode) {
+      case GraphLayoutMode.chronicleWeb:
+        return Icons.hub_outlined;
+      case GraphLayoutMode.familyTree:
+        return Icons.account_tree_outlined;
+      case GraphLayoutMode.factionMap:
+        return Icons.shield_outlined;
+      case GraphLayoutMode.relationshipMatrix:
+        return Icons.grid_on_outlined;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final graphState = ref.watch(graphDataProvider);
@@ -714,94 +777,7 @@ class _GraphScreenState extends ConsumerState<GraphScreen> {
           final entities = data.$1;
           final relationships = data.$2;
 
-          if (_layoutMode == GraphLayoutMode.relationshipMatrix) {
-            final characters = entities.where((e) => e.type == EntityType.character).toList();
-            return RelationshipMatrixWidget(
-              characters: characters,
-              relationships: relationships,
-              onForgeConnection: (source, target) async {
-                final result = await showModalBottomSheet<CreateRelationshipParams?>(
-                  context: context,
-                  isScrollControlled: true,
-                  backgroundColor: Colors.transparent,
-                  builder: (ctx) => RelationshipPickerSheet(
-                    sourceEntity: source,
-                    targetEntity: target,
-                  ),
-                );
-                if (result == null || !mounted) return;
-                final cr = getIt<CreateRelationshipUseCase>();
-                final res = await cr(result);
-                res.fold(
-                  (f) => ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text(f.message), backgroundColor: Theme.of(context).colorScheme.error),
-                  ),
-                  (success) {
-                    ref.invalidate(graphDataProvider);
-                    if (success.reciprocalSuggestionTypeKey != null) {
-                      final def = RelationshipTypeRegistry.getDef(success.reciprocalSuggestionTypeKey!);
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text('Connection forged. Create reciprocal link "${def?.label}" back?'),
-                          backgroundColor: Theme.of(context).colorScheme.primary,
-                          duration: const Duration(seconds: 8),
-                          action: SnackBarAction(
-                            label: 'Forge Link',
-                            textColor: Theme.of(context).colorScheme.surface,
-                            onPressed: () async {
-                              final recParams = CreateRelationshipParams(
-                                sourceId: result.targetId,
-                                targetId: result.sourceId,
-                                typeKey: success.reciprocalSuggestionTypeKey!,
-                                description: 'Reciprocal link created automatically',
-                              );
-                              final recRes = await getIt<CreateRelationshipUseCase>()(recParams);
-                              recRes.fold(
-                                (f) => ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(content: Text(f.message), backgroundColor: Theme.of(context).colorScheme.error),
-                                ),
-                                (_) {
-                                  ref.invalidate(graphDataProvider);
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                      content: const Text('Reciprocal link successfully forged.'),
-                                      backgroundColor: Theme.of(context).colorScheme.tertiary,
-                                    ),
-                                  );
-                                },
-                              );
-                            },
-                          ),
-                        ),
-                      );
-                    } else {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: const Text('Connection forged.'),
-                          backgroundColor: Theme.of(context).colorScheme.tertiary,
-                        ),
-                      );
-                    }
-                  },
-                );
-              },
-              onDeleteConnection: (rel) async {
-                final deleteUseCase = getIt<DeleteRelationshipUseCase>();
-                final res = await deleteUseCase(rel.id);
-                res.fold(
-                  (f) => ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text(f.message), backgroundColor: Theme.of(context).colorScheme.error),
-                  ),
-                  (_) {
-                    ref.invalidate(graphDataProvider);
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Connection severed.')),
-                    );
-                  },
-                );
-              },
-            );
-          }
+
 
           if (entities.isEmpty) {
             return const EmptyState(
@@ -983,45 +959,20 @@ class _GraphScreenState extends ConsumerState<GraphScreen> {
                         );
                       },
                     ),
-                    IconButton(
-                      icon: Icon(
-                        _scrubberVisible ? Icons.timeline : Icons.timeline_outlined,
-                        color: _scrubberVisible
-                            ? Theme.of(context).colorScheme.primary
-                            : Theme.of(context).colorScheme.onSurfaceVariant,
-                        size: 20,
-                      ),
-                      tooltip: 'Timeline Scrubber',
-                      onPressed: () {
-                        setState(() => _scrubberVisible = !_scrubberVisible);
-                      },
-                    ),
-                    SizedBox(
-                      width: 140,
-                      child: FictionistDropdown<GraphLayoutMode>(
-                        value: _layoutMode,
-                        items: [
-                          DropdownMenuItem(value: GraphLayoutMode.chronicleWeb, child: Text('Web')),
-                          DropdownMenuItem(value: GraphLayoutMode.familyTree, child: Text('Family')),
-                          DropdownMenuItem(value: GraphLayoutMode.factionMap, child: Text('Faction')),
-                          DropdownMenuItem(value: GraphLayoutMode.relationshipMatrix, child: Text('Matrix')),
-                        ].map((item) => FictionistDropdownItem<GraphLayoutMode>(
-                          value: item.value!,
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(Icons.layers_outlined, size: 14, color: Theme.of(context).colorScheme.primary),
-                              const SizedBox(width: 6),
-                              Text((item.child as Text).data!, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
-                            ],
-                          ),
-                        )).toList(),
-                        onChanged: (val) {
-                          HapticFeedback.selectionClick();
-                          setState(() => _layoutMode = val);
+                    if (_layoutMode != GraphLayoutMode.relationshipMatrix)
+                      IconButton(
+                        icon: Icon(
+                          _scrubberVisible ? Icons.timeline : Icons.timeline_outlined,
+                          color: _scrubberVisible
+                              ? Theme.of(context).colorScheme.primary
+                              : Theme.of(context).colorScheme.onSurfaceVariant,
+                          size: 20,
+                        ),
+                        tooltip: 'Timeline Scrubber',
+                        onPressed: () {
+                          setState(() => _scrubberVisible = !_scrubberVisible);
                         },
                       ),
-                    ),
                   ],
                 ),
               ),
@@ -1029,15 +980,15 @@ class _GraphScreenState extends ConsumerState<GraphScreen> {
               if (_layoutMode == GraphLayoutMode.chronicleWeb)
                 Container(
                   height: 50,
-                  padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 4.0),
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 4.0),
                   child: ListView(
                     scrollDirection: Axis.horizontal,
                     children: EntityType.values.map((type) {
                       final isSelected = _enabledTypes.contains(type);
                       return Padding(
-                        padding: EdgeInsets.only(right: 8.0),
+                        padding: const EdgeInsets.only(right: 8.0),
                         child: FilterChip(
-                          label: Text(type.label, style: TextStyle(fontSize: 11)),
+                          label: Text(type.label, style: const TextStyle(fontSize: 11)),
                           selected: isSelected,
                           selectedColor: Theme.of(context).colorScheme.primary.withOpacity(0.2),
                           checkmarkColor: Theme.of(context).colorScheme.primary,
@@ -1057,11 +1008,11 @@ class _GraphScreenState extends ConsumerState<GraphScreen> {
                     }).toList(),
                   ),
                 )
-              else
+              else if (_layoutMode != GraphLayoutMode.relationshipMatrix)
                 Container(
                   width: double.infinity,
                   color: Theme.of(context).colorScheme.surface,
-                  padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   child: Text(
                     _layoutMode == GraphLayoutMode.familyTree
                         ? 'Family Tree: Displays character bloodlines & generations.'
@@ -1070,140 +1021,229 @@ class _GraphScreenState extends ConsumerState<GraphScreen> {
                   ),
                 ),
               Expanded(
-                child: graph.nodes.isNotEmpty
+                child: _layoutMode == GraphLayoutMode.relationshipMatrix
                     ? Stack(
                         children: [
-                          InteractiveViewer(
-                            transformationController: _transformationController,
-                            constrained: false,
-                            boundaryMargin: const EdgeInsets.all(500),
-                            minScale: 0.1,
-                            maxScale: 3.0,
-                            child: GraphView(
-                              graph: graph,
-                              algorithm: activeAlgorithm,
-                              paint: Paint()
-                                ..color = Theme.of(context).colorScheme.primary.withOpacity(0.35)
-                                ..strokeWidth = 2.0
-                                ..style = PaintingStyle.stroke,
-                              builder: (Node node) {
-                                final entityId = node.key!.value as String;
-                                final entity = filteredEntities.firstWhere(
-                                  (e) => e.id == entityId,
-                                  orElse: () => filteredEntities.first,
-                                );
-                                final iconColor = Color(entity.iconColor);
+                          RelationshipMatrixWidget(
+                            characters: entities.where((e) => e.type == EntityType.character).toList(),
+                            relationships: relationships,
+                            onForgeConnection: (source, target) async {
+                              final result = await showModalBottomSheet<CreateRelationshipParams?>(
+                                context: context,
+                                isScrollControlled: true,
+                                backgroundColor: Colors.transparent,
+                                builder: (ctx) => RelationshipPickerSheet(
+                                  sourceEntity: source,
+                                  targetEntity: target,
+                                ),
+                              );
+                              if (result == null || !mounted) return;
+                              final cr = getIt<CreateRelationshipUseCase>();
+                              final res = await cr(result);
+                              res.fold(
+                                (f) => ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(content: Text(f.message), backgroundColor: Theme.of(context).colorScheme.error),
+                                ),
+                                (success) {
+                                  ref.invalidate(graphDataProvider);
+                                  if (success.reciprocalSuggestionTypeKey != null) {
+                                    final def = RelationshipTypeRegistry.getDef(success.reciprocalSuggestionTypeKey!);
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text('Connection forged. Create reciprocal link "${def?.label}" back?'),
+                                        backgroundColor: Theme.of(context).colorScheme.primary,
+                                        duration: const Duration(seconds: 8),
+                                        action: SnackBarAction(
+                                          label: 'Forge Link',
+                                          textColor: Theme.of(context).colorScheme.surface,
+                                          onPressed: () async {
+                                            final recParams = CreateRelationshipParams(
+                                              sourceId: result.targetId,
+                                              targetId: result.sourceId,
+                                              typeKey: success.reciprocalSuggestionTypeKey!,
+                                              description: 'Reciprocal link created automatically',
+                                            );
+                                            final recRes = await getIt<CreateRelationshipUseCase>()(recParams);
+                                            recRes.fold(
+                                              (f) => ScaffoldMessenger.of(context).showSnackBar(
+                                                SnackBar(content: Text(f.message), backgroundColor: Theme.of(context).colorScheme.error),
+                                              ),
+                                              (_) {
+                                                ref.invalidate(graphDataProvider);
+                                                ScaffoldMessenger.of(context).showSnackBar(
+                                                  SnackBar(
+                                                    content: const Text('Reciprocal link successfully forged.'),
+                                                    backgroundColor: Theme.of(context).colorScheme.tertiary,
+                                                  ),
+                                                );
+                                              },
+                                            );
+                                          },
+                                        ),
+                                      ),
+                                    );
+                                  } else {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: const Text('Connection forged.'),
+                                        backgroundColor: Theme.of(context).colorScheme.tertiary,
+                                      ),
+                                    );
+                                  }
+                                },
+                              );
+                            },
+                            onDeleteConnection: (rel) async {
+                              final deleteUseCase = getIt<DeleteRelationshipUseCase>();
+                              final res = await deleteUseCase(rel.id);
+                              res.fold(
+                                (f) => ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(content: Text(f.message), backgroundColor: Theme.of(context).colorScheme.error),
+                                ),
+                                (_) {
+                                  ref.invalidate(graphDataProvider);
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(content: const Text('Connection severed.')),
+                                  );
+                                },
+                              );
+                            },
+                          ),
+                          _buildLayoutDropdown(),
+                        ],
+                      )
+                    : (graph.nodes.isNotEmpty
+                        ? Stack(
+                            children: [
+                              InteractiveViewer(
+                                transformationController: _transformationController,
+                                constrained: false,
+                                boundaryMargin: const EdgeInsets.all(500),
+                                minScale: 0.1,
+                                maxScale: 3.0,
+                                child: GraphView(
+                                  graph: graph,
+                                  algorithm: activeAlgorithm,
+                                  paint: Paint()
+                                    ..color = Theme.of(context).colorScheme.primary.withOpacity(0.35)
+                                    ..strokeWidth = 2.0
+                                    ..style = PaintingStyle.stroke,
+                                  builder: (Node node) {
+                                    final entityId = node.key!.value as String;
+                                    final entity = filteredEntities.firstWhere(
+                                      (e) => e.id == entityId,
+                                      orElse: () => filteredEntities.first,
+                                    );
+                                    final iconColor = Color(entity.iconColor);
 
-                                // Trait badges for family tree mode
-                                final traits = _traitMap[entityId] ?? [];
-                                final showTraits =
-                                    _layoutMode == GraphLayoutMode.familyTree &&
-                                    traits.isNotEmpty;
+                                    // Trait badges for family tree mode
+                                    final traits = _traitMap[entityId] ?? [];
+                                    final showTraits =
+                                        _layoutMode == GraphLayoutMode.familyTree &&
+                                        traits.isNotEmpty;
 
-                                final isFaction = entity.type == EntityType.faction;
+                                    final isFaction = entity.type == EntityType.faction;
 
-                                return GestureDetector(
-                                  onTap: () => showEntityPeekSheet(context, entityId: entity.id),
-                                  onLongPress: showTraits
-                                      ? () => _showTraitTooltip(context, entity, traits)
-                                      : null,
-                                  child: Column(
-                                    key: ValueKey(entity.id),
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      // Avatar with optional trait badges
-                                      Stack(
-                                        clipBehavior: Clip.none,
+                                    return GestureDetector(
+                                      onTap: () => showEntityPeekSheet(context, entityId: entity.id),
+                                      onLongPress: showTraits
+                                          ? () => _showTraitTooltip(context, entity, traits)
+                                          : null,
+                                      child: Column(
+                                        key: ValueKey(entity.id),
+                                        mainAxisSize: MainAxisSize.min,
                                         children: [
+                                          // Avatar with optional trait badges
+                                          Stack(
+                                            clipBehavior: Clip.none,
+                                            children: [
+                                              Container(
+                                                width: isFaction ? 56 : 48,
+                                                height: isFaction ? 56 : 48,
+                                                decoration: BoxDecoration(
+                                                  color: iconColor.withOpacity(0.12),
+                                                  shape: BoxShape.rectangle,
+                                                  borderRadius: _getNodeBorderRadius(entity.type),
+                                                  border: Border.all(
+                                                    color: iconColor,
+                                                    width: isFaction ? 2.5 : 1.5,
+                                                  ),
+                                                  boxShadow: [
+                                                    BoxShadow(
+                                                      color: iconColor.withOpacity(0.3),
+                                                      blurRadius: 10,
+                                                      spreadRadius: 1,
+                                                    ),
+                                                    BoxShadow(
+                                                      color: iconColor.withOpacity(0.15),
+                                                      blurRadius: 4,
+                                                      offset: const Offset(0, 2),
+                                                    ),
+                                                  ],
+                                                  gradient: RadialGradient(
+                                                    colors: [
+                                                      iconColor.withOpacity(0.2),
+                                                      iconColor.withOpacity(0.04),
+                                                    ],
+                                                    radius: 0.85,
+                                                  ),
+                                                ),
+                                                child: Center(
+                                                  child: Icon(
+                                                    _getEntityIcon(entity.type),
+                                                    color: iconColor,
+                                                    size: isFaction ? 28 : 22,
+                                                  ),
+                                                ),
+                                              ),
+                                              // Trait badges (colored dots around border)
+                                              if (showTraits)
+                                                ..._buildTraitBadges(traits),
+                                            ],
+                                          ),
+                                          const SizedBox(height: 6),
                                           Container(
-                                            width: isFaction ? 56 : 48,
-                                            height: isFaction ? 56 : 48,
+                                            padding: const EdgeInsets.symmetric(
+                                              horizontal: 8,
+                                              vertical: 3,
+                                            ),
                                             decoration: BoxDecoration(
-                                              color: iconColor.withOpacity(0.12),
-                                              shape: BoxShape.rectangle,
-                                              borderRadius: _getNodeBorderRadius(entity.type),
+                                              color: Theme.of(context).colorScheme.surface.withOpacity(0.9),
+                                              borderRadius: BorderRadius.circular(8),
                                               border: Border.all(
-                                                color: iconColor,
-                                                width: isFaction ? 2.5 : 1.5,
+                                                color: iconColor.withOpacity(0.3),
+                                                width: 0.8,
                                               ),
                                               boxShadow: [
                                                 BoxShadow(
-                                                  color: iconColor.withOpacity(0.3),
-                                                  blurRadius: 10,
-                                                  spreadRadius: 1,
-                                                ),
-                                                BoxShadow(
-                                                  color: iconColor.withOpacity(0.15),
+                                                  color: Colors.black.withOpacity(0.06),
                                                   blurRadius: 4,
-                                                  offset: const Offset(0, 2),
+                                                  offset: const Offset(0, 1),
                                                 ),
                                               ],
-                                              gradient: RadialGradient(
-                                                colors: [
-                                                  iconColor.withOpacity(0.2),
-                                                  iconColor.withOpacity(0.04),
-                                                ],
-                                                radius: 0.85,
-                                              ),
                                             ),
-                                            child: Center(
-                                              child: Icon(
-                                                _getEntityIcon(entity.type),
-                                                color: iconColor,
-                                                size: isFaction ? 28 : 22,
+                                            child: Text(
+                                              entity.name,
+                                              style: TextStyle(
+                                                color: Theme.of(context).colorScheme.onSurface,
+                                                fontSize: 9.5,
+                                                fontWeight: FontWeight.bold,
+                                                letterSpacing: 0.2,
                                               ),
                                             ),
                                           ),
-                                          // Trait badges (colored dots around border)
-                                          if (showTraits)
-                                            ..._buildTraitBadges(traits),
                                         ],
                                       ),
-                                      const SizedBox(height: 6),
-                                      Container(
-                                        padding: const EdgeInsets.symmetric(
-                                          horizontal: 8,
-                                          vertical: 3,
-                                        ),
-                                        decoration: BoxDecoration(
-                                          color: Theme.of(context).colorScheme.surface.withOpacity(0.9),
-                                          borderRadius: BorderRadius.circular(8),
-                                          border: Border.all(
-                                            color: iconColor.withOpacity(0.3),
-                                            width: 0.8,
-                                          ),
-                                          boxShadow: [
-                                            BoxShadow(
-                                              color: Colors.black.withOpacity(0.06),
-                                              blurRadius: 4,
-                                              offset: const Offset(0, 1),
-                                            ),
-                                          ],
-                                        ),
-                                        child: Text(
-                                          entity.name,
-                                          style: TextStyle(
-                                            color: Theme.of(context).colorScheme.onSurface,
-                                            fontSize: 9.5,
-                                            fontWeight: FontWeight.bold,
-                                            letterSpacing: 0.2,
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                )
-                                .animate()
-                                .scale(duration: 200.ms, curve: Curves.easeOut)
-                                .fadeIn(duration: 200.ms);
-                              },
-                            ),
-                          ),
-                          _buildZoomControls(),
-                          _buildConnectionFAB(filteredEntities),
-                        ],
-                      )
-                    : const SizedBox.shrink(),
+                                    );
+                                  },
+                                ),
+                              ),
+                              _buildZoomControls(),
+                              _buildConnectionFAB(filteredEntities),
+                              _buildLayoutDropdown(),
+                            ],
+                          )
+                        : const SizedBox.shrink()),
               ),
               // Timeline Scrubber
               if (_scrubberVisible && _scrubMinMax != null)

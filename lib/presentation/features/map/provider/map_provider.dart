@@ -27,31 +27,31 @@ class WorldMapList extends _$WorldMapList {
     );
   }
 
-  Future<void> addMap(String name, String pickedFilePath) async {
+  Future<WorldMap> addMap(String name, String pickedFilePath) async {
+    final docs = await getApplicationDocumentsDirectory();
+    final mapsDir = Directory(p.join(docs.path, 'world_maps'));
+    if (!await mapsDir.exists()) {
+      await mapsDir.create(recursive: true);
+    }
+
+    final uuid = const Uuid().v4();
+    final extension = p.extension(pickedFilePath);
+    final filename = '$uuid$extension';
+    final destinationPath = p.join(mapsDir.path, filename);
+
+    // Copy image file to documents directory
+    final sourceFile = File(pickedFilePath);
+    await sourceFile.copy(destinationPath);
+
+    final relativePath = p.join('world_maps', filename);
+    final newMap = WorldMap(
+      id: uuid,
+      name: name,
+      imagePath: relativePath,
+    );
+
     state = const AsyncValue.loading();
     state = await AsyncValue.guard(() async {
-      final docs = await getApplicationDocumentsDirectory();
-      final mapsDir = Directory(p.join(docs.path, 'world_maps'));
-      if (!await mapsDir.exists()) {
-        await mapsDir.create(recursive: true);
-      }
-
-      final uuid = const Uuid().v4();
-      final extension = p.extension(pickedFilePath);
-      final filename = '$uuid$extension';
-      final destinationPath = p.join(mapsDir.path, filename);
-
-      // Copy image file to documents directory
-      final sourceFile = File(pickedFilePath);
-      await sourceFile.copy(destinationPath);
-
-      final relativePath = p.join('world_maps', filename);
-      final newMap = WorldMap(
-        id: uuid,
-        name: name,
-        imagePath: relativePath,
-      );
-
       final createUseCase = getIt<CreateWorldMapUseCase>();
       final result = await createUseCase(newMap);
 
@@ -67,6 +67,8 @@ class WorldMapList extends _$WorldMapList {
         },
       );
     });
+
+    return newMap;
   }
 
   Future<void> deleteMap(String id, String relativePath) async {

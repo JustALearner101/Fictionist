@@ -1,5 +1,7 @@
+import 'dart:async';
 import 'dart:io';
 import 'dart:math';
+import 'dart:typed_data';
 import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -8,6 +10,13 @@ import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 import 'map_screen.dart'; // import MapFilterMode
 import '../provider/map_provider.dart';
+import '../../../../domain/name_generator/name_generator_params.dart';
+import '../../../../domain/name_generator/generation_type.dart';
+import '../../../../domain/use_case/name_generator/generate_names_use_case.dart';
+import '../../../../domain/use_case/entity/create_entity_use_case.dart';
+import '../../../../domain/entity/entity_type.dart';
+import '../../../../domain/entity/entity_status.dart';
+import '../../../../injection.dart';
 
 class FractalNoise {
   final int seed;
@@ -85,7 +94,11 @@ class _MapGeneratorScreenState extends ConsumerState<MapGeneratorScreen> {
   double _seaLevel = 0.45;
   MapFilterMode _theme = MapFilterMode.original;
   bool _isGenerating = false;
+  bool _applyIslandMask = true;
+  bool _autoGeneratePins = true;
   late FractalNoise _noise;
+  late FractalNoise _moistureNoise;
+  ui.Image? _previewImage;
 
   @override
   void initState() {
@@ -98,58 +111,68 @@ class _MapGeneratorScreenState extends ConsumerState<MapGeneratorScreen> {
     setState(() {
       _seed = Random().nextInt(999999);
       _noise = FractalNoise(seed: _seed, frequency: _frequency);
+      _moistureNoise = FractalNoise(seed: _seed + 9999, frequency: _frequency * 1.25);
+      _previewImage = null;
     });
+    _updatePreview();
   }
 
   void _updateNoise() {
     setState(() {
       _noise = FractalNoise(seed: _seed, frequency: _frequency);
+      _moistureNoise = FractalNoise(seed: _seed + 9999, frequency: _frequency * 1.25);
+      _previewImage = null;
     });
+    _updatePreview();
   }
 
-  Color _getColorForHeight(double h, double seaLevel, MapFilterMode theme) {
-    if (theme == MapFilterMode.sepia) {
-      if (h < seaLevel) {
-        return const Color(0xFFF5E6CA);
-      } else if (h < seaLevel + 0.05) {
-        return const Color(0xFFE8D5B5);
-      } else if (h < 0.7) {
-        return const Color(0xFFD4B28C);
-      } else {
-        return const Color(0xFF8C6239);
+  Future<void> _updatePreview() async {
+    final elevationNoise = _noise;
+    final moistureNoise = _moistureNoise;
+    final seaLevel = _seaLevel;
+    final theme = _theme;
+    final applyIslandMask = _applyIslandMask;
+
+    const w = 300;
+    const h = 300;
+    final pixels = Uint8List(w * h * 4);
+
+    int index = 0;
+    for (int y = 0; y < h; y++) {
+      for (int x = 0; x < w; x++) {
+        final double col = x.toDouble() * (200.0 / w);
+        final double row = y.toDouble() * (200.0 / h);
+
+        double falloff = 1.0;
+        if (applyIslandMask) {
+          double nx = x / (w - 1) * 2.0 - 1.0;
+          double ny = y / (h - 1) * 2.0 - 1.0;
+          double d = sqrt(nx * nx + ny * ny);
+          if (d > 0.15) {
+            falloff = pow(1.0 - (d - 0.15) / (1.414 - 0.15), 1.5).toDouble();
+          }
+          if (falloff < 0) falloff = 0.0;
+        }
+
+        final hVal = elevationNoise.getFractal(col, row) * falloff;
+        final mVal = moistureNoise.getFractal(col, row);
+
+        final color = _getBiomeColor(hVal, mVal, seaLevel, theme);
+        pixels[index++] = color.red;
+        pixels[index++] = color.green;
+        pixels[index++] = color.blue;
+        pixels[index++] = 255;
       }
-    } else if (theme == MapFilterMode.dark) {
-      if (h < seaLevel) {
-        return const Color(0xFF111827);
-      } else if (h < seaLevel + 0.05) {
-        return const Color(0xFF1F2937);
-      } else if (h < 0.7) {
-        return const Color(0xFF374151);
-      } else {
-        return const Color(0xFFEF4444);
-      }
-    } else if (theme == MapFilterMode.satellite) {
-      if (h < seaLevel) {
-        return const Color(0xFF2C5282);
-      } else if (h < seaLevel + 0.05) {
-        return const Color(0xFFE2E8F0);
-      } else if (h < 0.8) {
-        return const Color(0xFFFFFFFF);
-      } else {
-        return const Color(0xFFCBD5E0);
-      }
-    } else {
-      if (h < seaLevel) {
-        return const Color(0xFF1E3A8A);
-      } else if (h < seaLevel + 0.04) {
-        return const Color(0xFFFBBF24);
-      } else if (h < 0.65) {
-        return const Color(0xFF047857);
-      } else if (h < 0.82) {
-        return const Color(0xFF78716C);
-      } else {
-        return const Color(0xFFF3F4F6);
-      }
+    }
+
+    final c = Completer<ui.Image>();
+    ui.decodeImageFromPixels(pixels, w, h, ui.PixelFormat.rgba8888, c.complete);
+    final img = await c.future;
+
+    if (mounted) {
+      setState(() {
+        _previewImage = img;
+      });
     }
   }
 
@@ -158,29 +181,63 @@ class _MapGeneratorScreenState extends ConsumerState<MapGeneratorScreen> {
     setState(() => _isGenerating = true);
 
     try {
-      final recorder = ui.PictureRecorder();
-      final canvas = Canvas(recorder);
-      const size = 600.0;
-      
-      const cols = 200;
-      const rows = 200;
-      const dx = size / cols;
-      const dy = size / rows;
+      const w = 800;
+      const h = 800;
+      final pixels = Uint8List(w * h * 4);
 
-      for (int col = 0; col < cols; col++) {
-        for (int row = 0; row < rows; row++) {
-          final x = col.toDouble();
-          final y = row.toDouble();
-          final val = _noise.getFractal(x, y);
-          final color = _getColorForHeight(val, _seaLevel, _theme);
-          final paint = Paint()..color = color;
-          canvas.drawRect(Rect.fromLTWH(col * dx, row * dy, dx + 0.3, dy + 0.3), paint);
+      int index = 0;
+      for (int y = 0; y < h; y++) {
+        for (int x = 0; x < w; x++) {
+          final double col = x.toDouble() * (200.0 / w);
+          final double row = y.toDouble() * (200.0 / h);
+
+          double falloff = 1.0;
+          if (_applyIslandMask) {
+            double nx = x / (w - 1) * 2.0 - 1.0;
+            double ny = y / (h - 1) * 2.0 - 1.0;
+            double d = sqrt(nx * nx + ny * ny);
+            if (d > 0.15) {
+              falloff = pow(1.0 - (d - 0.15) / (1.414 - 0.15), 1.5).toDouble();
+            }
+            if (falloff < 0) falloff = 0.0;
+          }
+
+          final hVal = _noise.getFractal(col, row) * falloff;
+          final mVal = _moistureNoise.getFractal(col, row);
+
+          final color = _getBiomeColor(hVal, mVal, _seaLevel, _theme);
+          pixels[index++] = color.red;
+          pixels[index++] = color.green;
+          pixels[index++] = color.blue;
+          pixels[index++] = 255;
         }
       }
 
+      final completer = Completer<ui.Image>();
+      ui.decodeImageFromPixels(pixels, w, h, ui.PixelFormat.rgba8888, completer.complete);
+      final terrainImage = await completer.future;
+
+      final recorder = ui.PictureRecorder();
+      final canvas = Canvas(recorder);
+      const canvasSize = 800.0;
+
+      canvas.drawImage(terrainImage, Offset.zero, Paint());
+
+      _renderProceduralDecorations(
+        canvas: canvas,
+        size: const Size(canvasSize, canvasSize),
+        cols: 200,
+        rows: 200,
+        elevationNoise: _noise,
+        moistureNoise: _moistureNoise,
+        seaLevel: _seaLevel,
+        theme: _theme,
+        applyIslandMask: _applyIslandMask,
+      );
+
       final picture = recorder.endRecording();
-      final img = await picture.toImage(600, 600);
-      final byteData = await img.toByteData(format: ui.ImageByteFormat.png);
+      final finalImg = await picture.toImage(w, h);
+      final byteData = await finalImg.toByteData(format: ui.ImageByteFormat.png);
       final pngBytes = byteData!.buffer.asUint8List();
 
       final tempDir = await getTemporaryDirectory();
@@ -189,7 +246,11 @@ class _MapGeneratorScreenState extends ConsumerState<MapGeneratorScreen> {
       await file.writeAsBytes(pngBytes);
 
       final mapName = _nameController.text.trim().isEmpty ? 'Procedural Map' : _nameController.text.trim();
-      await ref.read(worldMapListProvider.notifier).addMap(mapName, tempFilePath);
+      final newMap = await ref.read(worldMapListProvider.notifier).addMap(mapName, tempFilePath);
+
+      if (_autoGeneratePins) {
+        await _generateLocationsAndPins(newMap.id);
+      }
 
       if (mounted) {
         Navigator.pop(context);
@@ -213,6 +274,135 @@ class _MapGeneratorScreenState extends ConsumerState<MapGeneratorScreen> {
       if (mounted) {
         setState(() => _isGenerating = false);
       }
+    }
+  }
+
+  double _getHeightAt(int col, int row, int cols, int rows) {
+    final x = col.toDouble();
+    final y = row.toDouble();
+    
+    double falloff = 1.0;
+    if (_applyIslandMask) {
+      double nx = col / (cols - 1) * 2.0 - 1.0;
+      double ny = row / (rows - 1) * 2.0 - 1.0;
+      double d = sqrt(nx * nx + ny * ny);
+      if (d > 0.15) {
+        falloff = pow(1.0 - (d - 0.15) / (1.414 - 0.15), 1.5).toDouble();
+      }
+      if (falloff < 0) falloff = 0.0;
+    }
+    
+    return _noise.getFractal(x, y) * falloff;
+  }
+
+  double _getMoistureAt(int col, int row) {
+    final x = col.toDouble();
+    final y = row.toDouble();
+    return _moistureNoise.getFractal(x, y);
+  }
+
+  Future<void> _generateLocationsAndPins(String mapId) async {
+    final createEntity = getIt<CreateEntityUseCase>();
+    final genNames = getIt<GenerateNamesUseCase>();
+
+    final rand = Random();
+    final count = 3 + rand.nextInt(3);
+
+    final points = <Point<int>>[];
+    final list = <Point<int>>[];
+    const cols = 200;
+    const rows = 200;
+
+    for (int col = 15; col < 185; col += 6) {
+      for (int row = 15; row < 185; row += 6) {
+        final h = _getHeightAt(col, row, cols, rows);
+        if (h >= _seaLevel) {
+          list.add(Point(col, row));
+        }
+      }
+    }
+
+    if (list.isEmpty) return;
+
+    list.shuffle(rand);
+    for (final p in list) {
+      if (points.length >= count) break;
+
+      bool farEnough = true;
+      for (final existing in points) {
+        final dist = sqrt(pow(p.x - existing.x, 2) + pow(p.y - existing.y, 2));
+        if (dist < 32) {
+          farEnough = false;
+          break;
+        }
+      }
+      if (farEnough) {
+        points.add(p);
+      }
+    }
+
+    final nameResult = await genNames(NameGeneratorParams(
+      type: GenerationType.locationName,
+      count: points.length,
+    ));
+
+    final names = nameResult.fold(
+      (_) => List.generate(points.length, (i) => 'Outpost ${i + 1}'),
+      (list) => list.map((g) => g.name).toList(),
+    );
+
+    for (int i = 0; i < points.length; i++) {
+      final p = points[i];
+      final name = names[i];
+      final h = _getHeightAt(p.x, p.y, cols, rows);
+      final m = _getMoistureAt(p.x, p.y);
+
+      String locationType = 'Settlement';
+      String descKeyword = 'settlement';
+      String descDetails = 'A prominent stronghold established on the plains.';
+      int iconColor = 0xFF8B5CF6;
+
+      if (h >= 0.72) {
+        locationType = 'Citadel';
+        descKeyword = 'fortress';
+        descDetails = 'A high fortress guarding the peak of the mountain range.';
+        iconColor = 0xFF64748B;
+      } else if (h < _seaLevel + 0.05) {
+        locationType = 'Port';
+        descKeyword = 'port';
+        descDetails = 'A bustling coastal port nestled on the shore.';
+        iconColor = 0xFF3B82F6;
+      } else if (m < 0.35) {
+        locationType = 'Oasis';
+        descKeyword = 'oasis';
+        descDetails = 'A rare desert oasis refuge amidst the arid wasteland.';
+        iconColor = 0xFFF59E0B;
+      } else if (m > 0.65) {
+        locationType = 'Sanctuary';
+        descKeyword = 'forest';
+        descDetails = 'A secluded forest sanctuary hidden deep within the woods.';
+        iconColor = 0xFF10B981;
+      }
+
+      final entityResult = await createEntity(CreateEntityParams(
+        name: name,
+        type: EntityType.location,
+        status: EntityStatus.canon,
+        description: '$name ($locationType). $descDetails Keywords: $descKeyword',
+        iconColor: iconColor,
+      ));
+
+      await entityResult.fold(
+        (f) async {},
+        (entity) async {
+          await ref.read(mapPinsProvider(mapId).notifier).addPin(
+            entityId: entity.id,
+            xPercent: p.x / 200.0,
+            yPercent: p.y / 200.0,
+            label: name,
+          );
+        },
+      );
     }
   }
 
@@ -277,10 +467,12 @@ class _MapGeneratorScreenState extends ConsumerState<MapGeneratorScreen> {
                       ),
                       child: CustomPaint(
                         painter: MapPreviewPainter(
-                          noise: _noise,
+                          previewImage: _previewImage,
+                          elevationNoise: _noise,
+                          moistureNoise: _moistureNoise,
                           seaLevel: _seaLevel,
                           theme: _theme,
-                          colorHelper: _getColorForHeight,
+                          applyIslandMask: _applyIslandMask,
                         ),
                       ),
                     ),
@@ -403,6 +595,7 @@ class _MapGeneratorScreenState extends ConsumerState<MapGeneratorScreen> {
                           max: 0.8,
                           onChanged: (val) {
                             setState(() => _seaLevel = val);
+                            _updatePreview();
                           },
                         ),
                         const SizedBox(height: 8),
@@ -430,7 +623,52 @@ class _MapGeneratorScreenState extends ConsumerState<MapGeneratorScreen> {
                   ),
                   const SizedBox(height: 12),
 
-                  // Section 4: Themes
+                  // Section 4: Cartographic Options
+                  Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: theme.colorScheme.surfaceContainerHighest.withOpacity(0.4),
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: theme.colorScheme.outline.withOpacity(0.1)),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'CARTOGRAPHIC OPTIONS',
+                          style: theme.textTheme.labelMedium!.copyWith(
+                            color: theme.colorScheme.primary,
+                            fontWeight: FontWeight.bold,
+                            letterSpacing: 1.1,
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        SwitchListTile(
+                          contentPadding: EdgeInsets.zero,
+                          title: const Text('Apply Island Mask', style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold)),
+                          subtitle: const Text('Shape terrain into a centralized continent/island', style: TextStyle(fontSize: 11)),
+                          value: _applyIslandMask,
+                          onChanged: (val) {
+                            setState(() => _applyIslandMask = val);
+                            _updatePreview();
+                          },
+                        ),
+                        const Divider(),
+                        SwitchListTile(
+                          contentPadding: EdgeInsets.zero,
+                          title: const Text('Auto-generate Location Pins', style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold)),
+                          subtitle: const Text('Procedurally create & pin 3-5 Codex locations', style: TextStyle(fontSize: 11)),
+                          value: _autoGeneratePins,
+                          onChanged: (val) {
+                            setState(() => _autoGeneratePins = val);
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+
+                  // Section 5: Themes
                   Container(
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
@@ -482,6 +720,7 @@ class _MapGeneratorScreenState extends ConsumerState<MapGeneratorScreen> {
         onTap: () {
           HapticFeedback.selectionClick();
           setState(() => _theme = mode);
+          _updatePreview();
         },
         borderRadius: BorderRadius.circular(10),
         child: Container(
@@ -509,42 +748,362 @@ class _MapGeneratorScreenState extends ConsumerState<MapGeneratorScreen> {
 }
 
 class MapPreviewPainter extends CustomPainter {
-  final FractalNoise noise;
+  final ui.Image? previewImage;
+  final FractalNoise elevationNoise;
+  final FractalNoise moistureNoise;
   final double seaLevel;
   final MapFilterMode theme;
-  final Color Function(double, double, MapFilterMode) colorHelper;
+  final bool applyIslandMask;
 
   MapPreviewPainter({
-    required this.noise,
+    required this.previewImage,
+    required this.elevationNoise,
+    required this.moistureNoise,
     required this.seaLevel,
     required this.theme,
-    required this.colorHelper,
+    required this.applyIslandMask,
   });
 
   @override
   void paint(Canvas canvas, Size size) {
-    const cols = 80;
-    const rows = 80;
-    final dx = size.width / cols;
-    final dy = size.height / rows;
-
-    for (int col = 0; col < cols; col++) {
-      for (int row = 0; row < rows; row++) {
-        final x = col.toDouble();
-        final y = row.toDouble();
-        final val = noise.getFractal(x, y);
-        final color = colorHelper(val, seaLevel, theme);
-        final paint = Paint()..color = color;
-        canvas.drawRect(Rect.fromLTWH(col * dx, row * dy, dx + 0.5, dy + 0.5), paint);
-      }
+    if (previewImage != null) {
+      canvas.drawImageRect(
+        previewImage!,
+        Rect.fromLTWH(0, 0, previewImage!.width.toDouble(), previewImage!.height.toDouble()),
+        Rect.fromLTWH(0, 0, size.width, size.height),
+        Paint()..filterQuality = FilterQuality.medium,
+      );
+    } else {
+      canvas.drawRect(Rect.fromLTWH(0, 0, size.width, size.height), Paint()..color = Colors.grey.shade800);
     }
+
+    _renderProceduralDecorations(
+      canvas: canvas,
+      size: size,
+      cols: 80,
+      rows: 80,
+      elevationNoise: elevationNoise,
+      moistureNoise: moistureNoise,
+      seaLevel: seaLevel,
+      theme: theme,
+      applyIslandMask: applyIslandMask,
+    );
   }
 
   @override
   bool shouldRepaint(covariant MapPreviewPainter oldDelegate) {
-    return oldDelegate.noise.seed != noise.seed ||
-        oldDelegate.noise.frequency != noise.frequency ||
+    return oldDelegate.previewImage != previewImage ||
+        oldDelegate.elevationNoise.seed != elevationNoise.seed ||
+        oldDelegate.moistureNoise.seed != moistureNoise.seed ||
+        oldDelegate.elevationNoise.frequency != elevationNoise.frequency ||
         oldDelegate.seaLevel != seaLevel ||
-        oldDelegate.theme != theme;
+        oldDelegate.theme != theme ||
+        oldDelegate.applyIslandMask != applyIslandMask;
   }
+}
+
+Color _getBiomeColor(double h, double m, double seaLevel, MapFilterMode theme) {
+  // Water
+  if (h < seaLevel) {
+    final isDeep = h < seaLevel * 0.7;
+    switch (theme) {
+      case MapFilterMode.sepia:
+        return isDeep ? const Color(0xFFCBB596) : const Color(0xFFDCC7A9);
+      case MapFilterMode.dark:
+        return isDeep ? const Color(0xFF0F172A) : const Color(0xFF1E293B);
+      case MapFilterMode.satellite:
+        return isDeep ? const Color(0xFF0F3D59) : const Color(0xFF1E5B7F);
+      case MapFilterMode.original:
+      default:
+        return isDeep ? const Color(0xFF1D4ED8) : const Color(0xFF2563EB);
+    }
+  }
+  
+  // Beach / Sand (Shore)
+  if (h < seaLevel + 0.03) {
+    switch (theme) {
+      case MapFilterMode.sepia:
+        return const Color(0xFFEADBBE);
+      case MapFilterMode.dark:
+        return const Color(0xFF374151);
+      case MapFilterMode.satellite:
+        return const Color(0xFFE2E8F0);
+      case MapFilterMode.original:
+      default:
+        return const Color(0xFFFEF08A);
+    }
+  }
+
+  // High Peaks / Mountain Range
+  if (h >= 0.72) {
+    final isSnow = h >= 0.82;
+    switch (theme) {
+      case MapFilterMode.sepia:
+        return isSnow ? const Color(0xFF5C4033) : const Color(0xFF8C7154);
+      case MapFilterMode.dark:
+        return isSnow ? const Color(0xFFEF4444) : const Color(0xFF991B1B);
+      case MapFilterMode.satellite:
+        return isSnow ? const Color(0xFFFFFFFF) : const Color(0xFF94A3B8);
+      case MapFilterMode.original:
+      default:
+        return isSnow ? const Color(0xFFF3F4F6) : const Color(0xFF78716C);
+    }
+  }
+
+  // Base colors for flat land biomes
+  Color baseColor;
+  Color cDesert;
+  Color cGrass;
+  Color cForest;
+  switch (theme) {
+    case MapFilterMode.sepia:
+      cDesert = const Color(0xFFDFCEB4);
+      cGrass = const Color(0xFFCBB799);
+      cForest = const Color(0xFFA89274);
+      break;
+    case MapFilterMode.dark:
+      cDesert = const Color(0xFF4B5563);
+      cGrass = const Color(0xFF064E35);
+      cForest = const Color(0xFF022C22);
+      break;
+    case MapFilterMode.satellite:
+      cDesert = const Color(0xFFCBD5E1);
+      cGrass = const Color(0xFF64748B);
+      cForest = const Color(0xFF475569);
+      break;
+    case MapFilterMode.original:
+    default:
+      cDesert = const Color(0xFFF59E0B);
+      cGrass = const Color(0xFF34D399);
+      cForest = const Color(0xFF047857);
+      break;
+  }
+
+  // Smoothly blend biomes based on moisture
+  if (m < 0.35) {
+    baseColor = cDesert;
+  } else if (m < 0.58) {
+    final t = (m - 0.35) / (0.58 - 0.35);
+    baseColor = Color.lerp(cDesert, cGrass, t)!;
+  } else {
+    final t = (m - 0.58) / (1.0 - 0.58);
+    baseColor = Color.lerp(cGrass, cForest, t)!;
+  }
+
+  // Blend with beach at the lower boundary, or mountain at the upper boundary
+  if (h < seaLevel + 0.05) {
+    final t = (h - (seaLevel + 0.03)) / 0.02;
+    Color beachColor;
+    switch (theme) {
+      case MapFilterMode.sepia: beachColor = const Color(0xFFEADBBE); break;
+      case MapFilterMode.dark: beachColor = const Color(0xFF374151); break;
+      case MapFilterMode.satellite: beachColor = const Color(0xFFE2E8F0); break;
+      case MapFilterMode.original:
+      default: beachColor = const Color(0xFFFEF08A); break;
+    }
+    return Color.lerp(beachColor, baseColor, t.clamp(0.0, 1.0))!;
+  } else if (h >= 0.65) {
+    final t = (h - 0.65) / 0.07;
+    Color mountainColor;
+    switch (theme) {
+      case MapFilterMode.sepia: mountainColor = const Color(0xFF8C7154); break;
+      case MapFilterMode.dark: mountainColor = const Color(0xFF991B1B); break;
+      case MapFilterMode.satellite: mountainColor = const Color(0xFF94A3B8); break;
+      case MapFilterMode.original:
+      default: mountainColor = const Color(0xFF78716C); break;
+    }
+    return Color.lerp(baseColor, mountainColor, t.clamp(0.0, 1.0))!;
+  }
+
+  return baseColor;
+}
+
+Color _getGridColor(MapFilterMode theme) {
+  switch (theme) {
+    case MapFilterMode.sepia:
+      return const Color(0xFF8C7154).withOpacity(0.12);
+    case MapFilterMode.dark:
+      return Colors.white.withOpacity(0.04);
+    case MapFilterMode.satellite:
+      return Colors.white.withOpacity(0.08);
+    case MapFilterMode.original:
+    default:
+      return Colors.black.withOpacity(0.04);
+  }
+}
+
+Color _getPenColor(MapFilterMode theme) {
+  switch (theme) {
+    case MapFilterMode.sepia:
+      return const Color(0xFF5C4033);
+    case MapFilterMode.dark:
+      return const Color(0xFFE2E8F0);
+    case MapFilterMode.satellite:
+      return const Color(0xFFFFFFFF);
+    case MapFilterMode.original:
+    default:
+      return const Color(0xFF0F172A);
+  }
+}
+
+void _drawCompassRose(ui.Canvas canvas, ui.Size size, MapFilterMode theme) {
+  final cx = size.width - 55.0;
+  final cy = size.height - 55.0;
+  final r = 24.0;
+  
+  final penPaint = ui.Paint()
+    ..color = _getPenColor(theme).withOpacity(0.5)
+    ..style = ui.PaintingStyle.stroke
+    ..strokeWidth = 0.8;
+    
+  final fillPaint = ui.Paint()
+    ..color = _getPenColor(theme).withOpacity(0.1)
+    ..style = ui.PaintingStyle.fill;
+    
+  canvas.drawCircle(Offset(cx, cy), r, penPaint);
+  
+  final innerPenPaint = ui.Paint()
+    ..color = _getPenColor(theme).withOpacity(0.5)
+    ..style = ui.PaintingStyle.stroke
+    ..strokeWidth = 0.4;
+  canvas.drawCircle(Offset(cx, cy), r - 4, innerPenPaint);
+  
+  final p = ui.Path();
+  p.moveTo(cx, cy - r);
+  p.lineTo(cx + 3, cy - 4);
+  p.lineTo(cx, cy);
+  p.lineTo(cx - 3, cy - 4);
+  p.close();
+  
+  p.moveTo(cx, cy + r);
+  p.lineTo(cx + 3, cy + 4);
+  p.lineTo(cx, cy);
+  p.lineTo(cx - 3, cy + 4);
+  p.close();
+  
+  p.moveTo(cx + r, cy);
+  p.lineTo(cx + 4, cy + 3);
+  p.lineTo(cx, cy);
+  p.lineTo(cx + 4, cy - 3);
+  p.close();
+  
+  p.moveTo(cx - r, cy);
+  p.lineTo(cx - 4, cy + 3);
+  p.lineTo(cx, cy);
+  p.lineTo(cx - 4, cy - 3);
+  p.close();
+  
+  canvas.drawPath(p, fillPaint);
+  canvas.drawPath(p, penPaint);
+}
+
+void _renderProceduralDecorations({
+  required ui.Canvas canvas,
+  required ui.Size size,
+  required int cols,
+  required int rows,
+  required FractalNoise elevationNoise,
+  required FractalNoise moistureNoise,
+  required double seaLevel,
+  required MapFilterMode theme,
+  required bool applyIslandMask,
+}) {
+  final dx = size.width / cols;
+  final dy = size.height / rows;
+
+  final gridPaint = ui.Paint()
+    ..color = _getGridColor(theme)
+    ..style = ui.PaintingStyle.stroke
+    ..strokeWidth = 0.3;
+
+  for (double i = 0; i < size.width; i += size.width / 5.0) {
+    canvas.drawLine(ui.Offset(i, 0), ui.Offset(i, size.height), gridPaint);
+  }
+  for (double j = 0; j < size.height; j += size.height / 5.0) {
+    canvas.drawLine(ui.Offset(0, j), ui.Offset(size.width, j), gridPaint);
+  }
+
+  final penPaint = ui.Paint()
+    ..color = _getPenColor(theme).withOpacity(0.65)
+    ..style = ui.PaintingStyle.stroke
+    ..strokeWidth = 0.6;
+
+  final shadowPaint = ui.Paint()
+    ..color = Colors.black.withOpacity(0.12)
+    ..style = ui.PaintingStyle.fill;
+
+  for (int col = 0; col < cols; col++) {
+    for (int row = 0; row < rows; row++) {
+      final x = col.toDouble();
+      final y = row.toDouble();
+
+      double falloff = 1.0;
+      if (applyIslandMask) {
+        double nx = col / (cols - 1) * 2.0 - 1.0;
+        double ny = row / (rows - 1) * 2.0 - 1.0;
+        double d = sqrt(nx * nx + ny * ny);
+        if (d > 0.15) {
+          falloff = pow(1.0 - (d - 0.15) / (1.414 - 0.15), 1.5).toDouble();
+        }
+        if (falloff < 0) falloff = 0.0;
+      }
+
+      final h = elevationNoise.getFractal(x, y) * falloff;
+      final m = moistureNoise.getFractal(x, y);
+
+      final cx = col * dx + dx / 2;
+      final cy = row * dy + dy / 2;
+
+      if (h >= 0.72) {
+        final randVal = (sin(col * 12.9898 + row * 78.233) * 43758.5453).abs() % 1.0;
+        if (randVal < 0.22) {
+          final w = dx * 2.6;
+          final heightVal = dy * 2.6;
+
+          final mountainPath = ui.Path();
+          mountainPath.moveTo(cx, cy - heightVal / 2);
+          mountainPath.lineTo(cx - w / 2, cy + heightVal / 2);
+          mountainPath.lineTo(cx + w / 2, cy + heightVal / 2);
+          mountainPath.close();
+
+          final shadowPath = ui.Path();
+          shadowPath.moveTo(cx, cy - heightVal / 2);
+          shadowPath.lineTo(cx, cy + heightVal / 2);
+          shadowPath.lineTo(cx + w / 2, cy + heightVal / 2);
+          shadowPath.close();
+
+          final mountainBgPaint = ui.Paint()
+            ..color = _getBiomeColor(h, m, seaLevel, theme)
+            ..style = ui.PaintingStyle.fill;
+
+          canvas.drawPath(mountainPath, mountainBgPaint);
+          canvas.drawPath(shadowPath, shadowPaint);
+          canvas.drawPath(mountainPath, penPaint);
+        }
+      } 
+      else if (h >= seaLevel + 0.05 && m >= 0.58) {
+        final randVal = (sin(col * 34.567 + row * 98.765) * 43758.5453).abs() % 1.0;
+        if (randVal < 0.28) {
+          final w = dx * 1.8;
+          final heightVal = dy * 2.2;
+
+          final treePath = ui.Path();
+          treePath.moveTo(cx, cy - heightVal / 2);
+          treePath.lineTo(cx - w / 2, cy + heightVal / 2);
+          treePath.lineTo(cx + w / 2, cy + heightVal / 2);
+          treePath.close();
+
+          final treeBgPaint = ui.Paint()
+            ..color = _getBiomeColor(h, m, seaLevel, theme)
+            ..style = ui.PaintingStyle.fill;
+
+          canvas.drawPath(treePath, treeBgPaint);
+          canvas.drawPath(treePath, penPaint);
+          canvas.drawLine(ui.Offset(cx, cy + heightVal / 2), ui.Offset(cx, cy + heightVal / 2 + 1.5), penPaint);
+        }
+      }
+    }
+  }
+
+  _drawCompassRose(canvas, size, theme);
 }

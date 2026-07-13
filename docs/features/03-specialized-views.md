@@ -141,17 +141,51 @@ A network diagram showing political and organizational relationships between fac
 
 ## D. World Map
 
-A custom map view where users upload a world map image and pin Location entities onto it.
+A custom map view where users can upload a world map image OR procedurally generate a high-fidelity, non-pixelated fantasy cartography map, and pin Location entities onto it.
 
 ### Functional Requirements
 
 | ID | Requirement |
 |----|-------------|
-| **FR-SV-14** | Users can **upload a map image** (PNG, JPG, WebP; max 20MB) that serves as the background canvas. |
-| **FR-SV-15** | Users can **place pins** on the map by long-pressing a location, then selecting an existing Location entity from a search picker. The pin's `(x, y)` coordinates (normalized 0.0–1.0) are stored on the Location entity. |
-| **FR-SV-16** | Pins are styled by location sub-type if available (city, region, landmark, etc.) using distinct icons. |
+| **FR-SV-14** | Users can **upload a map image** (PNG, JPG, WebP; max 20MB) OR **procedurally generate** a smooth, semi-realistic fantasy map directly within the app using the local generation engine. |
+| **FR-SV-15** | Users can **place pins** on the map by long-pressing, which opens a dual-tabbed bottom sheet allowing them to: (1) Select and pin an **existing Codex Location**, or (2) Create, style, and pin a **new Custom Location** instantly. |
+| **FR-SV-16** | Custom locations are automatically saved in the database as Codex entities. Pins are styled uniformly with custom categories (City, Fortress, Mountain, Forest, Port, Oasis, Ruins, Custom) and colors (Green, Blue, Red, Purple, Amber, Slate). |
 | **FR-SV-17** | Users can **pinch-to-zoom** and **pan** the map. At high zoom levels, pin labels become visible. At low zoom, only icons are shown. |
 | **FR-SV-18** | Tapping a pin opens a **bottom sheet** with the location name, description preview, and a "View Details" button that navigates to the entity detail screen. |
+| **FR-SV-19** | **Procedural Map Generation** supports: (1) Smooth pixel-level terrain gradients without pixelation (RGBA buffer decoded to `ui.Image`), (2) Moisture-based biomes (Whittaker diagram) dynamically colored, (3) Island/Continent circular falloff masks, (4) Cartographic elements (peaks, forest trees, lat/long grids, vintage Compass Rose), and (5) Auto-generating 3-5 location Codex entities with themed names and biome-matching descriptions. |
+| **FR-SV-20** | **Lore Density Heatmap Overlay** paints smooth radial glows centered on coordinates, dynamically scaled and shaded by the intensity of entity relationships and manuscript occurrences. |
+| **FR-SV-21** | **Distance & Travel Calculator** lets writers select starting and destination pins to draw routes, calculate kilometers/miles, and estimate travel durations (Foot, Horseback, Carriage). |
+| **FR-SV-22** | **Chronological Timeline Scrubber** adds an interactive slider bar that filters map events chronologically, overlaying glowing indicators on pins where history occurred. |
+| **FR-SV-23** | **Character Journey Tracker** parses timeline entries to connect visited location pins sequentially with dashed travel paths, drawing directional arrows and placing a pulsing avatar representing their current position. |
+| **FR-SV-24** | **Tactical RPG Grids Overlay** allows writers to overlay Square or Pointy-Topped Hexagonal grids on the map, with fully adjustable grid sizes and opacity sliders. |
+| **FR-SV-25** | **Fog of War Overlay Mask** conceals map terrain under a dark semi-transparent layer, featuring a local sweep brush tool that dynamically cuts transparent viewport holes using a canvas compositing mask. |
+| **FR-SV-26** | **Custom Route Builder** allows authors to select a path type (Road, River, Trade Route, Magic/Underground Path), name it, and plot route nodes manually by tapping the map canvas. |
+
+### Procedural Generation Architecture
+
+The procedural map engine is powered by a local dual-noise model running entirely offline on the client device:
+1. **Height Noise Map (Perlin/Fractal):** Determines raw elevation ($H$).
+2. **Moisture Noise Map (Perlin/Fractal):** Determines raw humidity ($M$).
+3. **Island Falloff Mask:** Applies a radial distance-from-center calculation:
+   $$H_{\text{final}} = H_{\text{raw}} \times f(\text{distance})$$
+   This guarantees that terrain is generated as a unified continent or island surrounded by sea, rather than extending endlessly off-screen.
+4. **Whittaker Biome Mapping:** Combines $H$ and $M$ to blend biome colors smoothly using `Color.lerp` for non-pixelated transitions:
+   - *Water:* Deep Ocean $\rightarrow$ Coast Water.
+   - *Shore:* Coast Water $\rightarrow$ Beach Sand.
+   - *Land (Moisture-based):* Desert $\rightarrow$ Grassland $\rightarrow$ Forest.
+   - *Heights:* Forest $\rightarrow$ Mountain peak $\rightarrow$ Snowy peak.
+5. **Deterministic Vector Overlay:** Scatters stylized vector trees (cones) and mountain peaks (shaded triangles) using coordinate hashing (sine wave hashes) so the interactive preview matches the forged PNG. Draws coordinate gridlines and a vector Compass Rose.
+
+### Interactive Custom Pinning System
+
+When long-pressing the map canvas, the user interacts with a segmented modal bottom sheet:
+- **Pin Existing Location:** Accesses a searchable list of current Codex `location` entities.
+- **Create Custom Location:** A standalone creation form:
+  - *Location Name:* Custom text input.
+  - *Symbol Category:* City/Settlement, Castle/Fortress, Mountain/Peak, Forest/Grove, Water/Port, Oasis/Garden, Ancient Ruins, or Custom/Star.
+  - *Pin Color:* Visual palette selection.
+  - *Description:* Optional context details.
+  - *Sync Logic:* On submission, the new location is written to the SQLite database via `CreateEntityUseCase` with description keywords (e.g. `fortress`, `oasis`, `ruins`) so that `_getPinIcon` resolves the corresponding uniform Material icon. It is then immediately pinned onto the map.
 
 ### Data Model Extension
 
@@ -223,6 +257,5 @@ CREATE TABLE map_pins (
 
 | Scope | Features |
 |---|---|
-| **V1.x** | Graph View (FR-SV-01–06), Family Tree (FR-SV-07–10), Faction Map (FR-SV-11–13), World Map (FR-SV-14–18) (all completed). |
+| **V1.x / V2.0** | Graph View (FR-SV-01–06), Family Tree (FR-SV-07–10), Faction Map (FR-SV-11–13), World Map (FR-SV-14–26) (all completed). |
 | **V2+** | Export graph/tree as PNG/SVG. Share world map as image. |
-| **V2+** | Animated timeline overlay on graph view — scrub through events and see relationships appear/disappear over time. |
