@@ -1692,43 +1692,41 @@ class _MapScreenState extends ConsumerState<MapScreen> {
                           error: (e, _) => ErrorDisplay(message: e.toString()),
                         ),
                   ),
+                  if ((_showTimelineScrubber && entries.isNotEmpty) ||
+                      _showJourneyTracker ||
+                      _showGridControls ||
+                      _showFogControls ||
+                      _showRouteControls)
+                    Positioned(
+                      top: 80,
+                      left: 16,
+                      right: 16,
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          if (_showTimelineScrubber && entries.isNotEmpty)
+                            _buildTimelineScrubberCard(context, entries),
+                          if (_showJourneyTracker)
+                            _buildJourneySelectorCard(context, entities),
+                          if (_showGridControls)
+                            _buildGridControlsCard(context),
+                          if (_showFogControls)
+                            _buildFogControlsCard(context),
+                          if (_showRouteControls)
+                            _buildRouteControlsCard(context),
+                        ],
+                      ),
+                    ),
+                  if (_selectedPinId != null && _selectedPinEntity != null && !_measuringMode)
+                    _buildBottomPreviewCard(context, _selectedPinEntity!, _selectedPinId!, selectedMap.id),
+                  if (_measuringMode)
+                    _buildMeasurementOverlay(context, entities),
                 ],
-              ),
-              if ((_showTimelineScrubber && entries.isNotEmpty) ||
-                  _showJourneyTracker ||
-                  _showGridControls ||
-                  _showFogControls ||
-                  _showRouteControls)
-                Positioned(
-                  top: 80,
-                  left: 16,
-                  right: 16,
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      if (_showTimelineScrubber && entries.isNotEmpty)
-                        _buildTimelineScrubberCard(context, entries),
-                      if (_showJourneyTracker)
-                        _buildJourneySelectorCard(context, entities),
-                      if (_showGridControls)
-                        _buildGridControlsCard(context),
-                      if (_showFogControls)
-                        _buildFogControlsCard(context),
-                      if (_showRouteControls)
-                        _buildRouteControlsCard(context),
-                    ],
-                  ),
-                ),
-              if (_selectedPinId != null && _selectedPinEntity != null && !_measuringMode)
-                _buildBottomPreviewCard(context, _selectedPinEntity!, _selectedPinId!, selectedMap.id),
-              if (_measuringMode)
-                _buildMeasurementOverlay(context, entities),
-              ],
+              );
+            },
+              loading: () => LoadingIndicator(),
+              error: (e, _) => ErrorDisplay(message: e.toString()),
             );
-          },
-            loading: () => LoadingIndicator(),
-            error: (e, _) => ErrorDisplay(message: e.toString()),
-          );
         },
         loading: () => LoadingIndicator(),
         error: (err, _) => ErrorDisplay(message: err.toString()),
