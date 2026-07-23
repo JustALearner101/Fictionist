@@ -81,6 +81,9 @@ class _MapScreenState extends ConsumerState<MapScreen> {
   String _activeRouteType = 'road';
   final TextEditingController _activeRouteNameController = TextEditingController();
   List<CustomRoute> _customRoutes = [];
+  bool _isAddingPinMode = false;
+  bool _toolbarExpanded = false;
+  String? _activeToolTab;
 
   @override
   void dispose() {
@@ -169,27 +172,25 @@ class _MapScreenState extends ConsumerState<MapScreen> {
     BoxConstraints constraints,
     String mapId,
   ) async {
-    final localPos = details.localPosition;
+    await _onMapDropPinAtOffset(context, details.localPosition, constraints, mapId);
+  }
+
+  Future<void> _onMapDropPinAtOffset(
+    BuildContext context,
+    Offset localPos,
+    BoxConstraints constraints,
+    String mapId,
+  ) async {
     setState(() {
       _activeRipples.add(localPos);
     });
 
-    final xPercent = details.localPosition.dx / constraints.maxWidth;
-    final yPercent = details.localPosition.dy / constraints.maxHeight;
+    final xPercent = localPos.dx / constraints.maxWidth;
+    final yPercent = localPos.dy / constraints.maxHeight;
 
     final entitiesResult = await ref.read(entityListProvider.future);
     final locationEntities =
         entitiesResult.where((e) => e.type == EntityType.location).toList();
-
-    if (locationEntities.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('No location entities exist to pin. Create a Location first!'),
-          backgroundColor: Theme.of(context).colorScheme.outline,
-        ),
-      );
-      return;
-    }
 
     Entity? selectedLocation;
     String searchQuery = '';
@@ -389,11 +390,12 @@ class _MapScreenState extends ConsumerState<MapScreen> {
                           DropdownMenuItem(value: 'City', child: Text('City / Settlement')),
                           DropdownMenuItem(value: 'Fortress', child: Text('Castle / Fortress')),
                           DropdownMenuItem(value: 'Mountain', child: Text('Mountain / Peak')),
+                          DropdownMenuItem(value: 'Cave', child: Text('Cave / Mine')),
                           DropdownMenuItem(value: 'Forest', child: Text('Forest / Grove')),
                           DropdownMenuItem(value: 'Port', child: Text('Water / Port')),
                           DropdownMenuItem(value: 'Oasis', child: Text('Oasis / Garden')),
                           DropdownMenuItem(value: 'Ruins', child: Text('Ancient Ruins')),
-                          DropdownMenuItem(value: 'Star', child: Text('Custom / Star')),
+                          DropdownMenuItem(value: 'Star', child: Text('Custom Pin Point')),
                         ],
                         onChanged: (val) {
                           if (val != null) {
@@ -516,6 +518,9 @@ class _MapScreenState extends ConsumerState<MapScreen> {
             xPercent: xPercent,
             yPercent: yPercent,
           );
+      setState(() {
+        _isAddingPinMode = false;
+      });
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Pinned "${confirm.name}" to map.'),
@@ -997,6 +1002,44 @@ class _MapScreenState extends ConsumerState<MapScreen> {
     return Icons.location_on;
   }
 
+  Widget _buildCustomPinWidget(bool isSelected, bool isStart, bool isTarget, Color iconColor) {
+    final size = isSelected ? 32.0 : 26.0;
+    final pinColor = isStart ? Colors.green : (isTarget ? Colors.orange : iconColor);
+    
+    return Container(
+      width: size,
+      height: size,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        gradient: RadialGradient(
+          colors: [
+            pinColor.withOpacity(0.3),
+            pinColor,
+          ],
+          stops: const [0.4, 1.0],
+        ),
+        border: Border.all(
+          color: const Color(0xFFFFD700), // Gold border
+          width: isSelected ? 2.2 : 1.5,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: pinColor.withOpacity(0.5),
+            blurRadius: isSelected ? 10 : 5,
+            spreadRadius: isSelected ? 2 : 1,
+          ),
+        ],
+      ),
+      child: Center(
+        child: Icon(
+          Icons.explore,
+          size: size * 0.62,
+          color: Colors.white,
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final mapsState = ref.watch(worldMapListProvider);
@@ -1018,165 +1061,14 @@ class _MapScreenState extends ConsumerState<MapScreen> {
         elevation: 0,
         toolbarHeight: 48,
         actions: [
-          IconButton(
-            icon: Icon(
-              _showHeatmap ? Icons.blur_on : Icons.blur_off,
-              color: _showHeatmap 
-                  ? Theme.of(context).colorScheme.primary 
-                  : Theme.of(context).colorScheme.onSurface,
-              size: 20,
+          if (_selectedMap != null)
+            IconButton(
+              icon: Icon(Icons.delete_outline, color: Theme.of(context).colorScheme.error, size: 20),
+              tooltip: 'Delete Map',
+              onPressed: () => _deleteMap(_selectedMap!),
             ),
-            tooltip: 'Lore Heatmap',
-            onPressed: () {
-              HapticFeedback.selectionClick();
-              setState(() => _showHeatmap = !_showHeatmap);
-            },
-          ),
-          IconButton(
-            icon: Icon(
-              _measuringMode ? Icons.straighten : Icons.straighten_outlined,
-              color: _measuringMode 
-                  ? Theme.of(context).colorScheme.primary 
-                  : Theme.of(context).colorScheme.onSurface,
-              size: 20,
-            ),
-            tooltip: 'Calculate Distance',
-            onPressed: () {
-              HapticFeedback.selectionClick();
-              setState(() {
-                _measuringMode = !_measuringMode;
-                _measureStartPin = null;
-                _measureTargetPin = null;
-              });
-            },
-          ),
-          IconButton(
-            icon: Icon(
-              _showTimelineScrubber ? Icons.history : Icons.history_toggle_off,
-              color: _showTimelineScrubber 
-                  ? Theme.of(context).colorScheme.primary 
-                  : Theme.of(context).colorScheme.onSurface,
-              size: 20,
-            ),
-            tooltip: 'Timeline Scrubber',
-            onPressed: () {
-              HapticFeedback.selectionClick();
-              setState(() => _showTimelineScrubber = !_showTimelineScrubber);
-            },
-          ),
-          IconButton(
-            icon: Icon(
-              _showJourneyTracker ? Icons.person_pin : Icons.person_pin_outlined,
-              color: _showJourneyTracker 
-                  ? Theme.of(context).colorScheme.primary 
-                  : Theme.of(context).colorScheme.onSurface,
-              size: 20,
-            ),
-            tooltip: 'Journey Tracker',
-            onPressed: () {
-              HapticFeedback.selectionClick();
-              setState(() {
-                _showJourneyTracker = !_showJourneyTracker;
-                if (!_showJourneyTracker) {
-                  _selectedJourneyCharacterId = null;
-                }
-              });
-            },
-          ),
-          IconButton(
-            icon: Icon(
-              _showGridControls ? Icons.grid_on : Icons.grid_off,
-              color: _showGridControls 
-                  ? Theme.of(context).colorScheme.primary 
-                  : Theme.of(context).colorScheme.onSurface,
-              size: 20,
-            ),
-            tooltip: 'Tactical Grid',
-            onPressed: () {
-              HapticFeedback.selectionClick();
-              setState(() => _showGridControls = !_showGridControls);
-            },
-          ),
-          IconButton(
-            icon: Icon(
-              _showFogControls ? Icons.cloud : Icons.cloud_outlined,
-              color: _showFogControls 
-                  ? Theme.of(context).colorScheme.primary 
-                  : Theme.of(context).colorScheme.onSurface,
-              size: 20,
-            ),
-            tooltip: 'Fog of War',
-            onPressed: () {
-              HapticFeedback.selectionClick();
-              setState(() => _showFogControls = !_showFogControls);
-            },
-          ),
-          IconButton(
-            icon: Icon(
-              _showRouteControls ? Icons.edit_road : Icons.edit_road_outlined,
-              color: _showRouteControls 
-                  ? Theme.of(context).colorScheme.primary 
-                  : Theme.of(context).colorScheme.onSurface,
-              size: 20,
-            ),
-            tooltip: 'Draw Custom Routes',
-            onPressed: () {
-              HapticFeedback.selectionClick();
-              setState(() {
-                _showRouteControls = !_showRouteControls;
-                if (!_showRouteControls) {
-                  _isDrawingRoute = false;
-                  _activeRoutePoints.clear();
-                }
-              });
-            },
-          ),
-          IconButton(
-            icon: Icon(Icons.auto_awesome, color: Theme.of(context).colorScheme.primary, size: 20),
-            tooltip: 'Forge Procedural Map',
-            onPressed: () {
-              HapticFeedback.lightImpact();
-              context.push('/map/generator');
-            },
-          ),
-          IconButton(
-            icon: Icon(Icons.upload_file, color: Theme.of(context).colorScheme.onSurface, size: 20),
-                              tooltip: 'Upload Map Image',
-                              onPressed: _uploadMap,
-                            ),
-                            PopupMenuButton<MapFilterMode>(
-                              icon: Icon(Icons.filter_hdr_outlined, color: Theme.of(context).colorScheme.onSurface, size: 20),
-                              tooltip: 'Map Filters',
-                              onSelected: (mode) {
-                                setState(() => _filterMode = mode);
-                              },
-                              itemBuilder: (ctx) => [
-                                const PopupMenuItem(
-                                  value: MapFilterMode.original,
-                                  child: Text('Original Map'),
-                                ),
-                                const PopupMenuItem(
-                                  value: MapFilterMode.sepia,
-                                  child: Text('Antique Sepia'),
-                                ),
-                                const PopupMenuItem(
-                                  value: MapFilterMode.dark,
-                                  child: Text('High Contrast Dark'),
-                                ),
-                                const PopupMenuItem(
-                                  value: MapFilterMode.satellite,
-                                  child: Text('Satellite Blueprint'),
-                                ),
-                              ],
-                            ),
-                            if (_selectedMap != null)
-                              IconButton(
-                                icon: Icon(Icons.delete_outline, color: Theme.of(context).colorScheme.error, size: 20),
-                                tooltip: 'Delete Map',
-                                onPressed: () => _deleteMap(_selectedMap!),
-                              ),
-                        ], // end AppBar actions
-                      ), // end AppBar
+        ],
+      ), // end AppBar
       body: mapsState.when(
         data: (maps) {
           if (maps.isEmpty) {
@@ -1256,7 +1148,14 @@ class _MapScreenState extends ConsumerState<MapScreen> {
                                 builder: (context, constraints) {
                                   return GestureDetector(
                                     onTapUp: (details) {
-                                      if (_isDrawingRoute) {
+                                      if (_isAddingPinMode) {
+                                        _onMapDropPinAtOffset(
+                                          context,
+                                          details.localPosition,
+                                          constraints,
+                                          selectedMap.id,
+                                        );
+                                      } else if (_isDrawingRoute) {
                                         setState(() {
                                           final Offset local = details.localPosition;
                                           final double xPercent = (local.dx / constraints.maxWidth).clamp(0.0, 1.0);
@@ -1426,6 +1325,43 @@ class _MapScreenState extends ConsumerState<MapScreen> {
                                             ),
                                           );
                                         }),
+                                                if (_isAddingPinMode)
+                                                  Positioned(
+                                                    top: 16,
+                                                    left: 16,
+                                                    right: 16,
+                                                    child: Center(
+                                                      child: Container(
+                                                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                                                        decoration: BoxDecoration(
+                                                          color: Theme.of(context).colorScheme.primary,
+                                                          borderRadius: BorderRadius.circular(20),
+                                                          boxShadow: const [
+                                                            BoxShadow(
+                                                              color: Colors.black26,
+                                                              blurRadius: 4,
+                                                              offset: Offset(0, 2),
+                                                            ),
+                                                          ],
+                                                        ),
+                                                        child: Row(
+                                                          mainAxisSize: MainAxisSize.min,
+                                                          children: [
+                                                            const Icon(Icons.add_location_alt_outlined, color: Colors.white, size: 16),
+                                                            const SizedBox(width: 8),
+                                                            Text(
+                                                              'Tap anywhere on the map to place a pin',
+                                                              style: TextStyle(
+                                                                color: Theme.of(context).colorScheme.onPrimary,
+                                                                fontSize: 12,
+                                                                fontWeight: FontWeight.bold,
+                                                              ),
+                                                            ),
+                                                          ],
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ),
                                         pinsState.when(
                                           data: (pins) {
                                             final journeyPath = (_showJourneyTracker && _selectedJourneyCharacterId != null)
@@ -1544,12 +1480,16 @@ class _MapScreenState extends ConsumerState<MapScreen> {
                                                                 ).animate(onPlay: (c) => c.repeat())
                                                                  .scale(begin: const Offset(0.7, 0.7), end: const Offset(1.4, 1.4), duration: 1200.ms, curve: Curves.easeOut)
                                                                  .fadeOut(duration: 1200.ms),
-                                                              Icon(
-                                                                _getPinIcon(peerEntity),
-                                                                size: isSelected ? 30 : 24,
-                                                                color: isStart ? Colors.green : (isTarget ? Colors.orange : iconColor),
-                                                              ).animate(target: isSelected ? 1 : 0)
-                                                               .shimmer(duration: 1000.ms, color: Colors.white.withOpacity(0.5)),
+                                                              if (peerEntity.description?.toLowerCase().contains('star') == true ||
+                                                                  peerEntity.name.toLowerCase().contains('star') == true)
+                                                                _buildCustomPinWidget(isSelected, isStart, isTarget, iconColor)
+                                                              else
+                                                                Icon(
+                                                                  _getPinIcon(peerEntity),
+                                                                  size: isSelected ? 30 : 24,
+                                                                  color: isStart ? Colors.green : (isTarget ? Colors.orange : iconColor),
+                                                                ).animate(target: isSelected ? 1 : 0)
+                                                                 .shimmer(duration: 1000.ms, color: Colors.white.withOpacity(0.5)),
                                                               if (_showTimelineScrubber && hasTimelineEvent)
                                                                 Positioned(
                                                                   right: 0,
@@ -1606,7 +1546,9 @@ class _MapScreenState extends ConsumerState<MapScreen> {
                                                             ),
                                                           ),
                                                         ],
-                                                      ),
+                                                      ).animate(key: ValueKey(pin.id))
+                                                       .fade(duration: 250.ms)
+                                                       .scale(begin: const Offset(0.4, 0.4), end: const Offset(1.0, 1.0), duration: 350.ms, curve: Curves.bounceOut),
                                                     ),
                                                   );
                                                 }).toList(),
@@ -1692,35 +1634,27 @@ class _MapScreenState extends ConsumerState<MapScreen> {
                           error: (e, _) => ErrorDisplay(message: e.toString()),
                         ),
                   ),
-                  if ((_showTimelineScrubber && entries.isNotEmpty) ||
-                      _showJourneyTracker ||
-                      _showGridControls ||
-                      _showFogControls ||
-                      _showRouteControls)
-                    Positioned(
-                      top: 80,
-                      left: 16,
-                      right: 16,
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          if (_showTimelineScrubber && entries.isNotEmpty)
-                            _buildTimelineScrubberCard(context, entries),
-                          if (_showJourneyTracker)
-                            _buildJourneySelectorCard(context, entities),
-                          if (_showGridControls)
-                            _buildGridControlsCard(context),
-                          if (_showFogControls)
-                            _buildFogControlsCard(context),
-                          if (_showRouteControls)
-                            _buildRouteControlsCard(context),
+                  Positioned(
+                    bottom: 16,
+                    left: 16,
+                    right: 16,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        if (_selectedPinId != null && _selectedPinEntity != null && !_measuringMode) ...[
+                          _buildBottomPreviewCard(context, _selectedPinEntity!, _selectedPinId!, selectedMap.id),
+                          const SizedBox(height: 8),
                         ],
-                      ),
+                        if (_measuringMode) ...[
+                          _buildMeasurementOverlay(context, entities),
+                          const SizedBox(height: 8),
+                        ],
+                        _buildTabbedControlsPanel(context, entries, entities, selectedMap.id),
+                        const SizedBox(height: 8),
+                        _buildCollapsibleToolbar(context),
+                      ],
                     ),
-                  if (_selectedPinId != null && _selectedPinEntity != null && !_measuringMode)
-                    _buildBottomPreviewCard(context, _selectedPinEntity!, _selectedPinId!, selectedMap.id),
-                  if (_measuringMode)
-                    _buildMeasurementOverlay(context, entities),
+                  ),
                 ],
               );
             },
@@ -1737,11 +1671,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
   Widget _buildBottomPreviewCard(BuildContext context, Entity entity, String pinId, String mapId) {
     final theme = Theme.of(context);
     
-    return Positioned(
-      bottom: 16,
-      left: 16,
-      right: 16,
-      child: Container(
+    return Container(
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
           color: theme.colorScheme.surface.withOpacity(0.92),
@@ -1788,7 +1718,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
                     entity.name,
                     style: theme.textTheme.titleMedium!.copyWith(
                       fontWeight: FontWeight.bold,
-                      fontFamily: 'Lora',
+                      fontFamily: Theme.of(context).textTheme.displayLarge?.fontFamily,
                       fontSize: 15,
                     ),
                     maxLines: 1,
@@ -1846,7 +1776,311 @@ class _MapScreenState extends ConsumerState<MapScreen> {
             ),
           ],
         ),
-      ).animate().slideY(begin: 0.2, end: 0.0, curve: Curves.easeOutBack, duration: 300.ms).fadeIn(),
+      ).animate().slideY(begin: 0.2, end: 0.0, curve: Curves.easeOutBack, duration: 300.ms).fadeIn();
+  }
+
+  Widget _toolBtn(IconData icon, String tooltip, bool isActive, VoidCallback onPressed) {
+    final theme = Theme.of(context);
+    return Tooltip(
+      message: tooltip,
+      child: Material(
+        color: isActive ? theme.colorScheme.primary.withOpacity(0.12) : Colors.transparent,
+        borderRadius: BorderRadius.circular(10),
+        child: InkWell(
+          onTap: () {
+            HapticFeedback.selectionClick();
+            onPressed();
+          },
+          borderRadius: BorderRadius.circular(10),
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Icon(
+              icon,
+              color: isActive ? theme.colorScheme.primary : theme.colorScheme.onSurface,
+              size: 20,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCollapsibleToolbar(BuildContext context) {
+    final theme = Theme.of(context);
+    return Card(
+      elevation: 6,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      color: theme.colorScheme.surface.withOpacity(0.95),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          InkWell(
+            onTap: () => setState(() => _toolbarExpanded = !_toolbarExpanded),
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(16), bottom: Radius.circular(16)),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Row(
+                    children: [
+                      Icon(Icons.map, color: theme.colorScheme.primary, size: 18),
+                      const SizedBox(width: 8),
+                      Text(
+                        'Map Tools & Layers',
+                        style: theme.textTheme.titleSmall!.copyWith(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 13,
+                        ),
+                      ),
+                    ],
+                  ),
+                  Icon(
+                    _toolbarExpanded ? Icons.keyboard_arrow_down : Icons.keyboard_arrow_up,
+                    size: 20,
+                    color: theme.colorScheme.onSurfaceVariant,
+                  ),
+                ],
+              ),
+            ),
+          ),
+          if (_toolbarExpanded) ...[
+            const Divider(height: 1),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              child: Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                alignment: WrapAlignment.center,
+                crossAxisAlignment: WrapCrossAlignment.center,
+                children: [
+                  _toolBtn(
+                    _showHeatmap ? Icons.blur_on : Icons.blur_off,
+                    'Heatmap',
+                    _showHeatmap,
+                    () => setState(() => _showHeatmap = !_showHeatmap),
+                  ),
+                  _toolBtn(
+                    _measuringMode ? Icons.straighten : Icons.straighten_outlined,
+                    'Measure',
+                    _measuringMode,
+                    () => setState(() {
+                      _measuringMode = !_measuringMode;
+                      _isAddingPinMode = false;
+                      _measureStartPin = null;
+                      _measureTargetPin = null;
+                    }),
+                  ),
+                  _toolBtn(
+                    _isAddingPinMode ? Icons.add_location_alt : Icons.add_location_alt_outlined,
+                    'Drop Pin',
+                    _isAddingPinMode,
+                    () => setState(() {
+                      _isAddingPinMode = !_isAddingPinMode;
+                      if (_isAddingPinMode) {
+                        _measuringMode = false;
+                        _isDrawingRoute = false;
+                        _isBrushingFog = false;
+                      }
+                    }),
+                  ),
+                  _toolBtn(
+                    _showTimelineScrubber ? Icons.history : Icons.history_toggle_off,
+                    'Timeline',
+                    _showTimelineScrubber,
+                    () => setState(() {
+                      _showTimelineScrubber = !_showTimelineScrubber;
+                      if (_showTimelineScrubber) {
+                        _activeToolTab = 'timeline';
+                      }
+                    }),
+                  ),
+                  _toolBtn(
+                    _showJourneyTracker ? Icons.person_pin : Icons.person_pin_outlined,
+                    'Journey',
+                    _showJourneyTracker,
+                    () => setState(() {
+                      _showJourneyTracker = !_showJourneyTracker;
+                      if (_showJourneyTracker) {
+                        _activeToolTab = 'journey';
+                      } else {
+                        _selectedJourneyCharacterId = null;
+                      }
+                    }),
+                  ),
+                  _toolBtn(
+                    _showGridControls ? Icons.grid_on : Icons.grid_off,
+                    'Grid',
+                    _showGridControls,
+                    () => setState(() {
+                      _showGridControls = !_showGridControls;
+                      if (_showGridControls) {
+                        _activeToolTab = 'grid';
+                      }
+                    }),
+                  ),
+                  _toolBtn(
+                    _showFogControls ? Icons.cloud : Icons.cloud_outlined,
+                    'Fog',
+                    _showFogControls,
+                    () => setState(() {
+                      _showFogControls = !_showFogControls;
+                      if (_showFogControls) {
+                        _isAddingPinMode = false;
+                        _activeToolTab = 'fog';
+                      }
+                    }),
+                  ),
+                  _toolBtn(
+                    _showRouteControls ? Icons.edit_road : Icons.edit_road_outlined,
+                    'Route',
+                    _showRouteControls,
+                    () => setState(() {
+                      _showRouteControls = !_showRouteControls;
+                      if (_showRouteControls) {
+                        _isAddingPinMode = false;
+                        _activeToolTab = 'route';
+                      } else {
+                        _isDrawingRoute = false;
+                        _activeRoutePoints.clear();
+                      }
+                    }),
+                  ),
+                  _toolBtn(
+                    Icons.auto_awesome,
+                    'Forge',
+                    false,
+                    () {
+                      HapticFeedback.lightImpact();
+                      context.push('/map/generator');
+                    },
+                  ),
+                  _toolBtn(
+                    Icons.upload_file,
+                    'Upload',
+                    false,
+                    _uploadMap,
+                  ),
+                  PopupMenuButton<MapFilterMode>(
+                    icon: Icon(Icons.filter_hdr_outlined, color: theme.colorScheme.onSurface, size: 20),
+                    tooltip: 'Map Filters',
+                    onSelected: (mode) {
+                      setState(() => _filterMode = mode);
+                    },
+                    itemBuilder: (ctx) => [
+                      const PopupMenuItem(value: MapFilterMode.original, child: Text('Original Map')),
+                      const PopupMenuItem(value: MapFilterMode.sepia, child: Text('Antique Sepia')),
+                      const PopupMenuItem(value: MapFilterMode.dark, child: Text('High Contrast Dark')),
+                      const PopupMenuItem(value: MapFilterMode.satellite, child: Text('Satellite Blueprint')),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTabHeader(List<String> activePanels) {
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: activePanels.map((panel) {
+          final isSelected = _activeToolTab == panel;
+          String label;
+          IconData icon;
+          switch (panel) {
+            case 'timeline':
+              label = 'Timeline';
+              icon = Icons.history;
+              break;
+            case 'journey':
+              label = 'Journey';
+              icon = Icons.person_pin;
+              break;
+            case 'grid':
+              label = 'Grid';
+              icon = Icons.grid_on;
+              break;
+            case 'fog':
+              label = 'Fog';
+              icon = Icons.cloud;
+              break;
+            case 'route':
+              label = 'Route';
+              icon = Icons.edit_road;
+              break;
+            default:
+              label = '';
+              icon = Icons.settings;
+          }
+          return Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 4.0),
+            child: ChoiceChip(
+              avatar: Icon(icon, size: 14, color: isSelected ? Colors.white : null),
+              label: Text(label, style: const TextStyle(fontSize: 11)),
+              selected: isSelected,
+              onSelected: (val) {
+                if (val) {
+                  setState(() => _activeToolTab = panel);
+                }
+              },
+            ),
+          );
+        }).toList(),
+      ),
+    );
+  }
+
+  Widget _buildTabbedControlsPanel(BuildContext context, List<TimelineEntry> entries, List<Entity> entities, String mapId) {
+    final List<String> activePanels = [];
+    if (_showTimelineScrubber && entries.isNotEmpty) activePanels.add('timeline');
+    if (_showJourneyTracker) activePanels.add('journey');
+    if (_showGridControls) activePanels.add('grid');
+    if (_showFogControls) activePanels.add('fog');
+    if (_showRouteControls) activePanels.add('route');
+
+    if (activePanels.isEmpty) return const SizedBox.shrink();
+
+    if (_activeToolTab == null || !activePanels.contains(_activeToolTab)) {
+      _activeToolTab = activePanels.last;
+    }
+
+    Widget activeCard = const SizedBox.shrink();
+    if (_activeToolTab == 'timeline' && _showTimelineScrubber && entries.isNotEmpty) {
+      activeCard = _buildTimelineScrubberCard(context, entries);
+    } else if (_activeToolTab == 'journey' && _showJourneyTracker) {
+      activeCard = _buildJourneySelectorCard(context, entities);
+    } else if (_activeToolTab == 'grid' && _showGridControls) {
+      activeCard = _buildGridControlsCard(context);
+    } else if (_activeToolTab == 'fog' && _showFogControls) {
+      activeCard = _buildFogControlsCard(context);
+    } else if (_activeToolTab == 'route' && _showRouteControls) {
+      activeCard = _buildRouteControlsCard(context);
+    }
+
+    return Card(
+      elevation: 4,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      color: Theme.of(context).colorScheme.surface.withOpacity(0.92),
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (activePanels.length > 1) ...[
+              _buildTabHeader(activePanels),
+              const SizedBox(height: 6),
+              const Divider(height: 1),
+              const SizedBox(height: 6),
+            ],
+            activeCard,
+          ],
+        ),
+      ),
     );
   }
 
@@ -1885,11 +2119,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
     final startName = _measureStartPin != null ? _getPinName(entities, _measureStartPin!.entityId) : '';
     final targetName = _measureTargetPin != null ? _getPinName(entities, _measureTargetPin!.entityId) : '';
 
-    return Positioned(
-      bottom: 16,
-      left: 16,
-      right: 16,
-      child: Container(
+    return Container(
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
           color: theme.colorScheme.surface.withOpacity(0.95),
@@ -1978,29 +2208,33 @@ class _MapScreenState extends ConsumerState<MapScreen> {
                 children: [
                   Expanded(
                     child: Text(
-                      '$startName ➔ $targetName',
-                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
-                      overflow: TextOverflow.ellipsis,
+                      'Start: $startName',
+                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
                     ),
                   ),
-                  Text(
-                    '${distanceKm!.toStringAsFixed(1)} km (${(distanceKm * 0.621371).toStringAsFixed(1)} mi)',
-                    style: TextStyle(
-                      color: theme.colorScheme.primary,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 14,
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      'Destination: $targetName',
+                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
                     ),
                   ),
                 ],
               ),
-              const SizedBox(height: 10),
+              const Divider(height: 16),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   _buildTravelTimeTile(
                     context,
+                    Icons.straighten,
+                    'Distance',
+                    '${distanceKm!.toStringAsFixed(1)} km',
+                  ),
+                  _buildTravelTimeTile(
+                    context,
                     Icons.directions_walk,
-                    'On Foot',
+                    'Walking',
                     walkDays == 0 ? '$walkHours h' : '${walkDays}d ${walkHours}h',
                   ),
                   _buildTravelTimeTile(
@@ -2032,8 +2266,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
             ],
           ],
         ),
-      ),
-    ).animate().slideY(begin: 0.2, end: 0.0, curve: Curves.easeOutBack, duration: 300.ms).fadeIn();
+      ).animate().slideY(begin: 0.2, end: 0.0, curve: Curves.easeOutBack, duration: 300.ms).fadeIn();
   }
 
   Widget _buildTravelTimeTile(BuildContext context, IconData icon, String label, String value) {
@@ -2808,10 +3041,10 @@ class _MapScreenState extends ConsumerState<MapScreen> {
         setState(() {
           final grid = json['grid'] as Map<String, dynamic>?;
           if (grid != null) {
-            _showGrid = grid['show'] ?? false;
-            _gridType = grid['type'] ?? 'square';
-            _gridSize = (grid['size'] ?? 40.0).toDouble();
-            _gridOpacity = (grid['opacity'] ?? 0.3).toDouble();
+            _showGrid = grid['show'] as bool? ?? false;
+            _gridType = grid['type'] as String? ?? 'square';
+            _gridSize = (grid['size'] as num? ?? 40.0).toDouble();
+            _gridOpacity = (grid['opacity'] as num? ?? 0.3).toDouble();
           } else {
             _showGrid = false;
             _gridType = 'square';
@@ -2821,8 +3054,8 @@ class _MapScreenState extends ConsumerState<MapScreen> {
           
           final fog = json['fogOfWar'] as Map<String, dynamic>?;
           if (fog != null) {
-            _showFogOfWar = fog['show'] ?? false;
-            _fogBrushSize = (fog['brushSize'] ?? 30.0).toDouble();
+            _showFogOfWar = fog['show'] as bool? ?? false;
+            _fogBrushSize = (fog['brushSize'] as num? ?? 30.0).toDouble();
             
             final strokes = fog['revealedStrokes'] as List<dynamic>?;
             if (strokes != null) {
@@ -2845,9 +3078,9 @@ class _MapScreenState extends ConsumerState<MapScreen> {
               final routeJson = r as Map<String, dynamic>;
               final pts = routeJson['points'] as List<dynamic>;
               return CustomRoute(
-                id: routeJson['id'] ?? Uuid().v4(),
-                name: routeJson['name'] ?? '',
-                type: routeJson['type'] ?? 'road',
+                id: routeJson['id'] as String? ?? Uuid().v4(),
+                name: routeJson['name'] as String? ?? '',
+                type: routeJson['type'] as String? ?? 'road',
                 points: pts.map((p) => Offset((p['x'] as num).toDouble(), (p['y'] as num).toDouble())).toList(),
               );
             }).toList();

@@ -6,7 +6,7 @@ part of 'entity_search_provider.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$entitySearchHash() => r'ab4d3574f50518793a545b258ea813d0b8fe55a7';
+String _$entitySearchHash() => r'4e71766cbda75184322a11bf12862c3294150dee';
 
 /// See also [EntitySearch].
 @ProviderFor(EntitySearch)

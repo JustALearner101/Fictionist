@@ -1,23 +1,21 @@
 import 'package:fpdart/fpdart.dart';
 import 'package:injectable/injectable.dart';
 import '../../../core/error/failure.dart';
-import '../../../core/use_case/use_case.dart';
 import '../../entity/entity.dart';
 import '../../manuscript/manuscript_chapter.dart';
 import '../../relationship/relationship.dart';
-import '../../repository/manuscript_repository.dart';
-import '../../repository/relationship_repository.dart';
-import '../../repository/timeline_repository.dart';
+import '../../../data/repository/manuscript_repository_impl.dart';
+import '../../../data/repository/relationship_repository_impl.dart';
+import '../../../data/repository/timeline_repository_impl.dart';
 import '../../timeline/timeline_entry.dart';
 
-/// A chapter where this entity is mentioned.
 class ChapterReference {
   final String chapterId;
   final String chapterTitle;
   final int mentionCount;
   final int dialogueCount;
   final int narrationCount;
-  final List<String> snippets; // short context snippets
+  final List<String> snippets;
 
   const ChapterReference({
     required this.chapterId,
@@ -29,7 +27,6 @@ class ChapterReference {
   });
 }
 
-/// A timeline entry that references this entity.
 class TimelineReference {
   final String entryId;
   final String entryTitle;
@@ -42,7 +39,6 @@ class TimelineReference {
   });
 }
 
-/// A relationship involving this entity.
 class RelationshipReference {
   final String relationshipId;
   final String typeKey;
@@ -59,7 +55,6 @@ class RelationshipReference {
   });
 }
 
-/// Aggregated references to an entity across all domains.
 class EntityReferences {
   final List<ChapterReference> chapters;
   final List<TimelineReference> timelineEntries;
@@ -78,14 +73,11 @@ class EntityReferences {
   });
 }
 
-/// Scans all manuscript chapters, timeline entries, and relationships
-/// for references to a given entity (by name match in text + direct links).
 @lazySingleton
-class GetEntityReferencesUseCase
-    implements UseCase<EntityReferences, Entity> {
-  final ManuscriptRepository _manuscriptRepo;
-  final TimelineRepository _timelineRepo;
-  final RelationshipRepository _relationshipRepo;
+class GetEntityReferencesUseCase {
+  final ManuscriptRepositoryImpl _manuscriptRepo;
+  final TimelineRepositoryImpl _timelineRepo;
+  final RelationshipRepositoryImpl _relationshipRepo;
 
   GetEntityReferencesUseCase(
     this._manuscriptRepo,
@@ -93,7 +85,6 @@ class GetEntityReferencesUseCase
     this._relationshipRepo,
   );
 
-  @override
   Future<Either<Failure, EntityReferences>> call(Entity entity) async {
     try {
       final chaptersResult = await _manuscriptRepo.getAllActive();
@@ -112,7 +103,6 @@ class GetEntityReferencesUseCase
       final relationships =
           relsResult.fold((_) => <Relationship>[], (list) => list);
 
-      // ── Scan chapters for entity name mentions ─────────────────────
       final chapterRefs = <ChapterReference>[];
       int totalDialogue = 0;
       int totalNarration = 0;
@@ -137,7 +127,6 @@ class GetEntityReferencesUseCase
         totalNarration += narration;
       }
 
-      // ── Timeline entries directly linked ───────────────────────────
       final timelineRefs = <TimelineReference>[];
       for (final entry in timeline) {
         final entryEntityId = entry.entityId;
@@ -150,19 +139,16 @@ class GetEntityReferencesUseCase
         }
       }
 
-      // ── Relationships ──────────────────────────────────────────────
       final relRefs = <RelationshipReference>[];
       for (final rel in relationships) {
         final sourceId = rel.sourceId;
         final targetId = rel.targetId;
         if (sourceId == entity.id || targetId == entity.id) {
-          // ponytail: we need the other entity's name/color.
-          // We pass what we know; the UI resolves via provider.
           relRefs.add(RelationshipReference(
             relationshipId: rel.id,
             typeKey: rel.typeKey,
             otherEntityId: sourceId == entity.id ? targetId : sourceId,
-            otherEntityName: '', // resolved by UI
+            otherEntityName: '',
             otherEntityColor: 0xFF888888,
           ));
         }
@@ -184,15 +170,12 @@ class GetEntityReferencesUseCase
     }
   }
 
-  /// Scans [text] for occurrences of [entityName].
-  /// Returns (dialogueCount, narrationCount, snippets).
   (int, int, List<String>) _scanText(String text, String entityName) {
     int dialogue = 0;
     int narration = 0;
     final snippets = <String>[];
     final name = entityName.toLowerCase();
 
-    // ── Split text into dialogue and narration segments ─────────────
     final segments = <_TextSegment>[];
     final dialogueRegex = RegExp(r'"[^"]*"|"[^"]*"|"[^"]*"');
 
@@ -208,7 +191,6 @@ class GetEntityReferencesUseCase
       segments.add(_TextSegment(text.substring(lastEnd), false));
     }
 
-    // ── Count mentions per segment ──────────────────────────────────
     final wordBoundary = RegExp('\\b$name\\b', caseSensitive: false);
     for (final seg in segments) {
       final matches = wordBoundary.allMatches(seg.text);
@@ -221,7 +203,6 @@ class GetEntityReferencesUseCase
         narration += count;
       }
 
-      // Capture up to 3 snippets with surrounding context
       for (final m in matches.take(3 - snippets.length)) {
         final start = (m.start - 20).clamp(0, seg.text.length);
         final end = (m.end + 30).clamp(0, seg.text.length);

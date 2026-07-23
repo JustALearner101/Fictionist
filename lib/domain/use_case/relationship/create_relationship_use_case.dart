@@ -2,10 +2,9 @@ import 'package:fpdart/fpdart.dart';
 import 'package:injectable/injectable.dart';
 import 'package:uuid/uuid.dart';
 import '../../../core/error/failure.dart';
-import '../../../core/use_case/use_case.dart';
 import '../../relationship/relationship.dart';
 import '../../relationship/relationship_type_registry.dart';
-import '../../repository/relationship_repository.dart';
+import '../../../data/repository/relationship_repository_impl.dart';
 
 class CreateRelationshipParams {
   final String sourceId;
@@ -34,13 +33,11 @@ class CreateRelationshipResult {
 }
 
 @lazySingleton
-class CreateRelationshipUseCase
-    implements UseCase<CreateRelationshipResult, CreateRelationshipParams> {
-  final RelationshipRepository _repository;
+class CreateRelationshipUseCase {
+  final RelationshipRepositoryImpl _repository;
 
   CreateRelationshipUseCase(this._repository);
 
-  @override
   Future<Either<Failure, CreateRelationshipResult>> call(
       CreateRelationshipParams params) async {
     if (params.sourceId == params.targetId) {
@@ -52,7 +49,6 @@ class CreateRelationshipUseCase
     final typeDef = RelationshipTypeRegistry.getDef(params.typeKey);
     final isBidi = typeDef?.isBidirectional ?? false;
 
-    // Lexicographical normalization for bidirectional links
     String normSourceId = params.sourceId;
     String normTargetId = params.targetId;
     if (isBidi) {
@@ -62,7 +58,6 @@ class CreateRelationshipUseCase
       }
     }
 
-    // Check duplicate
     final dupCheck = await _repository.getDuplicate(
       normSourceId,
       normTargetId,
@@ -93,13 +88,11 @@ class CreateRelationshipUseCase
         return createResult.fold(
           (failure) => Left(failure),
           (savedRel) async {
-            // Check for reciprocal suggestion
             String? reciprocalKey;
             if (!isBidi) {
               final inverseKey =
                   RelationshipTypeRegistry.getInverseKey(params.typeKey);
               if (inverseKey != null) {
-                // Check if reciprocal already exists
                 final reciprocalDup = await _repository.getDuplicate(
                   params.targetId,
                   params.sourceId,

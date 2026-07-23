@@ -13,8 +13,8 @@ import 'package:fictionist/core/error/failure.dart';
 import 'package:fictionist/domain/entity/entity.dart';
 import 'package:fictionist/domain/manuscript/compile_format.dart';
 import 'package:fictionist/domain/manuscript/manuscript_chapter.dart';
-import 'package:fictionist/domain/repository/entity_repository.dart';
-import 'package:fictionist/domain/repository/manuscript_repository.dart';
+import 'package:fictionist/data/repository/entity_repository_impl.dart';
+import 'package:fictionist/data/repository/manuscript_repository_impl.dart';
 
 /// Compiles manuscript chapters into EPUB, PDF, or plain text book formats.
 ///
@@ -22,8 +22,8 @@ import 'package:fictionist/domain/repository/manuscript_repository.dart';
 /// of referenced worldbuilding entities.
 @lazySingleton
 class ManuscriptCompiler {
-  final ManuscriptRepository _manuscriptRepo;
-  final EntityRepository _entityRepo;
+  final ManuscriptRepositoryImpl _manuscriptRepo;
+  final EntityRepositoryImpl _entityRepo;
 
   ManuscriptCompiler(this._manuscriptRepo, this._entityRepo);
 

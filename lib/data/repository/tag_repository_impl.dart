@@ -2,19 +2,18 @@ import 'package:drift/drift.dart';
 import 'package:fpdart/fpdart.dart';
 import 'package:injectable/injectable.dart';
 import '../../core/error/failure.dart';
-import '../../domain/repository/tag_repository.dart';
+
 import '../../domain/tag/tag.dart';
 import '../dao/tag_dao.dart';
 import '../database/app_database.dart';
 import '../mapper/tag_mapper.dart';
 
-@LazySingleton(as: TagRepository)
-class TagRepositoryImpl implements TagRepository {
+@lazySingleton
+class TagRepositoryImpl {
   final TagDao _dao;
 
   TagRepositoryImpl(this._dao);
 
-  @override
   Future<Either<Failure, Tag>> create(Tag tag) async {
     try {
       final companion = TagMapper.toCompanion(tag);
@@ -28,7 +27,6 @@ class TagRepositoryImpl implements TagRepository {
     }
   }
 
-  @override
   Future<Either<Failure, List<Tag>>> getAllTags() async {
     try {
       final rows = await _dao.getAllTags();
@@ -41,7 +39,6 @@ class TagRepositoryImpl implements TagRepository {
     }
   }
 
-  @override
   Future<Either<Failure, Tag>> getById(String id) async {
     try {
       final row = await _dao.getTagById(id);
@@ -57,7 +54,6 @@ class TagRepositoryImpl implements TagRepository {
     }
   }
 
-  @override
   Future<Either<Failure, Tag?>> getByName(String name) async {
     try {
       final row = await _dao.getTagByName(name);
@@ -70,7 +66,6 @@ class TagRepositoryImpl implements TagRepository {
     }
   }
 
-  @override
   Future<Either<Failure, Unit>> assignTagToEntity(
       String entityId, String tagId) async {
     try {
@@ -88,7 +83,6 @@ class TagRepositoryImpl implements TagRepository {
     }
   }
 
-  @override
   Future<Either<Failure, Unit>> removeTagFromEntity(
       String entityId, String tagId) async {
     try {
@@ -102,7 +96,6 @@ class TagRepositoryImpl implements TagRepository {
     }
   }
 
-  @override
   Future<Either<Failure, Unit>> removeAllTagsFromEntity(String entityId) async {
     try {
       await _dao.removeAllTagsFromEntity(entityId);
@@ -115,7 +108,6 @@ class TagRepositoryImpl implements TagRepository {
     }
   }
 
-  @override
   Future<Either<Failure, List<Tag>>> getTagsForEntity(String entityId) async {
     try {
       final rows = await _dao.getTagsForEntity(entityId);

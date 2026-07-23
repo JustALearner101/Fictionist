@@ -6,7 +6,7 @@ part of 'entity_list_provider.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$entityListHash() => r'35fc6ee743ad89d92092a5dddd31ed031bbf29a7';
+String _$entityListHash() => r'25a5c4a6ed750f695ac453207ce2ce04df6e7e97';
 
 /// See also [EntityList].
 @ProviderFor(EntityList)

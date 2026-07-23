@@ -418,7 +418,7 @@ class _MapGeneratorScreenState extends ConsumerState<MapGeneratorScreen> {
         title: Text(
           'Forge Fantasy Map',
           style: theme.textTheme.headlineMedium!.copyWith(
-            fontFamily: 'Lora',
+            fontFamily: theme.textTheme.displayLarge?.fontFamily,
             color: theme.colorScheme.primary,
             fontWeight: FontWeight.bold,
             fontSize: 20,
@@ -540,7 +540,7 @@ class _MapGeneratorScreenState extends ConsumerState<MapGeneratorScreen> {
                               Text(
                                 '#$_seed',
                                 style: theme.textTheme.headlineMedium!.copyWith(
-                                  fontFamily: 'Lora',
+                                  fontFamily: Theme.of(context).textTheme.displayLarge?.fontFamily,
                                   fontWeight: FontWeight.bold,
                                   fontSize: 20,
                                 ),

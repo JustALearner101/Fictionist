@@ -1,8 +1,7 @@
 import 'package:fpdart/fpdart.dart';
 import 'package:injectable/injectable.dart';
 import '../../../core/error/failure.dart';
-import '../../../core/use_case/use_case.dart';
-import '../../repository/timeline_repository.dart';
+import '../../../data/repository/timeline_repository_impl.dart';
 
 class ReorderTimelineParams {
   final String entryId;
@@ -15,8 +14,8 @@ class ReorderTimelineParams {
 }
 
 @lazySingleton
-class ReorderTimelineUseCase implements UseCase<Unit, ReorderTimelineParams> {
-  final TimelineRepository _repository;
+class ReorderTimelineUseCase {
+  final TimelineRepositoryImpl _repository;
 
   ReorderTimelineUseCase(this._repository);
 

@@ -7,7 +7,7 @@ part of 'entity_version_history_provider.dart';
 // **************************************************************************
 
 String _$entityVersionHistoryHash() =>
-    r'8967757897e0ef3d178efbdf2f683ed9f2bdbb1b';
+    r'15c51fe34110974f4e8ac5b6a60adec5252bd5ba';
 
 /// Copied from Dart SDK
 class _SystemHash {

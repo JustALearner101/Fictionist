@@ -193,7 +193,7 @@ class _EntityPeekSheetState extends ConsumerState<EntityPeekSheet> {
                     Text(
                       entity.name,
                       style: Theme.of(context).textTheme.headlineMedium!.copyWith(
-                        fontFamily: 'Lora',
+                        fontFamily: Theme.of(context).textTheme.displayLarge?.fontFamily,
                         color: Theme.of(context).colorScheme.onSurface,
                         fontSize: 20,
                       ),

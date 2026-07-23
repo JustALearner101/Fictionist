@@ -1,18 +1,17 @@
 import 'package:fpdart/fpdart.dart';
 import 'package:injectable/injectable.dart';
 import '../../core/error/failure.dart';
-import '../../domain/repository/timeline_repository.dart';
+
 import '../../domain/timeline/timeline_entry.dart';
 import '../dao/timeline_dao.dart';
 import '../mapper/timeline_entry_mapper.dart';
 
-@LazySingleton(as: TimelineRepository)
-class TimelineRepositoryImpl implements TimelineRepository {
+@lazySingleton
+class TimelineRepositoryImpl {
   final TimelineDao _dao;
 
   TimelineRepositoryImpl(this._dao);
 
-  @override
   Future<Either<Failure, TimelineEntry>> create(TimelineEntry entry) async {
     try {
       final companion = TimelineEntryMapper.toCompanion(entry);
@@ -26,7 +25,6 @@ class TimelineRepositoryImpl implements TimelineRepository {
     }
   }
 
-  @override
   Future<Either<Failure, TimelineEntry>> update(TimelineEntry entry) async {
     try {
       final companion = TimelineEntryMapper.toCompanion(entry);
@@ -44,7 +42,6 @@ class TimelineRepositoryImpl implements TimelineRepository {
     }
   }
 
-  @override
   Future<Either<Failure, Unit>> delete(String id) async {
     try {
       final count = await _dao.deleteEntry(id);
@@ -60,7 +57,6 @@ class TimelineRepositoryImpl implements TimelineRepository {
     }
   }
 
-  @override
   Future<Either<Failure, TimelineEntry>> getById(String id) async {
     try {
       final row = await _dao.getById(id);
@@ -76,7 +72,6 @@ class TimelineRepositoryImpl implements TimelineRepository {
     }
   }
 
-  @override
   Future<Either<Failure, List<TimelineEntry>>> getAllActiveOrdered() async {
     try {
       final rows = await _dao.getAllActiveOrdered();
@@ -89,7 +84,6 @@ class TimelineRepositoryImpl implements TimelineRepository {
     }
   }
 
-  @override
   Future<Either<Failure, List<TimelineEntry>>> getActiveForEntity(
       String entityId) async {
     try {
@@ -103,7 +97,6 @@ class TimelineRepositoryImpl implements TimelineRepository {
     }
   }
 
-  @override
   Future<Either<Failure, int>> getMaxSortOrder() async {
     try {
       final val = await _dao.getMaxSortOrder();
@@ -116,7 +109,6 @@ class TimelineRepositoryImpl implements TimelineRepository {
     }
   }
 
-  @override
   Future<Either<Failure, Unit>> updateSortOrder(String id, int sortOrder) async {
     try {
       final count = await _dao.updateSortOrder(id, sortOrder);

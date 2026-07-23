@@ -5,15 +5,14 @@ import 'package:fictionist/core/error/failure.dart';
 import 'package:fictionist/data/dao/manuscript_dao.dart';
 import 'package:fictionist/data/mapper/manuscript_mapper.dart';
 import 'package:fictionist/domain/manuscript/manuscript_chapter.dart';
-import 'package:fictionist/domain/repository/manuscript_repository.dart';
 
-@LazySingleton(as: ManuscriptRepository)
-class ManuscriptRepositoryImpl implements ManuscriptRepository {
+
+@lazySingleton
+class ManuscriptRepositoryImpl {
   final ManuscriptDao _dao;
 
   ManuscriptRepositoryImpl(this._dao);
 
-  @override
   Future<Either<Failure, ManuscriptChapter>> create(
     ManuscriptChapter chapter,
   ) async {
@@ -29,7 +28,6 @@ class ManuscriptRepositoryImpl implements ManuscriptRepository {
     }
   }
 
-  @override
   Future<Either<Failure, ManuscriptChapter>> getById(String id) async {
     try {
       final row = await _dao.getById(id);
@@ -47,7 +45,6 @@ class ManuscriptRepositoryImpl implements ManuscriptRepository {
     }
   }
 
-  @override
   Future<Either<Failure, ManuscriptChapter>> update(
     ManuscriptChapter chapter,
   ) async {
@@ -69,7 +66,6 @@ class ManuscriptRepositoryImpl implements ManuscriptRepository {
     }
   }
 
-  @override
   Future<Either<Failure, Unit>> softDelete(String id) async {
     try {
       final count = await _dao.softDelete(id);
@@ -87,7 +83,6 @@ class ManuscriptRepositoryImpl implements ManuscriptRepository {
     }
   }
 
-  @override
   Future<Either<Failure, List<ManuscriptChapter>>> getAllActive() async {
     try {
       final rows = await _dao.getAllActive();
@@ -100,7 +95,6 @@ class ManuscriptRepositoryImpl implements ManuscriptRepository {
     }
   }
 
-  @override
   Future<Either<Failure, Unit>> reorder(
     List<String> chapterIdsInOrder,
   ) async {

@@ -2,18 +2,18 @@ import 'package:fictionist/core/error/failure.dart';
 import 'package:fictionist/domain/entity/entity.dart';
 import 'package:fictionist/domain/entity/entity_status.dart';
 import 'package:fictionist/domain/entity/entity_type.dart';
-import 'package:fictionist/domain/repository/entity_repository.dart';
-import 'package:fictionist/domain/repository/entity_version_repository.dart';
+import 'package:fictionist/data/repository/entity_repository_impl.dart';
+import 'package:fictionist/data/repository/entity_version_repository_impl.dart';
 import 'package:fictionist/domain/use_case/entity/create_entity_use_case.dart';
 import 'package:fictionist/domain/version/entity_version.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:fpdart/fpdart.dart';
 import 'package:mocktail/mocktail.dart';
 
-class MockEntityRepository extends Mock implements EntityRepository {}
+class MockEntityRepository extends Mock implements EntityRepositoryImpl {}
 
 class MockEntityVersionRepository extends Mock
-    implements EntityVersionRepository {}
+    implements EntityVersionRepositoryImpl {}
 
 void main() {
   late CreateEntityUseCase useCase;

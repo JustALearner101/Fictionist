@@ -6,18 +6,16 @@ import '../../core/error/failure.dart';
 import '../../domain/entity/entity.dart';
 import '../../domain/entity/entity_status.dart';
 import '../../domain/entity/entity_type.dart';
-import '../../domain/repository/entity_repository.dart';
 import '../../domain/search/search_result.dart';
 import '../dao/entity_dao.dart';
 import '../mapper/entity_mapper.dart';
 
-@LazySingleton(as: EntityRepository)
-class EntityRepositoryImpl implements EntityRepository {
+@lazySingleton
+class EntityRepositoryImpl {
   final EntityDao _dao;
 
   EntityRepositoryImpl(this._dao);
 
-  @override
   Future<Either<Failure, Entity>> create(Entity entity) async {
     try {
       dev.log('EntityRepository.create: name=${entity.name}, type=${entity.type.key}, id=${entity.id}');
@@ -38,7 +36,6 @@ class EntityRepositoryImpl implements EntityRepository {
     }
   }
 
-  @override
   Future<Either<Failure, Entity>> getById(String id) async {
     try {
       final row = await _dao.getById(id);
@@ -54,7 +51,6 @@ class EntityRepositoryImpl implements EntityRepository {
     }
   }
 
-  @override
   Future<Either<Failure, Entity>> update(Entity entity) async {
     try {
       final companion = EntityMapper.toCompanion(entity);
@@ -71,7 +67,6 @@ class EntityRepositoryImpl implements EntityRepository {
     }
   }
 
-  @override
   Future<Either<Failure, Unit>> softDelete(String id) async {
     try {
       final count = await _dao.deleteEntity(id);
@@ -87,7 +82,6 @@ class EntityRepositoryImpl implements EntityRepository {
     }
   }
 
-  @override
   Future<Either<Failure, List<Entity>>> search(String query) async {
     try {
       if (query.trim().isEmpty) {
@@ -111,7 +105,6 @@ class EntityRepositoryImpl implements EntityRepository {
     }
   }
 
-  @override
   Future<Either<Failure, List<SearchResult>>> searchWithSnippets(
       String query) async {
     try {
@@ -140,7 +133,6 @@ class EntityRepositoryImpl implements EntityRepository {
     }
   }
 
-  @override
   Future<Either<Failure, List<Entity>>> getAllActive() async {
     try {
       final rows = await _dao.getAllActive();
@@ -153,7 +145,6 @@ class EntityRepositoryImpl implements EntityRepository {
     }
   }
 
-  @override
   Future<Either<Failure, List<Entity>>> getActiveByType(EntityType type) async {
     try {
       final rows = await _dao.getActiveByType(type.key);
@@ -166,7 +157,6 @@ class EntityRepositoryImpl implements EntityRepository {
     }
   }
 
-  @override
   Future<Either<Failure, List<Entity>>> getActiveByStatus(
       EntityStatus status) async {
     try {
@@ -180,7 +170,6 @@ class EntityRepositoryImpl implements EntityRepository {
     }
   }
 
-  @override
   Future<Either<Failure, Unit>> purgeSoftDeleted() async {
     try {
       await _dao.customStatement('DELETE FROM entities WHERE is_deleted = 1');
@@ -195,7 +184,6 @@ class EntityRepositoryImpl implements EntityRepository {
     }
   }
 
-  @override
   Future<Either<Failure, Unit>> purgeAllData() async {
     try {
       // This must be done in order respecting foreign keys:

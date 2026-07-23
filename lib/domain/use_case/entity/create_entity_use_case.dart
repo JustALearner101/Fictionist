@@ -3,13 +3,12 @@ import 'package:fpdart/fpdart.dart';
 import 'package:injectable/injectable.dart';
 import 'package:uuid/uuid.dart';
 import '../../../core/error/failure.dart';
-import '../../../core/use_case/use_case.dart';
 import '../../entity/custom_field.dart';
 import '../../entity/entity.dart';
 import '../../entity/entity_status.dart';
 import '../../entity/entity_type.dart';
-import '../../repository/entity_repository.dart';
-import '../../repository/entity_version_repository.dart';
+import '../../../data/repository/entity_repository_impl.dart';
+import '../../../data/repository/entity_version_repository_impl.dart';
 import '../../version/entity_version.dart';
 
 class CreateEntityParams {
@@ -31,9 +30,9 @@ class CreateEntityParams {
 }
 
 @lazySingleton
-class CreateEntityUseCase implements UseCase<Entity, CreateEntityParams> {
-  final EntityRepository _entityRepository;
-  final EntityVersionRepository _versionRepository;
+class CreateEntityUseCase {
+  final EntityRepositoryImpl _entityRepository;
+  final EntityVersionRepositoryImpl _versionRepository;
 
   CreateEntityUseCase(this._entityRepository, this._versionRepository);
 

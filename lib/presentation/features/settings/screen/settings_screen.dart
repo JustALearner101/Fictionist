@@ -5,9 +5,10 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:share_plus/share_plus.dart';
-import '../../../../domain/repository/entity_repository.dart';
+import '../../../../data/repository/entity_repository_impl.dart';
 import '../../../../domain/use_case/export/export_database_use_case.dart';
 import '../../../../domain/use_case/export/import_database_use_case.dart';
+import '../../../../domain/use_case/bootstrap/bootstrap_use_case.dart';
 import '../../../../injection.dart';
 import '../../../common/widget/confirm_dialog.dart';
 import '../../../common/widget/loading_indicator.dart';
@@ -76,7 +77,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       builder: (ctx) => AlertDialog(
         backgroundColor: Theme.of(context).colorScheme.surface,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-        title: Text('Import Codex', style: Theme.of(context).textTheme.titleMedium!.copyWith(fontFamily: 'Lora', color: Theme.of(context).colorScheme.primary, fontWeight: FontWeight.bold)),
+        title: Text('Import Codex', style: Theme.of(context).textTheme.titleMedium!.copyWith(fontFamily: Theme.of(context).textTheme.displayLarge?.fontFamily, color: Theme.of(context).colorScheme.primary, fontWeight: FontWeight.bold)),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -148,7 +149,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     );
     if (confirm != true) return;
     setState(() => _loading = true);
-    final repo = getIt<EntityRepository>();
+    final repo = getIt<EntityRepositoryImpl>();
     final result = await repo.purgeSoftDeleted();
     setState(() => _loading = false);
     result.fold(
@@ -171,7 +172,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             Text(
               'Purge ALL Data?',
               style: Theme.of(context).textTheme.titleMedium!.copyWith(
-                fontFamily: 'Lora',
+                fontFamily: Theme.of(context).textTheme.displayLarge?.fontFamily,
                 color: Theme.of(context).colorScheme.error,
                 fontWeight: FontWeight.bold,
               ),
@@ -231,7 +232,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             title: Text(
               'Confirm Irreversible Action',
               style: Theme.of(context).textTheme.titleMedium!.copyWith(
-                fontFamily: 'Lora',
+                fontFamily: Theme.of(context).textTheme.displayLarge?.fontFamily,
                 color: Theme.of(context).colorScheme.error,
                 fontWeight: FontWeight.bold,
               ),
@@ -289,18 +290,21 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     if (step2 != true) return;
 
     setState(() => _loading = true);
-    final repo = getIt<EntityRepository>();
+    final repo = getIt<EntityRepositoryImpl>();
     final result = await repo.purgeAllData();
     setState(() => _loading = false);
     result.fold(
       (f) => _snack(f.message, Theme.of(context).colorScheme.error),
-      (_) {
-        ref.invalidate(entityListProvider);
-        ref.invalidate(manuscriptNotifierProvider);
-        ref.invalidate(worldMapListProvider);
-        ref.invalidate(timelineListProvider());
-        ref.invalidate(graphDataProvider);
-        _snack('All data purged.', Theme.of(context).colorScheme.error);
+      (_) async {
+        await getIt<BootstrapUseCase>().call();
+        if (mounted) {
+          ref.invalidate(entityListProvider);
+          ref.invalidate(manuscriptNotifierProvider);
+          ref.invalidate(worldMapListProvider);
+          ref.invalidate(timelineListProvider());
+          ref.invalidate(graphDataProvider);
+          _snack('All data purged.', Theme.of(context).colorScheme.error);
+        }
       },
     );
   }
@@ -312,7 +316,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       builder: (ctx) => AlertDialog(
         backgroundColor: Theme.of(context).colorScheme.surface,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-        title: Text('Export Complete', style: Theme.of(context).textTheme.titleMedium!.copyWith(fontFamily: 'Lora', color: Theme.of(context).colorScheme.primary, fontWeight: FontWeight.bold)),
+        title: Text('Export Complete', style: Theme.of(context).textTheme.titleMedium!.copyWith(fontFamily: Theme.of(context).textTheme.displayLarge?.fontFamily, color: Theme.of(context).colorScheme.primary, fontWeight: FontWeight.bold)),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -367,7 +371,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       builder: (ctx) => AlertDialog(
         backgroundColor: Theme.of(context).colorScheme.surface,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-        title: Text('Import Complete', style: Theme.of(context).textTheme.titleMedium!.copyWith(fontFamily: 'Lora', color: Theme.of(context).colorScheme.primary, fontWeight: FontWeight.bold)),
+        title: Text('Import Complete', style: Theme.of(context).textTheme.titleMedium!.copyWith(fontFamily: Theme.of(context).textTheme.displayLarge?.fontFamily, color: Theme.of(context).colorScheme.primary, fontWeight: FontWeight.bold)),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -423,7 +427,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           icon: Icon(Icons.arrow_back_ios_new, size: 18, color: Theme.of(context).colorScheme.onSurface),
           onPressed: () => Navigator.pop(context)),
         title: Text('Archivist Settings', style: Theme.of(context).textTheme.titleMedium!.copyWith(
-          fontFamily: 'Lora', fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurface)),
+          fontFamily: Theme.of(context).textTheme.displayLarge?.fontFamily, fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurface)),
       ),
       body: _loading
           ? LoadingIndicator()
@@ -443,7 +447,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 onTap: () => GoRouter.of(context).push('/settings/theme')),
               const SizedBox(height: 24),
               _section('About'),
-              _tile(Icons.info_outline, 'Fictionist v1.0.0', 'Local-first worldbuilding database',
+              _tile(Icons.info_outline, 'Fictionist v1.1.0', 'Local-first worldbuilding database',
                 onTap: null),
               _tile(Icons.code, 'Dependencies', 'Flutter · Drift · Riverpod · fpdart',
                 onTap: null),
@@ -574,7 +578,7 @@ class _ImportProgressDialogState extends State<ImportProgressDialog> with Single
     return AlertDialog(
       backgroundColor: Theme.of(context).colorScheme.surface,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-      title: Text('Importing Codex Data...', style: Theme.of(context).textTheme.titleMedium!.copyWith(fontFamily: 'Lora', fontWeight: FontWeight.bold)),
+      title: Text('Importing Codex Data...', style: Theme.of(context).textTheme.titleMedium!.copyWith(fontFamily: Theme.of(context).textTheme.displayLarge?.fontFamily, fontWeight: FontWeight.bold)),
       content: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,

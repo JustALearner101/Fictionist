@@ -35,7 +35,7 @@ void main() {
       await tester.pumpAndSettle(const Duration(seconds: 2));
 
       expect(find.text('About'), findsOneWidget);
-      expect(find.text('Fictionist v1.0.0'), findsOneWidget);
+      expect(find.text('Fictionist v1.1.0'), findsOneWidget);
     });
   });
 }

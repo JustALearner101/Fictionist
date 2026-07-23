@@ -6,18 +6,16 @@ import 'package:injectable/injectable.dart';
 import '../../core/error/failure.dart';
 import '../../domain/map/map_pin.dart';
 import '../../domain/map/world_map.dart';
-import '../../domain/repository/map_repository.dart';
 import '../dao/map_dao.dart';
 import '../mapper/map_pin_mapper.dart';
 import '../mapper/world_map_mapper.dart';
 
-@LazySingleton(as: MapRepository)
-class MapRepositoryImpl implements MapRepository {
+@lazySingleton
+class MapRepositoryImpl {
   final MapDao _dao;
 
   MapRepositoryImpl(this._dao);
 
-  @override
   Future<Either<Failure, WorldMap>> createMap(WorldMap map) async {
     try {
       final companion = WorldMapMapper.toCompanion(map);
@@ -31,7 +29,6 @@ class MapRepositoryImpl implements MapRepository {
     }
   }
 
-  @override
   Future<Either<Failure, Unit>> deleteMap(String id) async {
     try {
       final count = await _dao.deleteMap(id);
@@ -47,7 +44,6 @@ class MapRepositoryImpl implements MapRepository {
     }
   }
 
-  @override
   Future<Either<Failure, List<WorldMap>>> getAllMaps() async {
     try {
       final rows = await _dao.getAllMaps();
@@ -60,7 +56,6 @@ class MapRepositoryImpl implements MapRepository {
     }
   }
 
-  @override
   Future<Either<Failure, WorldMap>> getMapById(String id) async {
     try {
       final row = await _dao.getMapById(id);
@@ -76,7 +71,6 @@ class MapRepositoryImpl implements MapRepository {
     }
   }
 
-  @override
   Future<Either<Failure, MapPin>> createPin(MapPin pin) async {
     try {
       final companion = MapPinMapper.toCompanion(pin);
@@ -90,7 +84,6 @@ class MapRepositoryImpl implements MapRepository {
     }
   }
 
-  @override
   Future<Either<Failure, Unit>> deletePin(String id) async {
     try {
       final count = await _dao.deletePin(id);
@@ -106,7 +99,6 @@ class MapRepositoryImpl implements MapRepository {
     }
   }
 
-  @override
   Future<Either<Failure, List<MapPin>>> getPinsForMap(String mapId) async {
     try {
       final rows = await _dao.getPinsForMap(mapId);
@@ -119,7 +111,6 @@ class MapRepositoryImpl implements MapRepository {
     }
   }
 
-  @override
   Future<Either<Failure, Unit>> saveMapImage(String relativePath, List<int> bytes) async {
     try {
       final docs = await getApplicationDocumentsDirectory();

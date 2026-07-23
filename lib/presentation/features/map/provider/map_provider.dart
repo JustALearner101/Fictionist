@@ -1,26 +1,24 @@
 import 'dart:io';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
+import 'package:riverpod/riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:uuid/uuid.dart';
+import '../../../../data/repository/map_repository_impl.dart';
 import '../../../../domain/map/map_pin.dart';
 import '../../../../domain/map/world_map.dart';
-import '../../../../domain/use_case/map/create_world_map_use_case.dart';
-import '../../../../domain/use_case/map/delete_world_map_use_case.dart';
-import '../../../../domain/use_case/map/get_all_world_maps_use_case.dart';
-import '../../../../domain/use_case/map/get_pins_for_map_use_case.dart';
-import '../../../../domain/use_case/map/remove_map_pin_use_case.dart';
-import '../../../../domain/use_case/map/save_map_pin_use_case.dart';
 import '../../../../injection.dart';
+import '../../../../core/error/failure.dart';
 
 part 'map_provider.g.dart';
+
+MapRepositoryImpl _repo() => getIt<MapRepositoryImpl>();
 
 @riverpod
 class WorldMapList extends _$WorldMapList {
   @override
   FutureOr<List<WorldMap>> build() async {
-    final getUseCase = getIt<GetAllWorldMapsUseCase>();
-    final result = await getUseCase();
+    final result = await _repo().getAllMaps();
     return result.fold(
       (failure) => throw Exception(failure.message),
       (list) => list,
@@ -52,14 +50,11 @@ class WorldMapList extends _$WorldMapList {
 
     state = const AsyncValue.loading();
     state = await AsyncValue.guard(() async {
-      final createUseCase = getIt<CreateWorldMapUseCase>();
-      final result = await createUseCase(newMap);
-
+      final result = await _repo().createMap(newMap);
       return result.fold(
         (failure) => throw Exception(failure.message),
         (_) async {
-          final getUseCase = getIt<GetAllWorldMapsUseCase>();
-          final listResult = await getUseCase();
+          final listResult = await _repo().getAllMaps();
           return listResult.fold(
             (f) => throw Exception(f.message),
             (list) => list,
@@ -74,8 +69,7 @@ class WorldMapList extends _$WorldMapList {
   Future<void> deleteMap(String id, String relativePath) async {
     state = const AsyncValue.loading();
     state = await AsyncValue.guard(() async {
-      final deleteUseCase = getIt<DeleteWorldMapUseCase>();
-      final result = await deleteUseCase(id);
+      final result = await _repo().deleteMap(id);
 
       return result.fold(
         (failure) => throw Exception(failure.message),
@@ -92,8 +86,7 @@ class WorldMapList extends _$WorldMapList {
             // Silently swallow file deletion failures to not block state reload
           }
 
-          final getUseCase = getIt<GetAllWorldMapsUseCase>();
-          final listResult = await getUseCase();
+          final listResult = await _repo().getAllMaps();
           return listResult.fold(
             (f) => throw Exception(f.message),
             (list) => list,
@@ -108,8 +101,7 @@ class WorldMapList extends _$WorldMapList {
 class MapPins extends _$MapPins {
   @override
   FutureOr<List<MapPin>> build(String mapId) async {
-    final getUseCase = getIt<GetPinsForMapUseCase>();
-    final result = await getUseCase(mapId);
+    final result = await _repo().getPinsForMap(mapId);
     return result.fold(
       (failure) => throw Exception(failure.message),
       (list) => list,
@@ -133,14 +125,12 @@ class MapPins extends _$MapPins {
         label: label,
       );
 
-      final saveUseCase = getIt<SaveMapPinUseCase>();
-      final result = await saveUseCase(newPin);
+      final result = await _repo().createPin(newPin);
 
       return result.fold(
         (failure) => throw Exception(failure.message),
         (_) async {
-          final getUseCase = getIt<GetPinsForMapUseCase>();
-          final listResult = await getUseCase(mapId);
+          final listResult = await _repo().getPinsForMap(mapId);
           return listResult.fold(
             (f) => throw Exception(f.message),
             (list) => list,
@@ -153,14 +143,12 @@ class MapPins extends _$MapPins {
   Future<void> removePin(String pinId) async {
     state = const AsyncValue.loading();
     state = await AsyncValue.guard(() async {
-      final removeUseCase = getIt<RemoveMapPinUseCase>();
-      final result = await removeUseCase(pinId);
+      final result = await _repo().deletePin(pinId);
 
       return result.fold(
         (failure) => throw Exception(failure.message),
         (_) async {
-          final getUseCase = getIt<GetPinsForMapUseCase>();
-          final listResult = await getUseCase(mapId);
+          final listResult = await _repo().getPinsForMap(mapId);
           return listResult.fold(
             (f) => throw Exception(f.message),
             (list) => list,
@@ -170,6 +158,8 @@ class MapPins extends _$MapPins {
     });
   }
 }
+
+final selectedMapIdProvider = StateProvider<String?>((ref) => null);
 
 @riverpod
 Future<String> absoluteMapImagePath(AbsoluteMapImagePathRef ref, String relativePath) async {

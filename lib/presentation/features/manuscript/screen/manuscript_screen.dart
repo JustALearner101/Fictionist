@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -203,7 +204,7 @@ class _EmptyManuscript extends StatelessWidget {
           const SizedBox(height: 20),
           Text('Your story starts here',
               style: theme.textTheme.headlineSmall!.copyWith(
-                fontFamily: 'Lora',
+                fontFamily: theme.textTheme.displayLarge?.fontFamily,
                 color: theme.colorScheme.onSurface,
               )),
           const SizedBox(height: 10),
@@ -420,7 +421,7 @@ class _ChapterCard extends StatelessWidget {
                         chapter.title,
                         style: theme.textTheme.titleSmall!.copyWith(
                           fontWeight: FontWeight.w600,
-                          fontFamily: 'Lora',
+                          fontFamily: Theme.of(context).textTheme.displayLarge?.fontFamily,
                         ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
@@ -498,7 +499,9 @@ class _ChapterCard extends StatelessWidget {
           ),
         ),
       ),
-    );
+    ).animate()
+     .fade(duration: 250.ms, curve: Curves.easeOut)
+     .slideY(begin: 0.08, end: 0, duration: 250.ms, curve: Curves.easeOut);
   }
 
   Color _statusColor(ChapterStatus status, ThemeData theme) {

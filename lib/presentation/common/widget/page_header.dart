@@ -53,7 +53,7 @@ class PageHeader extends StatelessWidget {
                   Text(
                     title,
                     style: theme.textTheme.headlineMedium!.copyWith(
-                      fontFamily: 'Lora',
+                      fontFamily: theme.textTheme.displayLarge?.fontFamily,
                       color: theme.colorScheme.onSurface,
                       fontWeight: FontWeight.bold,
                       fontSize: 22,

@@ -2,8 +2,7 @@ import 'package:fpdart/fpdart.dart';
 import 'package:injectable/injectable.dart';
 import 'package:uuid/uuid.dart';
 import '../../../core/error/failure.dart';
-import '../../../core/use_case/use_case.dart';
-import '../../repository/tag_repository.dart';
+import '../../../data/repository/tag_repository_impl.dart';
 import '../../tag/tag.dart';
 
 class CreateTagParams {
@@ -14,8 +13,8 @@ class CreateTagParams {
 }
 
 @lazySingleton
-class CreateTagUseCase implements UseCase<Tag, CreateTagParams> {
-  final TagRepository _repository;
+class CreateTagUseCase {
+  final TagRepositoryImpl _repository;
 
   CreateTagUseCase(this._repository);
 

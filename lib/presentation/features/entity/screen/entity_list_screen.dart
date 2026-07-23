@@ -33,6 +33,8 @@ class EntityListScreen extends ConsumerStatefulWidget {
 class _EntityListScreenState extends ConsumerState<EntityListScreen> {
   final TextEditingController _searchController = TextEditingController();
   EntityType? _selectedType;
+  bool _showUnusedOnly = false;
+  List<String> _unusedIds = [];
 
   void _showQuickSwitcher(BuildContext context) {
     showDialog<bool>(
@@ -79,8 +81,14 @@ class _EntityListScreenState extends ConsumerState<EntityListScreen> {
   }
 
   List<Entity> _filterEntities(List<Entity> list) {
-    if (_selectedType == null) return list;
-    return list.where((e) => e.type == _selectedType).toList();
+    var result = list;
+    if (_selectedType != null) {
+      result = result.where((e) => e.type == _selectedType).toList();
+    }
+    if (_showUnusedOnly && _unusedIds.isNotEmpty) {
+      result = result.where((e) => _unusedIds.contains(e.id)).toList();
+    }
+    return result;
   }
 
   Color _statusColor(EntityStatus s) {
@@ -188,7 +196,11 @@ class _EntityListScreenState extends ConsumerState<EntityListScreen> {
           ),
 
           // ── Bento Stats & Story Spark ──
-          _UnusedBanner(),
+          _UnusedBanner(
+            showUnusedOnly: _showUnusedOnly,
+            onToggle: () => setState(() => _showUnusedOnly = !_showUnusedOnly),
+            onIds: (ids) => setState(() => _unusedIds = ids),
+          ),
           BentoStatsWidget(
             selectedType: _selectedType,
             onFilterType: (type) => setState(() => _selectedType = type),
@@ -276,7 +288,7 @@ class _EntityListScreenState extends ConsumerState<EntityListScreen> {
             'Welcome, Archivist',
             style: Theme.of(context).textTheme.displayLarge!.copyWith(
               fontSize: 26,
-              fontFamily: 'Lora',
+              fontFamily: Theme.of(context).textTheme.displayLarge?.fontFamily,
               color: Theme.of(context).colorScheme.primary,
             ),
             textAlign: TextAlign.center,
@@ -390,7 +402,7 @@ class _EntityListScreenState extends ConsumerState<EntityListScreen> {
                                   child: Text(
                                     entity.name,
                                     style: Theme.of(context).textTheme.titleMedium!.copyWith(
-                                      fontFamily: 'Lora',
+                                      fontFamily: Theme.of(context).textTheme.displayLarge?.fontFamily,
                                       fontWeight: FontWeight.bold,
                                       color: Theme.of(context).colorScheme.onSurface,
                                       fontSize: 15,
@@ -537,7 +549,7 @@ class _EntityListScreenState extends ConsumerState<EntityListScreen> {
         title: Text(
           'Continuity Paradoxes Detected',
           style: Theme.of(context).textTheme.titleMedium!.copyWith(
-                fontFamily: 'Lora',
+                fontFamily: Theme.of(context).textTheme.displayLarge?.fontFamily,
                 color: Theme.of(context).colorScheme.primary,
                 fontWeight: FontWeight.bold,
               ),
@@ -697,6 +709,16 @@ class _FilterChip extends StatelessWidget {
 }
 
 class _UnusedBanner extends ConsumerWidget {
+  final bool showUnusedOnly;
+  final VoidCallback onToggle;
+  final ValueChanged<List<String>> onIds;
+
+  const _UnusedBanner({
+    required this.showUnusedOnly,
+    required this.onToggle,
+    required this.onIds,
+  });
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final reportAsync = ref.watch(unusedEntitiesReportProvider);
@@ -705,18 +727,25 @@ class _UnusedBanner extends ConsumerWidget {
     return reportAsync.maybeWhen(
       data: (report) {
         if (report.unused.isEmpty) return const SizedBox.shrink();
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          final ids = report.unused.map((e) => e.id).toList();
+          onIds(ids);
+        });
         return GestureDetector(
-          onTap: () {
-            // ponytail: filter to show unused — for now just info banner
-          },
+          onTap: onToggle,
           child: Container(
             margin: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
             decoration: BoxDecoration(
-              color: const Color(0xFFFBBF24).withOpacity(0.1),
+              color: showUnusedOnly
+                  ? const Color(0xFFFBBF24).withOpacity(0.25)
+                  : const Color(0xFFFBBF24).withOpacity(0.1),
               borderRadius: BorderRadius.circular(10),
               border: Border.all(
-                  color: const Color(0xFFFBBF24).withOpacity(0.3), width: 0.5),
+                  color: showUnusedOnly
+                      ? const Color(0xFFFBBF24).withOpacity(0.7)
+                      : const Color(0xFFFBBF24).withOpacity(0.3),
+                  width: showUnusedOnly ? 1.5 : 0.5),
             ),
             child: Row(
               children: [

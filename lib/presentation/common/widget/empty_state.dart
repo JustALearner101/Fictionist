@@ -4,12 +4,24 @@ class EmptyState extends StatelessWidget {
   final String title;
   final String message;
   final IconData icon;
+  final String? actionLabel;
+  final IconData? actionIcon;
+  final VoidCallback? onActionPressed;
+  final String? secondaryActionLabel;
+  final IconData? secondaryActionIcon;
+  final VoidCallback? onSecondaryActionPressed;
 
   const EmptyState({
     super.key,
     required this.title,
     required this.message,
     this.icon = Icons.inbox_outlined,
+    this.actionLabel,
+    this.actionIcon,
+    this.onActionPressed,
+    this.secondaryActionLabel,
+    this.secondaryActionIcon,
+    this.onSecondaryActionPressed,
   });
 
   @override
@@ -50,7 +62,7 @@ class EmptyState extends StatelessWidget {
                 Text(
                   title,
                   style: Theme.of(context).textTheme.titleMedium!.copyWith(
-                        fontFamily: 'Lora',
+                        fontFamily: Theme.of(context).textTheme.displayLarge?.fontFamily,
                         color: Theme.of(context).colorScheme.primary,
                         fontWeight: FontWeight.bold,
                         fontSize: 16,
@@ -67,6 +79,37 @@ class EmptyState extends StatelessWidget {
                       ),
                   textAlign: TextAlign.center,
                 ),
+                if ((actionLabel != null && onActionPressed != null) ||
+                    (secondaryActionLabel != null && onSecondaryActionPressed != null)) ...[
+                  const SizedBox(height: 20),
+                  Wrap(
+                    spacing: 12,
+                    runSpacing: 12,
+                    alignment: WrapAlignment.center,
+                    children: [
+                      if (actionLabel != null && onActionPressed != null)
+                        FilledButton.icon(
+                          onPressed: onActionPressed,
+                          icon: Icon(actionIcon ?? Icons.add, size: 16),
+                          label: Text(actionLabel!, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+                          style: FilledButton.styleFrom(
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                          ),
+                        ),
+                      if (secondaryActionLabel != null && onSecondaryActionPressed != null)
+                        OutlinedButton.icon(
+                          onPressed: onSecondaryActionPressed,
+                          icon: Icon(secondaryActionIcon ?? Icons.auto_awesome, size: 16),
+                          label: Text(secondaryActionLabel!, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+                          style: OutlinedButton.styleFrom(
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                          ),
+                        ),
+                    ],
+                  ),
+                ],
               ],
             ),
           ),

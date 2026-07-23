@@ -1,3 +1,4 @@
+import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -11,9 +12,9 @@ import '../../../../domain/timeline/timeline_entry.dart';
 import '../../../../domain/trait/trait_inheritance.dart';
 import '../../../../domain/use_case/trait/analyze_trait_inheritance_use_case.dart';
 import '../../../../domain/use_case/continuity_check_use_case.dart';
-import '../../../../domain/use_case/timeline/get_timeline_use_case.dart';
+import '../../../../data/repository/timeline_repository_impl.dart';
+import '../../../../data/repository/relationship_repository_impl.dart';
 import '../../../../domain/use_case/relationship/create_relationship_use_case.dart';
-import '../../../../domain/use_case/relationship/delete_relationship_use_case.dart';
 import '../../../../injection.dart';
 import '../../../common/widget/empty_state.dart';
 import '../../../common/widget/error_display.dart';
@@ -45,6 +46,7 @@ class _GraphScreenState extends ConsumerState<GraphScreen> {
   final Set<EntityType> _enabledTypes = Set.from(EntityType.values);
   Map<String, List<TraitInheritance>> _traitMap = {};
   final TransformationController _transformationController = TransformationController();
+  final Map<String, Offset> _draggedPositions = {};
 
   @override
   void dispose() {
@@ -165,7 +167,7 @@ class _GraphScreenState extends ConsumerState<GraphScreen> {
           title: Text(
             'Traits of ${entity.name}',
             style: Theme.of(context).textTheme.titleMedium!.copyWith(
-              fontFamily: 'Lora',
+              fontFamily: Theme.of(context).textTheme.displayLarge?.fontFamily,
               color: Theme.of(context).colorScheme.primary,
             ),
           ),
@@ -242,8 +244,8 @@ class _GraphScreenState extends ConsumerState<GraphScreen> {
     List<Entity> entities,
     List<Relationship> relationships,
   ) async {
-    final timelineUseCase = getIt<GetTimelineUseCase>();
-    final tlResult = await timelineUseCase(null);
+    final timelineRepo = getIt<TimelineRepositoryImpl>();
+    final tlResult = await timelineRepo.getAllActiveOrdered();
     final timelineEntries = tlResult.fold((_) => <TimelineEntry>[], (l) => l);
 
     final checkUseCase = getIt<ContinuityCheckUseCase>();
@@ -526,7 +528,7 @@ class _GraphScreenState extends ConsumerState<GraphScreen> {
                     Text(
                       'Select Source Entity',
                       style: Theme.of(context).textTheme.titleMedium!.copyWith(
-                            fontFamily: 'Lora',
+                            fontFamily: Theme.of(context).textTheme.displayLarge?.fontFamily,
                             color: Theme.of(context).colorScheme.primary,
                             fontWeight: FontWeight.bold,
                           ),
@@ -916,10 +918,35 @@ class _GraphScreenState extends ConsumerState<GraphScreen> {
           final Graph graph = Graph()..isTree = (_layoutMode == GraphLayoutMode.familyTree);
           final Map<String, Node> nodeMap = {};
 
+          final isDraggableMode = (_layoutMode == GraphLayoutMode.chronicleWeb ||
+              _layoutMode == GraphLayoutMode.factionMap);
+
+          int isolatedCount = 0;
           for (final entity in filteredEntities) {
             final node = Node.Id(entity.id);
             graph.addNode(node);
             nodeMap[entity.id] = node;
+
+            if (isDraggableMode) {
+              if (_draggedPositions.containsKey(entity.id)) {
+                node.position = _draggedPositions[entity.id]!;
+              } else {
+                // If it's isolated (has no relationships in activeRels), spread it out
+                final hasRels = activeRels.any((r) =>
+                    r.sourceId == entity.id || r.targetId == entity.id);
+                if (!hasRels) {
+                  final angle = isolatedCount * 0.5;
+                  final radius = 120.0 + (isolatedCount * 30.0);
+                  final pos = Offset(
+                    500.0 + radius * math.cos(angle),
+                    500.0 + radius * math.sin(angle),
+                  );
+                  _draggedPositions[entity.id] = pos;
+                  node.position = pos;
+                  isolatedCount++;
+                }
+              }
+            }
           }
 
           for (final rel in activeRels) {
@@ -1094,8 +1121,8 @@ class _GraphScreenState extends ConsumerState<GraphScreen> {
                               );
                             },
                             onDeleteConnection: (rel) async {
-                              final deleteUseCase = getIt<DeleteRelationshipUseCase>();
-                              final res = await deleteUseCase(rel.id);
+                              final relRepo = getIt<RelationshipRepositoryImpl>();
+                              final res = await relRepo.delete(rel.id);
                               res.fold(
                                 (f) => ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(content: Text(f.message), backgroundColor: Theme.of(context).colorScheme.error),
@@ -1148,6 +1175,19 @@ class _GraphScreenState extends ConsumerState<GraphScreen> {
                                       onTap: () => showEntityPeekSheet(context, entityId: entity.id),
                                       onLongPress: showTraits
                                           ? () => _showTraitTooltip(context, entity, traits)
+                                          : null,
+                                      onPanUpdate: isDraggableMode
+                                          ? (details) {
+                                              setState(() {
+                                                final double zoomScale = _transformationController.value.getMaxScaleOnAxis();
+                                                final newPos = Offset(
+                                                  node.position.dx + details.delta.dx / zoomScale,
+                                                  node.position.dy + details.delta.dy / zoomScale,
+                                                );
+                                                _draggedPositions[entity.id] = newPos;
+                                                node.position = newPos;
+                                              });
+                                            }
                                           : null,
                                       child: Column(
                                         key: ValueKey(entity.id),

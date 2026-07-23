@@ -1,5 +1,6 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:sticky_headers/sticky_headers.dart';
@@ -54,7 +55,7 @@ class _TimelineScreenState extends ConsumerState<TimelineScreen> {
         backgroundColor: Theme.of(context).colorScheme.surface,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
         title: Text('Record Chronicle Event',
-          style: Theme.of(context).textTheme.titleMedium!.copyWith(fontFamily: 'Lora', color: Theme.of(context).colorScheme.primary)),
+          style: Theme.of(context).textTheme.titleMedium!.copyWith(fontFamily: Theme.of(context).textTheme.displayLarge?.fontFamily, color: Theme.of(context).colorScheme.primary)),
         content: SingleChildScrollView(
           child: Column(mainAxisSize: MainAxisSize.min, children: [
             _dialogField(tCtrl, 'Event Title'),
@@ -153,6 +154,7 @@ class _TimelineScreenState extends ConsumerState<TimelineScreen> {
   Widget _entryCard(TimelineEntry entry, Entity? linked, {bool showDrag = false, EdgeInsetsGeometry padding = const EdgeInsets.symmetric(horizontal: 14, vertical: 5)}) {
     final dotColor = linked != null ? Color(linked.iconColor) : Theme.of(context).colorScheme.primary;
     return Padding(
+      key: ValueKey(entry.id),
       padding: padding,
       child: Material(
         color: Theme.of(context).colorScheme.surface,
@@ -213,7 +215,7 @@ class _TimelineScreenState extends ConsumerState<TimelineScreen> {
                                       child: Text(
                                         entry.title,
                                         style: Theme.of(context).textTheme.bodyLarge!.copyWith(
-                                          fontFamily: 'Lora',
+                                          fontFamily: Theme.of(context).textTheme.displayLarge?.fontFamily,
                                           fontWeight: FontWeight.w600,
                                           fontSize: 14,
                                           color: Theme.of(context).colorScheme.onSurface,
@@ -269,13 +271,16 @@ class _TimelineScreenState extends ConsumerState<TimelineScreen> {
           ),
         ),
       ),
-    );
+    ).animate()
+     .fade(duration: 250.ms, curve: Curves.easeOut)
+     .slideY(begin: 0.08, end: 0, duration: 250.ms, curve: Curves.easeOut);
   }
 
   Widget _chapterCard(ChronicleChapter ch, {EdgeInsetsGeometry padding = const EdgeInsets.symmetric(horizontal: 14, vertical: 5)}) {
     final theme = Theme.of(context);
     final accentColor = theme.colorScheme.secondary;
     return Padding(
+      key: ValueKey(ch.chapter.id),
       padding: padding,
       child: Material(
         color: theme.colorScheme.surface,
@@ -338,7 +343,7 @@ class _TimelineScreenState extends ConsumerState<TimelineScreen> {
                                     child: Text(
                                       ch.chapter.title,
                                       style: theme.textTheme.bodyLarge!.copyWith(
-                                        fontFamily: 'Lora',
+                                        fontFamily: Theme.of(context).textTheme.displayLarge?.fontFamily,
                                         fontWeight: FontWeight.w600,
                                         fontSize: 14,
                                       ),
@@ -386,7 +391,9 @@ class _TimelineScreenState extends ConsumerState<TimelineScreen> {
           ),
         ),
       ),
-    );
+    ).animate()
+     .fade(duration: 250.ms, curve: Curves.easeOut)
+     .slideY(begin: 0.08, end: 0, duration: 250.ms, curve: Curves.easeOut);
   }
 
   Widget _getEventIcon(String title, Color dotColor) {
@@ -584,7 +591,7 @@ class _TimelineScreenState extends ConsumerState<TimelineScreen> {
                         Text(
                           era.toUpperCase(),
                           style: Theme.of(context).textTheme.titleMedium!.copyWith(
-                            fontFamily: 'Lora',
+                            fontFamily: Theme.of(context).textTheme.displayLarge?.fontFamily,
                             color: Theme.of(context).colorScheme.primary,
                             fontWeight: FontWeight.bold,
                             fontSize: 11,

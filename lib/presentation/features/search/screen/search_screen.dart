@@ -31,7 +31,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
           icon: Icon(Icons.arrow_back_ios_new, size: 18, color: Theme.of(context).colorScheme.onSurface),
           onPressed: () => context.pop()),
         title: Text('Codex Search', style: Theme.of(context).textTheme.titleMedium!.copyWith(
-          fontFamily: 'Lora', fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurface)),
+          fontFamily: Theme.of(context).textTheme.displayLarge?.fontFamily, fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurface)),
       ),
       body: Column(children: [
         Padding(

@@ -8,39 +8,90 @@ class AppTypography {
 
   /// Build a full [TextTheme] from a [ThemeConfig].
   static TextTheme buildTextTheme(ThemeConfig config) {
+    final textColor = Color(config.textPrimary);
+    final secondaryColor = Color(config.textSecondary);
+
     return TextTheme(
-      displayLarge: GoogleFonts.getFont(
+      displayLarge: getTextStyle(
         config.displayFont,
         fontSize: 32,
         fontWeight: FontWeight.bold,
-        color: Color(config.textPrimary),
+        color: textColor,
       ),
-      headlineMedium: GoogleFonts.getFont(
+      headlineMedium: getTextStyle(
         config.headingFont,
         fontSize: 24,
         fontWeight: FontWeight.bold,
-        color: Color(config.textPrimary),
+        color: textColor,
       ),
-      titleMedium: GoogleFonts.getFont(
+      titleMedium: getTextStyle(
         config.headingFont,
         fontSize: 16,
         fontWeight: FontWeight.w600,
-        color: Color(config.textPrimary),
+        color: textColor,
       ),
-      bodyLarge: GoogleFonts.getFont(
+      bodyLarge: getTextStyle(
         config.bodyFont,
         fontSize: 16,
         fontWeight: FontWeight.normal,
         height: config.bodyLineHeight,
-        color: Color(config.textPrimary),
+        color: textColor,
       ),
-      labelMedium: GoogleFonts.getFont(
+      labelMedium: getTextStyle(
         config.bodyFont,
         fontSize: 12,
         fontWeight: FontWeight.w600,
-        color: Color(config.textSecondary),
+        color: secondaryColor,
       ),
     );
+  }
+
+  /// Dynamic helper that loads system fonts locally (offline-first) or GoogleFonts fallback.
+  static TextStyle getTextStyle(
+    String family, {
+    required double fontSize,
+    required FontWeight fontWeight,
+    double? height,
+    required Color color,
+  }) {
+    const systemFonts = {
+      'Georgia',
+      'Times New Roman',
+      'Garamond',
+      'Segoe UI',
+      'Arial',
+      'Calibri',
+      'Courier New',
+      'Consolas',
+    };
+
+    if (systemFonts.contains(family)) {
+      return TextStyle(
+        fontFamily: family,
+        fontSize: fontSize,
+        fontWeight: fontWeight,
+        height: height,
+        color: color,
+      );
+    }
+
+    try {
+      return GoogleFonts.getFont(
+        family,
+        fontSize: fontSize,
+        fontWeight: fontWeight,
+        height: height,
+        color: color,
+      );
+    } catch (_) {
+      return TextStyle(
+        fontFamily: family,
+        fontSize: fontSize,
+        fontWeight: fontWeight,
+        height: height,
+        color: color,
+      );
+    }
   }
 
   /// Convenience: displayLarge from a [ThemeConfig].

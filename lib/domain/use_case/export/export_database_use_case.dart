@@ -2,26 +2,25 @@ import 'dart:convert';
 import 'package:fpdart/fpdart.dart';
 import 'package:injectable/injectable.dart';
 import '../../../core/error/failure.dart';
-import '../../../core/use_case/use_case.dart';
-import '../../repository/entity_repository.dart';
+import '../../../data/repository/entity_repository_impl.dart';
 import '../../entity/entity.dart';
-import '../../repository/entity_version_repository.dart';
-import '../../repository/map_repository.dart';
-import '../../repository/relationship_repository.dart';
-import '../../repository/tag_repository.dart';
-import '../../repository/template_repository.dart';
-import '../../repository/timeline_repository.dart';
+import '../../../data/repository/entity_version_repository_impl.dart';
+import '../../../data/repository/map_repository_impl.dart';
+import '../../../data/repository/relationship_repository_impl.dart';
+import '../../../data/repository/tag_repository_impl.dart';
+import '../../../data/repository/template_repository_impl.dart';
+import '../../../data/repository/timeline_repository_impl.dart';
 import '../../version/entity_version.dart';
 
 @lazySingleton
-class ExportDatabaseUseCase implements UseCaseNoParams<String> {
-  final EntityRepository _entityRepository;
-  final RelationshipRepository _relationshipRepository;
-  final TagRepository _tagRepository;
-  final TimelineRepository _timelineRepository;
-  final TemplateRepository _templateRepository;
-  final EntityVersionRepository _versionRepository;
-  final MapRepository _mapRepository;
+class ExportDatabaseUseCase {
+  final EntityRepositoryImpl _entityRepository;
+  final RelationshipRepositoryImpl _relationshipRepository;
+  final TagRepositoryImpl _tagRepository;
+  final TimelineRepositoryImpl _timelineRepository;
+  final TemplateRepositoryImpl _templateRepository;
+  final EntityVersionRepositoryImpl _versionRepository;
+  final MapRepositoryImpl _mapRepository;
 
   ExportDatabaseUseCase(
     this._entityRepository,

@@ -161,7 +161,7 @@ class _AbsoluteMapImagePathProviderElement
       (origin as AbsoluteMapImagePathProvider).relativePath;
 }
 
-String _$worldMapListHash() => r'd9e4700e45e7b68670bcdfb1edcb83a89aafb371';
+String _$worldMapListHash() => r'dad5e185cadbf3759ac122403c892dc172da3d30';
 
 /// See also [WorldMapList].
 @ProviderFor(WorldMapList)
@@ -176,7 +176,7 @@ final worldMapListProvider =
 );
 
 typedef _$WorldMapList = AutoDisposeAsyncNotifier<List<WorldMap>>;
-String _$mapPinsHash() => r'55f777eb10f3717dcfb1f218071047ab33149f33';
+String _$mapPinsHash() => r'd1a382c306d0456a843d932d82e840a89985f0a1';
 
 abstract class _$MapPins
     extends BuildlessAutoDisposeAsyncNotifier<List<MapPin>> {

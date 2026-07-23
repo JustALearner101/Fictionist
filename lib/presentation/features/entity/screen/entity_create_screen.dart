@@ -5,7 +5,7 @@ import '../../../../domain/entity/custom_field.dart';
 import '../../../../domain/entity/entity_status.dart';
 import '../../../../domain/entity/entity_type.dart';
 import '../../../../domain/use_case/entity/create_entity_use_case.dart';
-import '../../../../domain/use_case/template/get_templates_use_case.dart';
+import '../../../../data/repository/template_repository_impl.dart';
 import '../../../../injection.dart';
 import '../../name_generator/widget/name_generator_sheet.dart';
 import '../provider/entity_list_provider.dart';
@@ -86,14 +86,80 @@ class _EntityCreateScreenState extends ConsumerState<EntityCreateScreen> {
     });
   }
 
+  List<CustomField> _getFallbackFields(EntityType type) {
+    switch (type) {
+      case EntityType.character:
+        return [
+          CustomField(id: 'char_age', key: 'age', label: 'Age', fieldType: 'short_text', value: ''),
+          CustomField(id: 'char_align', key: 'alignment', label: 'Alignment', fieldType: 'short_text', value: ''),
+          CustomField(id: 'char_occ', key: 'occupation', label: 'Occupation/Role', fieldType: 'short_text', value: ''),
+          CustomField(id: 'char_back', key: 'backstory', label: 'Backstory Snippet', fieldType: 'long_text', value: ''),
+        ];
+      case EntityType.faction:
+        return [
+          CustomField(id: 'fac_ldr', key: 'leader', label: 'Leader', fieldType: 'short_text', value: ''),
+          CustomField(id: 'fac_hq', key: 'headquarters', label: 'Headquarters', fieldType: 'short_text', value: ''),
+          CustomField(id: 'fac_inf', key: 'influence', label: 'Influence Level', fieldType: 'short_text', value: ''),
+          CustomField(id: 'fac_crd', key: 'creed', label: 'Motto/Creed', fieldType: 'short_text', value: ''),
+        ];
+      case EntityType.raceCulture:
+        return [
+          CustomField(id: 'race_aesthetic', key: 'aesthetic', label: 'Aesthetic Influences', fieldType: 'short_text', value: ''),
+          CustomField(id: 'race_lifespan', key: 'lifespan', label: 'Lifespan', fieldType: 'short_text', value: ''),
+          CustomField(id: 'race_physical', key: 'physical_traits', label: 'Physical Traits', fieldType: 'long_text', value: ''),
+          CustomField(id: 'race_values', key: 'cultural_values', label: 'Cultural Values', fieldType: 'long_text', value: ''),
+        ];
+      case EntityType.location:
+        return [
+          CustomField(id: 'loc_climate', key: 'climate', label: 'Climate', fieldType: 'short_text', value: ''),
+          CustomField(id: 'loc_terrain', key: 'terrain', label: 'Terrain', fieldType: 'short_text', value: ''),
+          CustomField(id: 'loc_pop', key: 'population', label: 'Population', fieldType: 'short_text', value: ''),
+          CustomField(id: 'loc_safety', key: 'safety', label: 'Safety Level', fieldType: 'short_text', value: ''),
+        ];
+      case EntityType.powerMagicSystem:
+        return [
+          CustomField(id: 'mag_limit', key: 'limitations', label: 'Rules of Limitation', fieldType: 'long_text', value: ''),
+          CustomField(id: 'mag_src', key: 'source', label: 'Source of Power', fieldType: 'short_text', value: ''),
+          CustomField(id: 'mag_cost', key: 'cost', label: 'Cost of Usage', fieldType: 'long_text', value: ''),
+        ];
+      case EntityType.itemArtifact:
+        return [
+          CustomField(id: 'item_mat', key: 'material', label: 'Material', fieldType: 'short_text', value: ''),
+          CustomField(id: 'item_rar', key: 'rarity', label: 'Rarity', fieldType: 'short_text', value: ''),
+          CustomField(id: 'item_pwr', key: 'powers', label: 'Magical Properties', fieldType: 'long_text', value: ''),
+          CustomField(id: 'item_cr', key: 'creator', label: 'Creator', fieldType: 'short_text', value: ''),
+        ];
+      case EntityType.event:
+        return [
+          CustomField(id: 'evt_sig', key: 'significance', label: 'Significance', fieldType: 'long_text', value: ''),
+          CustomField(id: 'evt_figs', key: 'figures', label: 'Key Figures', fieldType: 'short_text', value: ''),
+          CustomField(id: 'evt_out', key: 'outcome', label: 'Outcome', fieldType: 'long_text', value: ''),
+        ];
+      case EntityType.conceptGlossary:
+        return [
+          CustomField(id: 'lore_era', key: 'era', label: 'Historical Era', fieldType: 'short_text', value: ''),
+          CustomField(id: 'lore_rel', key: 'reliability', label: 'Reliability', fieldType: 'short_text', value: ''),
+          CustomField(id: 'lore_orig', key: 'origin', label: 'Origin', fieldType: 'short_text', value: ''),
+        ];
+    }
+  }
+
   Future<void> _loadTemplate(EntityType type) async {
-    final res = await getIt<GetTemplatesUseCase>()(type);
-    res.fold((_) {}, (templates) {
-      if (mounted) setState(() => _fields = templates.isNotEmpty
-          ? templates.first.customFieldsSchema
-              .map((f) => f.copyWith(value: ''))
-              .toList()
-          : []);
+    final res = await getIt<TemplateRepositoryImpl>().getTemplatesByType(type);
+    res.fold((_) {
+      if (mounted) setState(() => _fields = _getFallbackFields(type));
+    }, (templates) {
+      if (mounted) {
+        setState(() {
+          if (templates.isNotEmpty) {
+            _fields = templates.first.customFieldsSchema
+                .map((f) => f.copyWith(value: ''))
+                .toList();
+          } else {
+            _fields = _getFallbackFields(type);
+          }
+        });
+      }
     });
   }
 
@@ -144,7 +210,7 @@ class _EntityCreateScreenState extends ConsumerState<EntityCreateScreen> {
         ),
         title: Text('Forge New Entity',
           style: Theme.of(context).textTheme.titleMedium!.copyWith(
-            fontFamily: 'Lora', fontWeight: FontWeight.bold,
+            fontFamily: Theme.of(context).textTheme.displayLarge?.fontFamily, fontWeight: FontWeight.bold,
             color: Theme.of(context).colorScheme.onSurface,
           ),
         ),
@@ -309,7 +375,7 @@ class _EntityCreateScreenState extends ConsumerState<EntityCreateScreen> {
                     ),
                   ),
                   child: Text(
-                    'No custom attributes yet. Tap a template above to instantly populate traits!',
+                    'No custom attributes yet. Tap a template above or add one below to instantly populate traits!',
                     style: TextStyle(
                       fontSize: 12,
                       color: Theme.of(context).colorScheme.onSurfaceVariant,
@@ -324,36 +390,63 @@ class _EntityCreateScreenState extends ConsumerState<EntityCreateScreen> {
                 final f = e.value;
                 return Padding(
                   padding: const EdgeInsets.only(bottom: 10),
-                  child: TextFormField(
-                    key: ValueKey('${f.key}_${_fields.length}'),
-                    initialValue: f.value?.toString() ?? '',
-                    style: Theme.of(context).textTheme.bodyLarge!.copyWith(fontSize: 14),
-                    decoration: InputDecoration(
-                      labelText: f.label,
-                      labelStyle: Theme.of(context).textTheme.bodyLarge!.copyWith(
-                        color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 12),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
-                        borderSide: BorderSide(
-                          color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.4), width: 0.6),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: TextFormField(
+                          key: ValueKey('${f.key}_${_fields.length}'),
+                          initialValue: f.value?.toString() ?? '',
+                          style: Theme.of(context).textTheme.bodyLarge!.copyWith(fontSize: 14),
+                          decoration: InputDecoration(
+                            labelText: f.label,
+                            labelStyle: Theme.of(context).textTheme.bodyLarge!.copyWith(
+                              color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 12),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10),
+                              borderSide: BorderSide(
+                                color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.4), width: 0.6),
+                            ),
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10),
+                              borderSide: BorderSide(
+                                color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.4), width: 0.6),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10),
+                              borderSide: BorderSide(color: Theme.of(context).colorScheme.primary, width: 1),
+                            ),
+                            contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 14, vertical: 12),
+                            filled: true, fillColor: Theme.of(context).colorScheme.surface,
+                          ),
+                          onChanged: (val) => _fields[i] = f.copyWith(value: val),
+                        ),
                       ),
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
-                        borderSide: BorderSide(
-                          color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.4), width: 0.6),
+                      const SizedBox(width: 8),
+                      IconButton(
+                        icon: Icon(Icons.delete_outline, color: Theme.of(context).colorScheme.error, size: 20),
+                        tooltip: 'Delete Attribute',
+                        onPressed: () {
+                          setState(() {
+                            _fields.removeAt(i);
+                          });
+                        },
                       ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
-                        borderSide: BorderSide(color: Theme.of(context).colorScheme.primary, width: 1),
-                      ),
-                      contentPadding: EdgeInsets.symmetric(
-                        horizontal: 14, vertical: 12),
-                      filled: true, fillColor: Theme.of(context).colorScheme.surface,
-                    ),
-                    onChanged: (val) => _fields[i] = f.copyWith(value: val),
+                    ],
                   ),
                 );
               }),
+            const SizedBox(height: 12),
+            Center(
+              child: TextButton.icon(
+                onPressed: _addNewAttribute,
+                icon: const Icon(Icons.add, size: 16),
+                label: const Text('Add Custom Attribute'),
+                style: TextButton.styleFrom(
+                  foregroundColor: Theme.of(context).colorScheme.primary,
+                ),
+              ),
+            ),
             ],
           ),
         ),
@@ -385,4 +478,47 @@ class _EntityCreateScreenState extends ConsumerState<EntityCreateScreen> {
     contentPadding: EdgeInsets.symmetric(horizontal: 14, vertical: 14),
     filled: true, fillColor: Theme.of(context).colorScheme.surface,
   );
+
+  Future<void> _addNewAttribute() async {
+    final controller = TextEditingController();
+    final label = await showDialog<String>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: Theme.of(context).colorScheme.surface,
+        title: Text('Add Custom Attribute',
+          style: Theme.of(context).textTheme.titleMedium!.copyWith(fontFamily: Theme.of(context).textTheme.displayLarge?.fontFamily, fontWeight: FontWeight.bold)),
+        content: TextField(
+          controller: controller,
+          autofocus: true,
+          decoration: const InputDecoration(
+            labelText: 'Attribute Name (e.g. Hair Color)',
+            border: OutlineInputBorder(),
+          ),
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Cancel')),
+          FilledButton(
+            onPressed: () {
+              if (controller.text.trim().isNotEmpty) {
+                Navigator.pop(ctx, controller.text.trim());
+              }
+            },
+            child: const Text('Add'),
+          ),
+        ],
+      ),
+    );
+    if (label != null && label.isNotEmpty && mounted) {
+      setState(() {
+        final key = label.toLowerCase().replaceAll(RegExp(r'[^a-z0-9_]'), '_');
+        _fields.add(CustomField(
+          id: UniqueKey().toString(),
+          key: key,
+          label: label,
+          fieldType: 'short_text',
+          value: '',
+        ));
+      });
+    }
+  }
 }

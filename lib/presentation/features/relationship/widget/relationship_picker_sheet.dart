@@ -98,7 +98,7 @@ class _RelationshipPickerSheetState extends ConsumerState<RelationshipPickerShee
                 Text(
                   'Forge Connection',
                   style: Theme.of(context).textTheme.headlineMedium!.copyWith(
-                        fontFamily: 'Lora',
+                        fontFamily: Theme.of(context).textTheme.displayLarge?.fontFamily,
                         color: Theme.of(context).colorScheme.primary,
                         fontSize: 22,
                         fontWeight: FontWeight.bold,

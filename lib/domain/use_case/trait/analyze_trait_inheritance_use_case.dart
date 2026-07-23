@@ -2,18 +2,13 @@ import 'package:fpdart/fpdart.dart';
 import 'package:injectable/injectable.dart';
 
 import 'package:fictionist/core/error/failure.dart';
-import 'package:fictionist/core/use_case/use_case.dart';
 import 'package:fictionist/domain/entity/entity.dart';
 import 'package:fictionist/domain/entity/entity_type.dart';
 import 'package:fictionist/domain/relationship/relationship.dart';
 import 'package:fictionist/domain/trait/trait_inheritance.dart';
 
-/// Parameters for analyzing trait inheritance within a family tree.
 class AnalyzeTraitInheritanceParams {
-  /// All characters to analyze.
   final List<Entity> characters;
-
-  /// All parent-child relationships among those characters.
   final List<Relationship> relationships;
 
   const AnalyzeTraitInheritanceParams({
@@ -22,27 +17,19 @@ class AnalyzeTraitInheritanceParams {
   });
 }
 
-/// Analyzes custom field traits across a family tree to determine
-/// which traits are inherited from ancestors.
-///
-/// Only considers [EntityType.character] entities and relationships
-/// of type `parent_of` / `child_of`.
 @lazySingleton
-class AnalyzeTraitInheritanceUseCase
-    implements UseCase<List<TraitInheritance>, AnalyzeTraitInheritanceParams> {
-  // Trait badge colors — a curated palette
+class AnalyzeTraitInheritanceUseCase {
   static const _badgeColors = [
-    0xFFD4A44C, // Gold
-    0xFF6B8FA3, // Steel Blue
-    0xFFA78BFA, // Amethyst
-    0xFF34D399, // Emerald
-    0xFFF87171, // Rose
-    0xFFFBBF24, // Amber
-    0xFF60A5FA, // Sky
-    0xFFF472B6, // Pink
+    0xFFD4A44C,
+    0xFF6B8FA3,
+    0xFFA78BFA,
+    0xFF34D399,
+    0xFFF87171,
+    0xFFFBBF24,
+    0xFF60A5FA,
+    0xFFF472B6,
   ];
 
-  @override
   Future<Either<Failure, List<TraitInheritance>>> call(
     AnalyzeTraitInheritanceParams params,
   ) async {
@@ -61,28 +48,23 @@ class AnalyzeTraitInheritanceUseCase
     List<Entity> characters,
     List<Relationship> relationships,
   ) {
-    // Build a map: child ID → list of parent IDs
     final Map<String, List<String>> childToParents = {};
     for (final rel in relationships) {
       if (rel.typeKey == 'parent_of') {
-        // source = parent, target = child
         childToParents.putIfAbsent(rel.targetId, () => []);
         childToParents[rel.targetId]!.add(rel.sourceId);
       } else if (rel.typeKey == 'child_of') {
-        // source = child, target = parent
         childToParents.putIfAbsent(rel.sourceId, () => []);
         childToParents[rel.sourceId]!.add(rel.targetId);
       }
     }
 
-    // Build a lookup: entity ID → Entity
     final Map<String, Entity> entityMap = {
       for (final e in characters) e.id: e,
     };
 
     final Map<String, int> traitColorMap = {};
     int nextColorIndex = 0;
-
     final List<TraitInheritance> results = [];
 
     for (final character in characters) {
@@ -92,12 +74,8 @@ class AnalyzeTraitInheritanceUseCase
         final value = field.value?.toString() ?? '';
         if (value.isEmpty) continue;
 
-        // Determine if this trait is inheritable
-        // (has a value that could be passed down)
         final traitKey = field.key;
         final traitLabel = field.label;
-
-        // Find if any parent carries the same trait
         final parentIds = childToParents[character.id] ?? [];
         final inheritedFromIds = <String>[];
         final inheritedFromNames = <String>[];
@@ -118,7 +96,6 @@ class AnalyzeTraitInheritanceUseCase
           }
         }
 
-        // Assign a color index per unique trait key
         final colorIndex = traitColorMap.putIfAbsent(
           traitKey,
           () => nextColorIndex++,
@@ -141,7 +118,6 @@ class AnalyzeTraitInheritanceUseCase
     return results;
   }
 
-  /// Returns the badge color for a given color index.
   static int badgeColor(int colorIndex) {
     return _badgeColors[colorIndex % _badgeColors.length];
   }

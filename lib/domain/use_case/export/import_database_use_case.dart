@@ -2,16 +2,15 @@ import 'dart:convert';
 import 'package:fpdart/fpdart.dart';
 import 'package:injectable/injectable.dart';
 import '../../../core/error/failure.dart';
-import '../../../core/use_case/use_case.dart';
 import '../../entity/entity.dart';
 import '../../map/world_map.dart';
 import '../../relationship/relationship.dart';
-import '../../repository/entity_repository.dart';
-import '../../repository/map_repository.dart';
-import '../../repository/relationship_repository.dart';
-import '../../repository/tag_repository.dart';
-import '../../repository/template_repository.dart';
-import '../../repository/timeline_repository.dart';
+import '../../../data/repository/entity_repository_impl.dart';
+import '../../../data/repository/map_repository_impl.dart';
+import '../../../data/repository/relationship_repository_impl.dart';
+import '../../../data/repository/tag_repository_impl.dart';
+import '../../../data/repository/template_repository_impl.dart';
+import '../../../data/repository/timeline_repository_impl.dart';
 import '../../tag/tag.dart';
 import '../../template/template.dart';
 import '../../timeline/timeline_entry.dart';
@@ -27,13 +26,13 @@ class ImportDatabaseParams {
 }
 
 @lazySingleton
-class ImportDatabaseUseCase implements UseCase<Unit, ImportDatabaseParams> {
-  final EntityRepository _entityRepository;
-  final RelationshipRepository _relationshipRepository;
-  final TagRepository _tagRepository;
-  final TimelineRepository _timelineRepository;
-  final TemplateRepository _templateRepository;
-  final MapRepository _mapRepository;
+class ImportDatabaseUseCase {
+  final EntityRepositoryImpl _entityRepository;
+  final RelationshipRepositoryImpl _relationshipRepository;
+  final TagRepositoryImpl _tagRepository;
+  final TimelineRepositoryImpl _timelineRepository;
+  final TemplateRepositoryImpl _templateRepository;
+  final MapRepositoryImpl _mapRepository;
 
   ImportDatabaseUseCase(
     this._entityRepository,

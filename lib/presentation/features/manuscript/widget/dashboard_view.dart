@@ -91,7 +91,7 @@ class DashboardView extends StatelessWidget {
               Text(
                 '📊 Manuscript Stats',
                 style: Theme.of(context).textTheme.titleMedium!.copyWith(
-                      fontFamily: 'Lora',
+                      fontFamily: Theme.of(context).textTheme.displayLarge?.fontFamily,
                       fontWeight: FontWeight.bold,
                       color: Theme.of(context).colorScheme.primary,
                     ),

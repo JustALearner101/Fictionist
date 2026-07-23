@@ -1,6 +1,6 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../../../../domain/search/search_result.dart';
-import '../../../../domain/use_case/entity/search_entities_with_snippets_use_case.dart';
+import '../../../../data/repository/entity_repository_impl.dart';
 import '../../../../injection.dart';
 
 part 'entity_search_provider.g.dart';
@@ -19,8 +19,8 @@ class EntitySearch extends _$EntitySearch {
     }
     state = const AsyncValue.loading();
     state = await AsyncValue.guard(() async {
-      final searchUseCase = getIt<SearchEntitiesWithSnippetsUseCase>();
-      final result = await searchUseCase(query);
+      final repo = getIt<EntityRepositoryImpl>();
+      final result = await repo.searchWithSnippets(query);
       return result.fold(
         (failure) => throw Exception(failure.message),
         (results) => results,

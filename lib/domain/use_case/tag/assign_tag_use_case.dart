@@ -1,8 +1,7 @@
 import 'package:fpdart/fpdart.dart';
 import 'package:injectable/injectable.dart';
 import '../../../core/error/failure.dart';
-import '../../../core/use_case/use_case.dart';
-import '../../repository/tag_repository.dart';
+import '../../../data/repository/tag_repository_impl.dart';
 
 class AssignTagParams {
   final String entityId;
@@ -12,8 +11,8 @@ class AssignTagParams {
 }
 
 @lazySingleton
-class AssignTagUseCase implements UseCase<Unit, AssignTagParams> {
-  final TagRepository _repository;
+class AssignTagUseCase {
+  final TagRepositoryImpl _repository;
 
   AssignTagUseCase(this._repository);
 

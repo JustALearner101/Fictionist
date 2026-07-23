@@ -6,13 +6,13 @@ import 'package:fictionist/domain/map/map_pin.dart';
 import 'package:fictionist/domain/map/world_map.dart';
 import 'package:fictionist/domain/plot/plot_card.dart';
 import 'package:fictionist/domain/relationship/relationship.dart';
-import 'package:fictionist/domain/repository/entity_repository.dart';
-import 'package:fictionist/domain/repository/entity_version_repository.dart';
-import 'package:fictionist/domain/repository/manuscript_repository.dart';
-import 'package:fictionist/domain/repository/map_repository.dart';
-import 'package:fictionist/domain/repository/plot_repository.dart';
-import 'package:fictionist/domain/repository/relationship_repository.dart';
-import 'package:fictionist/domain/repository/timeline_repository.dart';
+import 'package:fictionist/data/repository/entity_repository_impl.dart';
+import 'package:fictionist/data/repository/entity_version_repository_impl.dart';
+import 'package:fictionist/data/repository/manuscript_repository_impl.dart';
+import 'package:fictionist/data/repository/map_repository_impl.dart';
+import 'package:fictionist/data/repository/plot_repository.dart';
+import 'package:fictionist/data/repository/relationship_repository_impl.dart';
+import 'package:fictionist/data/repository/timeline_repository_impl.dart';
 import 'package:fictionist/domain/timeline/timeline_entry.dart';
 import 'package:fictionist/domain/use_case/bootstrap/sample_world_use_case.dart';
 import 'package:fictionist/domain/version/entity_version.dart';
@@ -20,21 +20,21 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:fpdart/fpdart.dart';
 import 'package:mocktail/mocktail.dart';
 
-class MockEntityRepository extends Mock implements EntityRepository {}
+class MockEntityRepository extends Mock implements EntityRepositoryImpl {}
 
 class MockEntityVersionRepository extends Mock
-    implements EntityVersionRepository {}
+    implements EntityVersionRepositoryImpl {}
 
 class MockRelationshipRepository extends Mock
-    implements RelationshipRepository {}
+    implements RelationshipRepositoryImpl {}
 
-class MockTimelineRepository extends Mock implements TimelineRepository {}
+class MockTimelineRepository extends Mock implements TimelineRepositoryImpl {}
 
-class MockManuscriptRepository extends Mock implements ManuscriptRepository {}
+class MockManuscriptRepository extends Mock implements ManuscriptRepositoryImpl {}
 
-class MockMapRepository extends Mock implements MapRepository {}
+class MockMapRepository extends Mock implements MapRepositoryImpl {}
 
-class MockPlotRepository extends Mock implements PlotRepository {}
+class MockPlotRepository extends Mock implements PlotRepositoryImpl {}
 
 void main() {
   late SampleWorldUseCase useCase;

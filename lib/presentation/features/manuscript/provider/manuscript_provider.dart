@@ -43,7 +43,7 @@ class ManuscriptState {
   }
 }
 
-// ponytail: keepAlive so chapter list survives tab switches
+// ponytail: keepAlive so chapter list survives tab switches. ceiling: provider lives forever. upgrade: remove keepAlive if memory pressure arises.
 @Riverpod(keepAlive: true)
 class ManuscriptNotifier extends _$ManuscriptNotifier {
   @override

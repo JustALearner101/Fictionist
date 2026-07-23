@@ -2,10 +2,9 @@ import 'package:fpdart/fpdart.dart';
 import 'package:injectable/injectable.dart';
 import 'package:uuid/uuid.dart';
 import '../../../core/error/failure.dart';
-import '../../../core/use_case/use_case.dart';
 import '../../entity/custom_field.dart';
 import '../../entity/entity_type.dart';
-import '../../repository/template_repository.dart';
+import '../../../data/repository/template_repository_impl.dart';
 import '../../template/template.dart';
 
 CustomField _field(String key, String label,
@@ -19,8 +18,8 @@ CustomField _field(String key, String label,
     );
 
 @lazySingleton
-class BootstrapUseCase implements UseCaseNoParams<Unit> {
-  final TemplateRepository _templateRepository;
+class BootstrapUseCase {
+  final TemplateRepositoryImpl _templateRepository;
 
   BootstrapUseCase(this._templateRepository);
 
@@ -139,6 +138,20 @@ class BootstrapUseCase implements UseCaseNoParams<Unit> {
               _field('purpose', 'Purpose'),
               _field('criteria', 'Membership Criteria'),
               _field('status', 'Active Status'),
+            ],
+            createdAt: DateTime.now(),
+            updatedAt: DateTime.now(),
+          ),
+          Template(
+            id: 'template_race_culture',
+            name: 'Race / Culture Template',
+            entityType: EntityType.raceCulture,
+            isBuiltIn: true,
+            customFieldsSchema: [
+              _field('aesthetic', 'Aesthetic Influences'),
+              _field('lifespan', 'Lifespan'),
+              _field('physical_traits', 'Physical Traits', fieldType: 'long_text'),
+              _field('cultural_values', 'Cultural Values', fieldType: 'long_text'),
             ],
             createdAt: DateTime.now(),
             updatedAt: DateTime.now(),

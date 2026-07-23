@@ -530,7 +530,7 @@ class _HoverBentoCardState extends State<_HoverBentoCard> {
                         style: theme.textTheme.titleLarge!.copyWith(
                           fontWeight: FontWeight.bold,
                           fontSize: 22,
-                          fontFamily: 'Lora',
+                          fontFamily: Theme.of(context).textTheme.displayLarge?.fontFamily,
                           color: widget.isSelected ? theme.colorScheme.primary : theme.colorScheme.onSurface,
                         ),
                       ),

@@ -2,7 +2,6 @@ import 'dart:convert';
 import 'package:fpdart/fpdart.dart';
 import 'package:injectable/injectable.dart';
 import '../../../core/error/failure.dart';
-import '../../../core/use_case/use_case.dart';
 import '../../../core/utils/sample_world_data.dart';
 import '../../entity/entity.dart';
 import '../../manuscript/manuscript_chapter.dart';
@@ -10,25 +9,25 @@ import '../../map/map_pin.dart';
 import '../../map/world_map.dart';
 import '../../plot/plot_card.dart';
 import '../../relationship/relationship.dart';
-import '../../repository/entity_repository.dart';
-import '../../repository/entity_version_repository.dart';
-import '../../repository/manuscript_repository.dart';
-import '../../repository/map_repository.dart';
-import '../../repository/plot_repository.dart';
-import '../../repository/relationship_repository.dart';
-import '../../repository/timeline_repository.dart';
+import '../../../data/repository/entity_repository_impl.dart';
+import '../../../data/repository/entity_version_repository_impl.dart';
+import '../../../data/repository/manuscript_repository_impl.dart';
+import '../../../data/repository/map_repository_impl.dart';
+import '../../../data/repository/plot_repository.dart';
+import '../../../data/repository/relationship_repository_impl.dart';
+import '../../../data/repository/timeline_repository_impl.dart';
 import '../../timeline/timeline_entry.dart';
 import '../../version/entity_version.dart';
 
 @lazySingleton
-class SampleWorldUseCase implements UseCaseNoParams<Unit> {
-  final EntityRepository _entityRepo;
-  final EntityVersionRepository _versionRepo;
-  final RelationshipRepository _relationshipRepo;
-  final TimelineRepository _timelineRepo;
-  final ManuscriptRepository _manuscriptRepo;
-  final MapRepository _mapRepo;
-  final PlotRepository _plotRepo;
+class SampleWorldUseCase {
+  final EntityRepositoryImpl _entityRepo;
+  final EntityVersionRepositoryImpl _versionRepo;
+  final RelationshipRepositoryImpl _relationshipRepo;
+  final TimelineRepositoryImpl _timelineRepo;
+  final ManuscriptRepositoryImpl _manuscriptRepo;
+  final MapRepositoryImpl _mapRepo;
+  final PlotRepositoryImpl _plotRepo;
 
   SampleWorldUseCase(
     this._entityRepo,

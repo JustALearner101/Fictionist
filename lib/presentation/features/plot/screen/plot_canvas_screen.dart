@@ -1,7 +1,8 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:fictionist/domain/repository/plot_repository.dart';
+import 'package:fictionist/data/repository/plot_repository.dart';
 import 'package:fictionist/domain/plot/plot_card.dart';
 import 'package:fictionist/injection.dart';
 import 'package:fictionist/presentation/common/widget/empty_state.dart';
@@ -30,7 +31,7 @@ class _PlotCanvasScreenState extends ConsumerState<PlotCanvasScreen> {
   }
 
   Future<void> _loadData() async {
-    final repo = getIt<PlotRepository>();
+    final repo = getIt<PlotRepositoryImpl>();
     final cards = await repo.getAllCards();
     final conns = await repo.getAllConnections();
     if (mounted) {
@@ -61,7 +62,7 @@ class _PlotCanvasScreenState extends ConsumerState<PlotCanvasScreen> {
       ),
     );
     if (title != null && title.trim().isNotEmpty) {
-      final repo = getIt<PlotRepository>();
+      final repo = getIt<PlotRepositoryImpl>();
       await repo.createCard(title: title.trim());
       _loadData();
     }
@@ -69,13 +70,13 @@ class _PlotCanvasScreenState extends ConsumerState<PlotCanvasScreen> {
 
   Future<void> _updateCardPosition(String id, Offset delta) async {
     final card = _cards.firstWhere((c) => c.id == id);
-    final repo = getIt<PlotRepository>();
+    final repo = getIt<PlotRepositoryImpl>();
     await repo.updateCardPosition(id, card.xPosition + delta.dx, card.yPosition + delta.dy);
     _loadData();
   }
 
   Future<void> _deleteCard(String id) async {
-    final repo = getIt<PlotRepository>();
+    final repo = getIt<PlotRepositoryImpl>();
     await repo.deleteCard(id);
     _loadData();
   }
@@ -88,7 +89,7 @@ class _PlotCanvasScreenState extends ConsumerState<PlotCanvasScreen> {
 
   Future<void> _createConnection(String targetId) async {
     if (_connectingFromId == null || _connectingFromId == targetId) return;
-    final repo = getIt<PlotRepository>();
+    final repo = getIt<PlotRepositoryImpl>();
     await repo.createConnection(_connectingFromId!, targetId);
     setState(() => _connectingFromId = null);
     _loadData();
@@ -111,6 +112,8 @@ class _PlotCanvasScreenState extends ConsumerState<PlotCanvasScreen> {
                 title: 'Corkboard is Empty',
                 message: 'Add plot cards to outline story beats and connect them with cause-and-effect arrows.',
                 icon: Icons.dashboard_customize_outlined,
+                actionLabel: 'Add Plot Card',
+                onActionPressed: _addCard,
               ),
             )
           : Stack(
@@ -170,7 +173,7 @@ class _PlotCanvasScreenState extends ConsumerState<PlotCanvasScreen> {
                               },
                               onPanEnd: (details) async {
                                 final current = _cards.firstWhere((c) => c.id == card.id);
-                                final repo = getIt<PlotRepository>();
+                                final repo = getIt<PlotRepositoryImpl>();
                                 await repo.updateCardPosition(card.id, current.xPosition, current.yPosition);
                               },
                               child: _PlotCardWidget(
@@ -181,7 +184,9 @@ class _PlotCanvasScreenState extends ConsumerState<PlotCanvasScreen> {
                                 onDelete: () => _deleteCard(card.id),
                                 onConnect: () => _toggleConnectionMode(card.id),
                                 onConnectTarget: () => _createConnection(card.id),
-                              ),
+                              ).animate(key: ValueKey(card.id))
+                               .fade(duration: 250.ms)
+                               .scale(begin: const Offset(0.8, 0.8), end: const Offset(1.0, 1.0), duration: 250.ms, curve: Curves.easeOut),
                             ),
                           );
                         }).toList(),

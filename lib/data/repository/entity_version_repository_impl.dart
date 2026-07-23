@@ -3,18 +3,16 @@ import 'dart:developer' as dev;
 import 'package:fpdart/fpdart.dart';
 import 'package:injectable/injectable.dart';
 import '../../core/error/failure.dart';
-import '../../domain/repository/entity_version_repository.dart';
 import '../../domain/version/entity_version.dart';
 import '../dao/entity_version_dao.dart';
 import '../mapper/entity_version_mapper.dart';
 
-@LazySingleton(as: EntityVersionRepository)
-class EntityVersionRepositoryImpl implements EntityVersionRepository {
+@lazySingleton
+class EntityVersionRepositoryImpl {
   final EntityVersionDao _dao;
 
   EntityVersionRepositoryImpl(this._dao);
 
-  @override
   Future<Either<Failure, EntityVersion>> create(EntityVersion version) async {
     try {
       dev.log('EntityVersion.create: entityId=${version.entityId}, versionId=${version.id}');
@@ -34,7 +32,6 @@ class EntityVersionRepositoryImpl implements EntityVersionRepository {
     }
   }
 
-  @override
   Future<Either<Failure, List<EntityVersion>>> getVersionsForEntity(
       String entityId) async {
     try {

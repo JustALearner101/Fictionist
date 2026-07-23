@@ -272,6 +272,7 @@ class _ChapterEditorScreenState extends ConsumerState<ChapterEditorScreen> {
     final entities = ref.watch(entityListProvider).valueOrNull ?? [];
     // ponytail: read not watch — provider updates from _saveContent()
     // would rebuild QuillEditor on every keystroke, killing keyboard focus.
+    // ceiling: stale entity names if renamed externally. upgrade: watch() with debounce.
     final manuscriptState = ref.read(manuscriptNotifierProvider);
 
     // Keep title/content in sync if another device/notifier updates
@@ -344,7 +345,7 @@ class _ChapterEditorScreenState extends ConsumerState<ChapterEditorScreen> {
                             child: TextField(
                               controller: _titleController,
                               style: theme.textTheme.headlineMedium!.copyWith(
-                                fontFamily: 'Lora',
+                                fontFamily: Theme.of(context).textTheme.displayLarge?.fontFamily,
                                 fontSize: 20,
                                 fontWeight: FontWeight.bold,
                               ),
@@ -352,7 +353,7 @@ class _ChapterEditorScreenState extends ConsumerState<ChapterEditorScreen> {
                                 hintText: 'Chapter Title',
                                 hintStyle:
                                     theme.textTheme.headlineMedium!.copyWith(
-                                  fontFamily: 'Lora',
+                                  fontFamily: Theme.of(context).textTheme.displayLarge?.fontFamily,
                                   fontSize: 20,
                                   color: theme.colorScheme.onSurfaceVariant
                                       .withOpacity(0.35),
@@ -925,7 +926,7 @@ class _CodexPanelState extends ConsumerState<_CodexPanel> {
                 Icon(Icons.menu_book, size: 16, color: theme.colorScheme.primary),
                 const SizedBox(width: 8),
                 Text('Codex', style: theme.textTheme.titleSmall!.copyWith(
-                  fontFamily: 'Lora', fontWeight: FontWeight.bold,
+                  fontFamily: theme.textTheme.displayLarge?.fontFamily, fontWeight: FontWeight.bold,
                 )),
                 const Spacer(),
                 IconButton(

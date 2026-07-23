@@ -25,7 +25,7 @@ class WritingInsightsScreen extends ConsumerWidget {
         elevation: 0,
         title: Text('Writing Insights',
             style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  fontFamily: 'Lora',
+                  fontFamily: Theme.of(context).textTheme.displayLarge?.fontFamily,
                   fontWeight: FontWeight.bold,
                 )),
       ),
@@ -75,7 +75,8 @@ class WritingInsightsScreen extends ConsumerWidget {
     }
 
     // Unused entities (from entity list)
-    // ponytail: simple name scan — full scan via unusedEntitiesReportProvider
+    // ponytail: inline scan avoids redundant DB fetch — unusedEntitiesReportProvider
+    // fetches entities+chapters again. Inline if provider ever accepts params.
     final allText = chapters.map((c) => c.content.toLowerCase()).join(' ');
     final unusedEntities =
         entities.where((e) => !allText.contains(e.name.toLowerCase())).toList();
@@ -163,7 +164,7 @@ class _SectionHeader extends StatelessWidget {
         const SizedBox(width: 8),
         Text(title,
             style: theme.textTheme.titleSmall?.copyWith(
-                fontWeight: FontWeight.bold, fontFamily: 'Lora')),
+                fontWeight: FontWeight.bold, fontFamily: theme.textTheme.displayLarge?.fontFamily)),
       ]),
     );
   }

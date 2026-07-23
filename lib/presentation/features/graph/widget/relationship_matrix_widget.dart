@@ -57,7 +57,7 @@ class RelationshipMatrixWidget extends StatelessWidget {
                     child: Text(
                       'Connection: ${charA.name} & ${charB.name}',
                       style: Theme.of(context).textTheme.headlineMedium!.copyWith(
-                            fontFamily: 'Lora',
+                            fontFamily: Theme.of(context).textTheme.displayLarge?.fontFamily,
                             color: Theme.of(context).colorScheme.primary,
                             fontSize: 18,
                             fontWeight: FontWeight.bold,

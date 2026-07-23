@@ -1,8 +1,8 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../../../../domain/entity/entity.dart';
+import '../../../../data/repository/entity_repository_impl.dart';
 import '../../../../domain/use_case/entity/delete_entity_use_case.dart';
 import '../../../../domain/use_case/entity/list_entities_use_case.dart';
-import '../../../../domain/use_case/entity/search_entities_use_case.dart';
 import '../../../../injection.dart';
 
 part 'entity_list_provider.g.dart';
@@ -30,8 +30,8 @@ class EntityList extends _$EntityList {
           (entities) => entities,
         );
       }
-      final searchUseCase = getIt<SearchEntitiesUseCase>();
-      final result = await searchUseCase(query);
+      final repo = getIt<EntityRepositoryImpl>();
+      final result = await repo.search(query);
       return result.fold(
         (failure) => throw Exception(failure.message),
         (entities) => entities,

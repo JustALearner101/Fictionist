@@ -2,8 +2,7 @@ import 'package:fpdart/fpdart.dart';
 import 'package:injectable/injectable.dart';
 import 'package:uuid/uuid.dart';
 import '../../../core/error/failure.dart';
-import '../../../core/use_case/use_case.dart';
-import '../../repository/timeline_repository.dart';
+import '../../../data/repository/timeline_repository_impl.dart';
 import '../../timeline/timeline_entry.dart';
 
 class CreateTimelineEntryParams {
@@ -23,9 +22,8 @@ class CreateTimelineEntryParams {
 }
 
 @lazySingleton
-class CreateTimelineEntryUseCase
-    implements UseCase<TimelineEntry, CreateTimelineEntryParams> {
-  final TimelineRepository _repository;
+class CreateTimelineEntryUseCase {
+  final TimelineRepositoryImpl _repository;
 
   CreateTimelineEntryUseCase(this._repository);
 

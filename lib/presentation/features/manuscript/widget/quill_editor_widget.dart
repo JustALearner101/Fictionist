@@ -67,33 +67,46 @@ class _QuillEditorWidgetState extends State<QuillEditorWidget> {
       if (cursorIndex > 0) {
         final text = _controller.document.toPlainText();
         
-        // Scan backwards to find the start of the word or '@'
-        int atIndex = -1;
+        // Scan backwards to find the start of the word, '@', or '[['
+        int triggerIndex = -1;
+        bool isWikiLinkTrigger = false;
+        
         for (int i = cursorIndex - 1; i >= 0; i--) {
           if (i >= text.length) continue;
           final char = text[i];
           if (char == '\n') break; // Don't scan across paragraphs
+          
           if (char == '@') {
-            // Verify there is a space or start of line before '@'
             if (i == 0 || text[i - 1] == ' ' || text[i - 1] == '\n') {
-              atIndex = i;
+              triggerIndex = i;
+              isWikiLinkTrigger = false;
             }
             break;
           }
-          if (char == ' ') {
-            // Space indicates word boundary, stop search
+          
+          if (char == '[' && i > 0 && text[i - 1] == '[') {
+            triggerIndex = i - 1;
+            isWikiLinkTrigger = true;
+            break;
+          }
+          
+          if (char == ' ' && !_isAutocompleteActive) {
+            // Space indicates word boundary when NOT active, stop search
             break;
           }
         }
 
-        if (atIndex != -1 && atIndex < text.length) {
-          final query = text.substring(atIndex + 1, cursorIndex);
-          setState(() {
-            _isAutocompleteActive = true;
-            _autocompleteQuery = query;
-            _autocompleteTriggerIndex = atIndex;
-          });
-          return;
+        if (triggerIndex != -1 && triggerIndex < text.length) {
+          final queryStart = triggerIndex + (isWikiLinkTrigger ? 2 : 1);
+          if (queryStart <= cursorIndex) {
+            final query = text.substring(queryStart, cursorIndex);
+            setState(() {
+              _isAutocompleteActive = true;
+              _autocompleteQuery = query;
+              _autocompleteTriggerIndex = triggerIndex;
+            });
+            return;
+          }
         }
       }
     }
@@ -169,7 +182,7 @@ class _QuillEditorWidgetState extends State<QuillEditorWidget> {
         Theme.of(context).textTheme.bodyLarge ?? const TextStyle(fontSize: 16);
     
     final double fontSize = widget.editorFontSize;
-    final String? fontFamily = widget.layoutMode == 'book' ? 'Lora' : null;
+    final String? fontFamily = widget.layoutMode == 'book' ? Theme.of(context).textTheme.displayLarge?.fontFamily : null;
     final double lineHeight = widget.layoutMode == 'book' ? 1.6 : 1.4;
 
     final basePadding =
@@ -209,7 +222,7 @@ class _QuillEditorWidgetState extends State<QuillEditorWidget> {
         h1: DefaultTextBlockStyle(
           textStyle.copyWith(
             fontFamily: fontFamily,
-            color: const Color(0xFFE8853B),
+            color: textStyle.color,
             fontWeight: FontWeight.bold,
             height: lineHeight,
             fontSize: fontSize * 1.5,
@@ -222,7 +235,7 @@ class _QuillEditorWidgetState extends State<QuillEditorWidget> {
         h2: DefaultTextBlockStyle(
           textStyle.copyWith(
             fontFamily: fontFamily,
-            color: const Color(0xFFE8853B),
+            color: textStyle.color,
             fontWeight: FontWeight.w600,
             height: lineHeight,
             fontSize: fontSize * 1.3,
@@ -235,7 +248,7 @@ class _QuillEditorWidgetState extends State<QuillEditorWidget> {
         h3: DefaultTextBlockStyle(
           textStyle.copyWith(
             fontFamily: fontFamily,
-            color: const Color(0xFFE8853B),
+            color: textStyle.color,
             fontWeight: FontWeight.w600,
             height: lineHeight,
             fontSize: fontSize * 1.15,
@@ -245,16 +258,16 @@ class _QuillEditorWidgetState extends State<QuillEditorWidget> {
           const VerticalSpacing(0, 0),
           null,
         ),
-        bold: const TextStyle(
-          color: Color(0xFF4A90D9),
+        bold: TextStyle(
+          color: textStyle.color,
           fontWeight: FontWeight.bold,
         ),
-        italic: const TextStyle(
-          color: Color(0xFF50A85A),
+        italic: TextStyle(
+          color: textStyle.color,
           fontStyle: FontStyle.italic,
         ),
-        link: const TextStyle(
-          color: Color(0xFF9B59B6),
+        link: TextStyle(
+          color: Theme.of(context).colorScheme.primary,
           decoration: TextDecoration.underline,
         ),
         inlineCode: InlineCodeStyle(

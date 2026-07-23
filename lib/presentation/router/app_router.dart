@@ -21,6 +21,20 @@ final GlobalKey<NavigatorState> _rootNavigatorKey =
 final GlobalKey<NavigatorState> _shellNavigatorKey =
     GlobalKey<NavigatorState>(debugLabel: 'shell');
 
+Page<dynamic> _fadeTransitionPage(BuildContext context, GoRouterState state, Widget child) {
+  return CustomTransitionPage<void>(
+    key: state.pageKey,
+    child: child,
+    transitionsBuilder: (context, animation, secondaryAnimation, child) {
+      return FadeTransition(
+        opacity: animation,
+        child: child,
+      );
+    },
+    transitionDuration: const Duration(milliseconds: 200),
+  );
+}
+
 final GoRouter appRouter = GoRouter(
   navigatorKey: _rootNavigatorKey,
   initialLocation: '/entities',
@@ -33,8 +47,10 @@ final GoRouter appRouter = GoRouter(
       routes: [
         GoRoute(
           path: '/entities',
-          pageBuilder: (context, state) => const NoTransitionPage(
-            child: EntityListScreen(),
+          pageBuilder: (context, state) => _fadeTransitionPage(
+            context,
+            state,
+            const EntityListScreen(),
           ),
           routes: [
             GoRoute(
@@ -62,14 +78,18 @@ final GoRouter appRouter = GoRouter(
         ),
         GoRoute(
           path: '/timeline',
-          pageBuilder: (context, state) => const NoTransitionPage(
-            child: TimelineScreen(),
+          pageBuilder: (context, state) => _fadeTransitionPage(
+            context,
+            state,
+            const TimelineScreen(),
           ),
         ),
         GoRoute(
           path: '/manuscript',
-          pageBuilder: (context, state) => const NoTransitionPage(
-            child: ManuscriptScreen(),
+          pageBuilder: (context, state) => _fadeTransitionPage(
+            context,
+            state,
+            const ManuscriptScreen(),
           ),
           routes: [
             GoRoute(
@@ -84,20 +104,26 @@ final GoRouter appRouter = GoRouter(
         ),
         GoRoute(
           path: '/graph',
-          pageBuilder: (context, state) => const NoTransitionPage(
-            child: GraphScreen(),
+          pageBuilder: (context, state) => _fadeTransitionPage(
+            context,
+            state,
+            const GraphScreen(),
           ),
         ),
         GoRoute(
           path: '/plot',
-          pageBuilder: (context, state) => const NoTransitionPage(
-            child: PlotCanvasScreen(),
+          pageBuilder: (context, state) => _fadeTransitionPage(
+            context,
+            state,
+            const PlotCanvasScreen(),
           ),
         ),
         GoRoute(
           path: '/map',
-          pageBuilder: (context, state) => const NoTransitionPage(
-            child: MapScreen(),
+          pageBuilder: (context, state) => _fadeTransitionPage(
+            context,
+            state,
+            const MapScreen(),
           ),
           routes: [
             GoRoute(

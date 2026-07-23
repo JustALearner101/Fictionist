@@ -8,6 +8,7 @@ import 'package:fictionist/presentation/features/theme/provider/theme_provider.d
 import 'package:fictionist/presentation/common/widget/loading_indicator.dart';
 import 'package:fictionist/presentation/common/widget/fictionist_dropdown.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:fictionist/core/theme/app_typography.dart';
 
 /// Full theme customization screen.
 ///
@@ -17,9 +18,9 @@ class ThemeScreen extends ConsumerWidget {
   const ThemeScreen({super.key});
 
   static final _fontOptions = {
-    'display': ['Lora', 'Playfair Display', 'Cinzel', 'Cormorant Garamond', 'Merriweather'],
-    'heading': ['Outfit', 'Poppins', 'Montserrat', 'Raleway', 'Nunito Sans'],
-    'body': ['Inter', 'Source Serif 4', 'Nunito', 'Lato', 'Roboto'],
+    'display': ['Georgia', 'Garamond', 'Times New Roman', 'Lora', 'EB Garamond', 'Libre Baskerville', 'Cinzel', 'Playfair Display', 'Cormorant Garamond', 'Merriweather'],
+    'heading': ['Segoe UI', 'Calibri', 'Arial', 'Georgia', 'Garamond', 'Outfit', 'Poppins', 'Montserrat', 'EB Garamond', 'Libre Baskerville', 'Cinzel'],
+    'body': ['Segoe UI', 'Calibri', 'Georgia', 'Garamond', 'Times New Roman', 'Courier New', 'Consolas', 'Inter', 'EB Garamond', 'Libre Baskerville', 'Courier Prime', 'Roboto', 'Lora'],
   };
 
   static final _presets = [
@@ -124,6 +125,7 @@ class ThemeScreen extends ConsumerWidget {
 
         _FontDropdown(
           label: 'Display Font',
+          icon: Icons.title_rounded,
           value: config.displayFont,
           options: _fontOptions['display']!,
           onChanged: (String value) {
@@ -133,9 +135,10 @@ class ThemeScreen extends ConsumerWidget {
                 );
           },
         ),
-        const SizedBox(height: 8),
+        const SizedBox(height: 16),
         _FontDropdown(
           label: 'Heading Font',
+          icon: Icons.text_fields_rounded,
           value: config.headingFont,
           options: _fontOptions['heading']!,
           onChanged: (String value) {
@@ -145,9 +148,10 @@ class ThemeScreen extends ConsumerWidget {
                 );
           },
         ),
-        const SizedBox(height: 8),
+        const SizedBox(height: 16),
         _FontDropdown(
           label: 'Body Font',
+          icon: Icons.notes_rounded,
           value: config.bodyFont,
           options: _fontOptions['body']!,
           onChanged: (String value) {
@@ -270,57 +274,61 @@ class _PresetCard extends StatelessWidget {
 /// Dropdown for selecting a font family.
 class _FontDropdown extends StatelessWidget {
   final String label;
+  final IconData icon;
   final String value;
   final List<String> options;
   final ValueChanged<String> onChanged;
-  final String? fontFamily;
 
   const _FontDropdown({
     required this.label,
+    required this.icon,
     required this.value,
     required this.options,
     required this.onChanged,
-    this.fontFamily,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Material(
-      color: Theme.of(context).colorScheme.surfaceVariant.withOpacity(0.3),
-      borderRadius: BorderRadius.circular(12),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-        child: Row(
+    final theme = Theme.of(context);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
           children: [
+            Icon(
+              icon,
+              size: 14,
+              color: theme.colorScheme.primary.withOpacity(0.7),
+            ),
+            const SizedBox(width: 6),
             Text(
               label,
-              style: Theme.of(context).textTheme.bodyLarge!.copyWith(
-                color: Theme.of(context).colorScheme.onSurfaceVariant,
-                fontSize: 13,
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: FictionistDropdown<String>(
-                value: value.isNotEmpty ? value : options.first,
-                items: options
-                    .map((f) => FictionistDropdownItem<String>(
-                          value: f,
-                          child: Text(f, style: TextStyle(
-                            color: Theme.of(context).colorScheme.primary,
-                            fontSize: 12,
-                            fontWeight: FontWeight.w600,
-                          )),
-                        ))
-                    .toList(),
-                onChanged: (v) {
-                  onChanged(v);
-                },
+              style: theme.textTheme.labelMedium!.copyWith(
+                color: theme.colorScheme.onSurfaceVariant,
+                fontSize: 11,
+                letterSpacing: 0.5,
               ),
             ),
           ],
         ),
-      ),
+        const SizedBox(height: 8),
+        FictionistDropdown<String>(
+          value: value.isNotEmpty ? value : options.first,
+          items: options
+              .map((f) => FictionistDropdownItem<String>(
+                    value: f,
+                    child: Text(
+                      f,
+                      style: theme.textTheme.bodyMedium!.copyWith(
+                        fontFamily: f,
+                        fontSize: 13,
+                      ),
+                    ),
+                  ))
+              .toList(),
+          onChanged: onChanged,
+        ),
+      ],
     );
   }
 }
@@ -332,21 +340,12 @@ class _TypographyPreviewBox extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     TextStyle getStyle(String family, {required double fontSize, required FontWeight fontWeight}) {
-      try {
-        return GoogleFonts.getFont(
-          family,
-          fontSize: fontSize,
-          fontWeight: fontWeight,
-          color: Theme.of(context).colorScheme.onSurface,
-        );
-      } catch (_) {
-        return TextStyle(
-          fontFamily: family,
-          fontSize: fontSize,
-          fontWeight: fontWeight,
-          color: Theme.of(context).colorScheme.onSurface,
-        );
-      }
+      return AppTypography.getTextStyle(
+        family,
+        fontSize: fontSize,
+        fontWeight: fontWeight,
+        color: Theme.of(context).colorScheme.onSurface,
+      );
     }
 
     return Container(

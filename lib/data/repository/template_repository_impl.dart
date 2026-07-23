@@ -2,18 +2,17 @@ import 'package:fpdart/fpdart.dart';
 import 'package:injectable/injectable.dart';
 import '../../core/error/failure.dart';
 import '../../domain/entity/entity_type.dart';
-import '../../domain/repository/template_repository.dart';
+
 import '../../domain/template/template.dart';
 import '../dao/template_dao.dart';
 import '../mapper/template_mapper.dart';
 
-@LazySingleton(as: TemplateRepository)
-class TemplateRepositoryImpl implements TemplateRepository {
+@lazySingleton
+class TemplateRepositoryImpl {
   final TemplateDao _dao;
 
   TemplateRepositoryImpl(this._dao);
 
-  @override
   Future<Either<Failure, Template>> create(Template template) async {
     try {
       final companion = TemplateMapper.toCompanion(template);
@@ -27,7 +26,6 @@ class TemplateRepositoryImpl implements TemplateRepository {
     }
   }
 
-  @override
   Future<Either<Failure, Template>> update(Template template) async {
     try {
       final companion = TemplateMapper.toCompanion(template);
@@ -45,7 +43,6 @@ class TemplateRepositoryImpl implements TemplateRepository {
     }
   }
 
-  @override
   Future<Either<Failure, Unit>> delete(String id) async {
     try {
       final count = await _dao.deleteTemplate(id);
@@ -63,7 +60,6 @@ class TemplateRepositoryImpl implements TemplateRepository {
     }
   }
 
-  @override
   Future<Either<Failure, List<Template>>> getAllTemplates() async {
     try {
       final rows = await _dao.getAllTemplates();
@@ -76,7 +72,6 @@ class TemplateRepositoryImpl implements TemplateRepository {
     }
   }
 
-  @override
   Future<Either<Failure, List<Template>>> getTemplatesByType(
       EntityType entityType) async {
     try {
@@ -90,7 +85,6 @@ class TemplateRepositoryImpl implements TemplateRepository {
     }
   }
 
-  @override
   Future<Either<Failure, Template>> getTemplateById(String id) async {
     try {
       final row = await _dao.getTemplateById(id);

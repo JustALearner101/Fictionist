@@ -3,9 +3,8 @@ import 'package:injectable/injectable.dart';
 import 'package:uuid/uuid.dart';
 
 import 'package:fictionist/core/error/failure.dart';
-import 'package:fictionist/core/use_case/use_case.dart';
 import 'package:fictionist/domain/manuscript/manuscript_chapter.dart';
-import 'package:fictionist/domain/repository/manuscript_repository.dart';
+import 'package:fictionist/data/repository/manuscript_repository_impl.dart';
 
 class CreateChapterParams {
   final String title;
@@ -20,13 +19,11 @@ class CreateChapterParams {
 }
 
 @lazySingleton
-class CreateChapterUseCase
-    implements UseCase<ManuscriptChapter, CreateChapterParams> {
-  final ManuscriptRepository _repository;
+class CreateChapterUseCase {
+  final ManuscriptRepositoryImpl _repository;
 
   CreateChapterUseCase(this._repository);
 
-  @override
   Future<Either<Failure, ManuscriptChapter>> call(
     CreateChapterParams params,
   ) async {
@@ -57,13 +54,11 @@ class UpdateChapterParams {
 }
 
 @lazySingleton
-class UpdateChapterUseCase
-    implements UseCase<ManuscriptChapter, UpdateChapterParams> {
-  final ManuscriptRepository _repository;
+class UpdateChapterUseCase {
+  final ManuscriptRepositoryImpl _repository;
 
   UpdateChapterUseCase(this._repository);
 
-  @override
   Future<Either<Failure, ManuscriptChapter>> call(
     UpdateChapterParams params,
   ) async {
@@ -74,25 +69,22 @@ class UpdateChapterUseCase
 }
 
 @lazySingleton
-class DeleteChapterUseCase implements UseCase<Unit, String> {
-  final ManuscriptRepository _repository;
+class DeleteChapterUseCase {
+  final ManuscriptRepositoryImpl _repository;
 
   DeleteChapterUseCase(this._repository);
 
-  @override
   Future<Either<Failure, Unit>> call(String id) async {
     return _repository.softDelete(id);
   }
 }
 
 @lazySingleton
-class ListChaptersUseCase
-    implements UseCaseNoParams<List<ManuscriptChapter>> {
-  final ManuscriptRepository _repository;
+class ListChaptersUseCase {
+  final ManuscriptRepositoryImpl _repository;
 
   ListChaptersUseCase(this._repository);
 
-  @override
   Future<Either<Failure, List<ManuscriptChapter>>> call() async {
     return _repository.getAllActive();
   }
@@ -105,16 +97,12 @@ class ReorderChaptersParams {
 }
 
 @lazySingleton
-class ReorderChaptersUseCase
-    implements UseCase<Unit, ReorderChaptersParams> {
-  final ManuscriptRepository _repository;
+class ReorderChaptersUseCase {
+  final ManuscriptRepositoryImpl _repository;
 
   ReorderChaptersUseCase(this._repository);
 
-  @override
-  Future<Either<Failure, Unit>> call(
-    ReorderChaptersParams params,
-  ) async {
+  Future<Either<Failure, Unit>> call(ReorderChaptersParams params) async {
     return _repository.reorder(params.chapterIdsInOrder);
   }
 }

@@ -2,27 +2,24 @@ import 'package:fpdart/fpdart.dart';
 import 'package:injectable/injectable.dart';
 
 import 'package:fictionist/core/error/failure.dart';
-import 'package:fictionist/domain/repository/sync_repository.dart';
-import 'package:fictionist/domain/repository/entity_repository.dart';
-import 'package:fictionist/domain/repository/relationship_repository.dart';
-import 'package:fictionist/domain/repository/tag_repository.dart';
-import 'package:fictionist/domain/repository/timeline_repository.dart';
-import 'package:fictionist/domain/repository/template_repository.dart';
-import 'package:fictionist/domain/repository/map_repository.dart';
-import 'package:fictionist/domain/repository/manuscript_repository.dart';
+import 'package:fictionist/data/repository/entity_repository_impl.dart';
+import 'package:fictionist/data/repository/map_repository_impl.dart';
+import 'package:fictionist/data/repository/manuscript_repository_impl.dart';
+import 'package:fictionist/data/repository/relationship_repository_impl.dart';
+import 'package:fictionist/data/repository/tag_repository_impl.dart';
+import 'package:fictionist/data/repository/template_repository_impl.dart';
+import 'package:fictionist/data/repository/timeline_repository_impl.dart';
 import 'package:fictionist/domain/services/backup_synchronizer.dart';
 
-/// Concrete implementation of [SyncRepository] that orchestrates
-/// full-database export/import across all domain repositories.
-@LazySingleton(as: SyncRepository)
-class SyncRepositoryImpl implements SyncRepository {
-  final EntityRepository _entityRepo;
-  final RelationshipRepository _relationshipRepo;
-  final TagRepository _tagRepo;
-  final TimelineRepository _timelineRepo;
-  final TemplateRepository _templateRepo;
-  final MapRepository _mapRepo;
-  final ManuscriptRepository _manuscriptRepo;
+@lazySingleton
+class SyncRepositoryImpl {
+  final EntityRepositoryImpl _entityRepo;
+  final RelationshipRepositoryImpl _relationshipRepo;
+  final TagRepositoryImpl _tagRepo;
+  final TimelineRepositoryImpl _timelineRepo;
+  final TemplateRepositoryImpl _templateRepo;
+  final MapRepositoryImpl _mapRepo;
+  final ManuscriptRepositoryImpl _manuscriptRepo;
   final BackupSynchronizer _synchronizer;
 
   SyncRepositoryImpl(
@@ -36,7 +33,6 @@ class SyncRepositoryImpl implements SyncRepository {
     this._synchronizer,
   );
 
-  @override
   Future<Either<Failure, Map<String, List<Map<String, dynamic>>>>> exportAll() async {
     try {
       final result = <String, List<Map<String, dynamic>>>{};
@@ -98,7 +94,6 @@ class SyncRepositoryImpl implements SyncRepository {
     }
   }
 
-  @override
   Future<Either<Failure, Map<String, int>>> importAll(
     Map<String, List<Map<String, dynamic>>> records,
   ) async {

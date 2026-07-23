@@ -10,7 +10,7 @@ import '../../../../domain/relationship/relationship_type_registry.dart';
 import '../../../../domain/use_case/entity/delete_entity_use_case.dart';
 import '../../../../domain/use_case/entity/update_entity_use_case.dart';
 import '../../../../domain/use_case/relationship/create_relationship_use_case.dart';
-import '../../../../domain/use_case/relationship/delete_relationship_use_case.dart';
+import '../../../../data/repository/relationship_repository_impl.dart';
 import '../../../../domain/version/entity_version.dart';
 import '../../../../injection.dart';
 import '../../../common/widget/confirm_dialog.dart';
@@ -83,7 +83,7 @@ class _EntityDetailScreenState extends ConsumerState<EntityDetailScreen> {
               children: [
                 Text('Chronicle Version History',
                   style: Theme.of(context).textTheme.titleMedium!.copyWith(
-                    fontFamily: 'Lora',
+                    fontFamily: Theme.of(context).textTheme.displayLarge?.fontFamily,
                     color: Theme.of(context).colorScheme.primary,
                     fontWeight: FontWeight.bold,
                   ),
@@ -205,7 +205,7 @@ class _EntityDetailScreenState extends ConsumerState<EntityDetailScreen> {
         title: Text(
           'Compare Changes',
           style: Theme.of(context).textTheme.titleMedium!.copyWith(
-                fontFamily: 'Lora',
+                fontFamily: Theme.of(context).textTheme.displayLarge?.fontFamily,
                 color: Theme.of(context).colorScheme.primary,
                 fontWeight: FontWeight.bold,
               ),
@@ -362,7 +362,7 @@ class _EntityDetailScreenState extends ConsumerState<EntityDetailScreen> {
       ),
     );
     if (confirm != true) return;
-    final res = await getIt<DeleteRelationshipUseCase>()(id);
+    final res = await getIt<RelationshipRepositoryImpl>().delete(id);
     res.fold(
       (f) => _snack(f.message, Theme.of(context).colorScheme.error),
       (_) {
@@ -469,7 +469,7 @@ class _SliverAppBar extends StatelessWidget {
       ),
       title: Text(entity.name,
         style: Theme.of(context).textTheme.titleMedium!.copyWith(
-          fontFamily: 'Lora', fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurface,
+          fontFamily: Theme.of(context).textTheme.displayLarge?.fontFamily, fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurface,
         ),
       ),
       flexibleSpace: FlexibleSpaceBar(
@@ -648,7 +648,7 @@ class _SectionCard extends StatelessWidget {
                 SizedBox(width: 8),
                 Text(title,
                   style: Theme.of(context).textTheme.titleMedium!.copyWith(
-                    fontFamily: 'Lora', color: Theme.of(context).colorScheme.primary,
+                    fontFamily: Theme.of(context).textTheme.displayLarge?.fontFamily, color: Theme.of(context).colorScheme.primary,
                     fontWeight: FontWeight.bold, fontSize: 15,
                   ),
                 ),
@@ -1005,7 +1005,7 @@ class _TimelineStrip extends ConsumerWidget {
                           ),
                         Text(entry.title,
                           style: Theme.of(context).textTheme.bodyLarge!.copyWith(
-                            fontFamily: 'Lora', fontWeight: FontWeight.w600,
+                            fontFamily: Theme.of(context).textTheme.displayLarge?.fontFamily, fontWeight: FontWeight.w600,
                             fontSize: 13, color: Theme.of(context).colorScheme.onSurface,
                           ),
                         ),

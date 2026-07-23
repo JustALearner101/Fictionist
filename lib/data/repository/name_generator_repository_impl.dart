@@ -9,10 +9,10 @@ import 'package:fictionist/domain/name_generator/culture.dart';
 import 'package:fictionist/domain/name_generator/generated_name.dart';
 import 'package:fictionist/domain/name_generator/generation_type.dart';
 import 'package:fictionist/domain/name_generator/name_generator_params.dart';
-import 'package:fictionist/domain/repository/name_generator_repository.dart';
 
-@LazySingleton(as: NameGeneratorRepository)
-class NameGeneratorRepositoryImpl implements NameGeneratorRepository {
+
+@lazySingleton
+class NameGeneratorRepositoryImpl {
   final _random = math.Random();
 
   /// In-memory culture cache.

@@ -1,7 +1,6 @@
 import 'package:fpdart/fpdart.dart';
 import 'package:injectable/injectable.dart';
 import 'package:fictionist/core/error/failure.dart';
-import 'package:fictionist/core/use_case/use_case.dart';
 import 'package:fictionist/domain/entity/entity.dart';
 import 'package:fictionist/domain/entity/entity_status.dart';
 import 'package:fictionist/domain/relationship/relationship.dart';
@@ -16,7 +15,7 @@ class ContinuityCheckResult {
 
 class ContinuityViolation {
   final String message;
-  final String severity; // 'error' | 'warning'
+  final String severity;
   final String? fixSuggestion;
 
   const ContinuityViolation({
@@ -39,21 +38,14 @@ class ContinuityCheckParams {
 }
 
 @lazySingleton
-class ContinuityCheckUseCase
-    implements UseCase<ContinuityCheckResult, ContinuityCheckParams> {
-  @override
+class ContinuityCheckUseCase {
   Future<Either<Failure, ContinuityCheckResult>> call(
     ContinuityCheckParams params,
   ) async {
     final violations = <ContinuityViolation>[];
 
-    // Rule 1: Life Bounds — events outside character lifespan
     _checkLifeBounds(params, violations);
-
-    // Rule 2: Faction Activity — characters in factions outside era span
     _checkFactionActivity(params, violations);
-
-    // Rule 3: Orphan timeline entries (no linked entity)
     _checkOrphanEntries(params, violations);
 
     return Right(ContinuityCheckResult(violations: violations));
@@ -66,7 +58,6 @@ class ContinuityCheckUseCase
     for (final entity in params.entities) {
       if (entity.status == EntityStatus.deprecated) continue;
 
-      // Find birth/death from custom fields
       String? birthDate;
       String? deathDate;
       for (final field in entity.customFields) {
@@ -84,7 +75,6 @@ class ContinuityCheckUseCase
 
       if (birthDate == null && deathDate == null) continue;
 
-      // Check timeline entries for this entity
       for (final entry in params.timelineEntries) {
         if (entry.entityId != entity.id) continue;
         final eventDate = entry.dateLabel;
@@ -112,7 +102,6 @@ class ContinuityCheckUseCase
     for (final rel in params.relationships) {
       if (rel.typeKey != 'member_of') continue;
 
-      // Check if the faction has an era span
       final faction = params.entities
           .where((e) => e.id == rel.targetId)
           .firstOrNull;
@@ -140,7 +129,6 @@ class ContinuityCheckUseCase
           .firstOrNull;
       if (member == null) continue;
 
-      // Find member's birth/death
       String? memberBirth;
       for (final field in member.customFields) {
         if (field.key.toLowerCase().contains('birth') &&
@@ -157,8 +145,7 @@ class ContinuityCheckUseCase
               '${member.name} was born ($memberBirth) before '
               '${faction.name} was formed ($factionStart) but is a member.',
           severity: 'warning',
-          fixSuggestion:
-              'Adjust birth date or faction founding date.',
+          fixSuggestion: 'Adjust birth date or faction founding date.',
         ));
       }
     }
