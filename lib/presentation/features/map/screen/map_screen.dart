@@ -1114,14 +1114,16 @@ class _MapScreenState extends ConsumerState<MapScreen> {
 
                 return entitiesState.when(
                   data: (entities) {
-                    return Column(
+                    return Stack(
                       children: [
-                  if (maps.length > 1)
-                    Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-                      child: Row(
-                        children: [
-                          Text('Map selector:', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant)),
+                        Column(
+                          children: [
+                            if (maps.length > 1)
+                              Padding(
+                                padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                                child: Row(
+                                  children: [
+                                    Text('Map selector:', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant)),
                           SizedBox(width: 12),
                           Expanded(
                             child: FictionistDropdown<WorldMap>(
@@ -1643,10 +1645,12 @@ class _MapScreenState extends ConsumerState<MapScreen> {
                               ),
                             );
                           },
-                          loading: () => LoadingIndicator(),
+                          loading: () => const LoadingIndicator(),
                           error: (e, _) => ErrorDisplay(message: e.toString()),
                         ),
                   ),
+                          ],
+                        ),
                   Positioned(
                     bottom: 16,
                     left: 16,
