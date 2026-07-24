@@ -1077,10 +1077,19 @@ class _MapScreenState extends ConsumerState<MapScreen> {
             child: mapsState.when(
               data: (maps) {
                 if (maps.isEmpty) {
-                  return const EmptyState(
+                  return EmptyState(
                     title: 'No World Maps Found',
                     message: 'Upload your fantasy cartography image to begin mapping out historical sites and cities.',
                     icon: Icons.map_outlined,
+                    actionLabel: 'Upload Map',
+                    actionIcon: Icons.upload_file,
+                    onActionPressed: _uploadMap,
+                    secondaryActionLabel: 'Forge Map',
+                    secondaryActionIcon: Icons.auto_awesome,
+                    onSecondaryActionPressed: () {
+                      HapticFeedback.lightImpact();
+                      context.push('/map/generator');
+                    },
                   );
                 }
 
