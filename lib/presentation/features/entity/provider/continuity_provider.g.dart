@@ -6,7 +6,7 @@ part of 'continuity_provider.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$allRelationshipsHash() => r'1cfa05bc2f46d8cb66d358d339a68e20eb7405b7';
+String _$allRelationshipsHash() => r'795bc66207c1111756e8ad958714c4c79daa60ba';
 
 /// See also [allRelationships].
 @ProviderFor(allRelationships)

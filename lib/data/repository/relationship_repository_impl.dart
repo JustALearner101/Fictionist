@@ -3,15 +3,18 @@ import 'package:injectable/injectable.dart';
 import '../../core/error/failure.dart';
 import '../../domain/relationship/relationship.dart';
 
+import '../../domain/repository/relationship_repository.dart';
+
 import '../dao/relationship_dao.dart';
 import '../mapper/relationship_mapper.dart';
 
-@lazySingleton
-class RelationshipRepositoryImpl {
+@LazySingleton(as: RelationshipRepository)
+class RelationshipRepositoryImpl implements RelationshipRepository {
   final RelationshipDao _dao;
 
   RelationshipRepositoryImpl(this._dao);
 
+  @override
   Future<Either<Failure, Relationship>> create(Relationship relationship) async {
     try {
       final companion = RelationshipMapper.toCompanion(relationship);
@@ -25,6 +28,7 @@ class RelationshipRepositoryImpl {
     }
   }
 
+  @override
   Future<Either<Failure, Unit>> delete(String id) async {
     try {
       final count = await _dao.deleteRelationship(id);
@@ -40,6 +44,7 @@ class RelationshipRepositoryImpl {
     }
   }
 
+  @override
   Future<Either<Failure, Unit>> deleteForEntity(String entityId) async {
     try {
       await _dao.deleteRelationshipsForEntity(entityId);
@@ -52,6 +57,7 @@ class RelationshipRepositoryImpl {
     }
   }
 
+  @override
   Future<Either<Failure, List<Relationship>>> getRelationshipsForEntity(
       String entityId) async {
     try {
@@ -65,6 +71,7 @@ class RelationshipRepositoryImpl {
     }
   }
 
+  @override
   Future<Either<Failure, Relationship?>> getDuplicate(
       String sourceId, String targetId, String typeKey) async {
     try {
@@ -78,6 +85,7 @@ class RelationshipRepositoryImpl {
     }
   }
 
+  @override
   Future<Either<Failure, Relationship>> getById(String id) async {
     try {
       final row = await _dao.getById(id);
@@ -93,6 +101,7 @@ class RelationshipRepositoryImpl {
     }
   }
 
+  @override
   Future<Either<Failure, List<Relationship>>> getAllActive() async {
     try {
       final rows = await _dao.getAllActive();

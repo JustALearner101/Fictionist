@@ -17,11 +17,21 @@ class PlotDao extends DatabaseAccessor<AppDatabase> with _$PlotDaoMixin {
   Future<void> insertConnection(PlotConnectionsCompanion companion) =>
       into(plotConnections).insert(companion);
 
-  Future<List<PlotCardRow>> getAllActiveCards() =>
-      (select(plotCards)..where((t) => t.isDeleted.equals(false))).get();
+  Future<List<PlotCardRow>> getAllActiveCards([String? projectId]) {
+    final query = select(plotCards)..where((t) => t.isDeleted.equals(false));
+    if (projectId != null) {
+      query.where((t) => t.projectId.equals(projectId));
+    }
+    return query.get();
+  }
 
-  Future<List<PlotConnectionRow>> getAllActiveConnections() =>
-      (select(plotConnections)..where((t) => t.isDeleted.equals(false))).get();
+  Future<List<PlotConnectionRow>> getAllActiveConnections([String? projectId]) {
+    final query = select(plotConnections)..where((t) => t.isDeleted.equals(false));
+    if (projectId != null) {
+      query.where((t) => t.projectId.equals(projectId));
+    }
+    return query.get();
+  }
 
   Future<bool> updateCard(PlotCardsCompanion companion) =>
       (update(plotCards)..where((t) => t.id.equals(companion.id.value)))

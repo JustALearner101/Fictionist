@@ -16,10 +16,10 @@ class EntityRepositoryImpl {
 
   EntityRepositoryImpl(this._dao);
 
-  Future<Either<Failure, Entity>> create(Entity entity) async {
+  Future<Either<Failure, Entity>> create(Entity entity, {String? projectId}) async {
     try {
       dev.log('EntityRepository.create: name=${entity.name}, type=${entity.type.key}, id=${entity.id}');
-      final companion = EntityMapper.toCompanion(entity);
+      final companion = EntityMapper.toCompanion(entity, projectId: projectId);
       dev.log('Companion: name=${companion.name.value}, entityType=${companion.entityType.value}');
       await _dao.insertEntity(companion);
       dev.log('Entity inserted successfully: ${entity.id}');
@@ -36,9 +36,9 @@ class EntityRepositoryImpl {
     }
   }
 
-  Future<Either<Failure, Entity>> getById(String id) async {
+  Future<Either<Failure, Entity>> getById(String id, {String? projectId}) async {
     try {
-      final row = await _dao.getById(id);
+      final row = await _dao.getById(id, projectId);
       if (row == null) {
         return Left(Failure.notFound(resourceType: 'Entity', resourceId: id));
       }
@@ -82,12 +82,12 @@ class EntityRepositoryImpl {
     }
   }
 
-  Future<Either<Failure, List<Entity>>> search(String query) async {
+  Future<Either<Failure, List<Entity>>> search(String query, {String? projectId}) async {
     try {
       if (query.trim().isEmpty) {
         return const Right([]);
       }
-      final results = await _dao.searchFts(query);
+      final results = await _dao.searchFts(query, projectId);
       final list = <Entity>[];
       for (final res in results) {
         final entityId = res['entity_id'] as String;
@@ -106,12 +106,12 @@ class EntityRepositoryImpl {
   }
 
   Future<Either<Failure, List<SearchResult>>> searchWithSnippets(
-      String query) async {
+      String query, {String? projectId}) async {
     try {
       if (query.trim().isEmpty) {
         return const Right([]);
       }
-      final results = await _dao.searchFts(query);
+      final results = await _dao.searchFts(query, projectId);
       final list = <SearchResult>[];
       for (final res in results) {
         final entityId = res['entity_id'] as String;
@@ -133,9 +133,9 @@ class EntityRepositoryImpl {
     }
   }
 
-  Future<Either<Failure, List<Entity>>> getAllActive() async {
+  Future<Either<Failure, List<Entity>>> getAllActive({String? projectId}) async {
     try {
-      final rows = await _dao.getAllActive();
+      final rows = await _dao.getAllActive(projectId);
       return Right(rows.map(EntityMapper.toDomain).toList());
     } catch (e) {
       return Left(Failure.database(
@@ -145,9 +145,9 @@ class EntityRepositoryImpl {
     }
   }
 
-  Future<Either<Failure, List<Entity>>> getActiveByType(EntityType type) async {
+  Future<Either<Failure, List<Entity>>> getActiveByType(EntityType type, {String? projectId}) async {
     try {
-      final rows = await _dao.getActiveByType(type.key);
+      final rows = await _dao.getActiveByType(type.key, projectId);
       return Right(rows.map(EntityMapper.toDomain).toList());
     } catch (e) {
       return Left(Failure.database(
@@ -158,9 +158,9 @@ class EntityRepositoryImpl {
   }
 
   Future<Either<Failure, List<Entity>>> getActiveByStatus(
-      EntityStatus status) async {
+      EntityStatus status, {String? projectId}) async {
     try {
-      final rows = await _dao.getActiveByStatus(status.key);
+      final rows = await _dao.getActiveByStatus(status.key, projectId);
       return Right(rows.map(EntityMapper.toDomain).toList());
     } catch (e) {
       return Left(Failure.database(

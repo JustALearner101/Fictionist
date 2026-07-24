@@ -14,6 +14,7 @@ void main() {
     test('toDomain maps all fields from EntityRow', () {
       final row = EntityRow(
         id: 'test-id',
+        projectId: 'proj-id',
         name: 'Gandalf',
         entityType: 'character',
         status: 'canon',
@@ -52,6 +53,7 @@ void main() {
     test('toDomain handles null description', () {
       final row = EntityRow(
         id: 'test-id',
+        projectId: 'proj-id',
         name: 'Ringwraith',
         entityType: 'character',
         status: 'draft',
@@ -70,6 +72,7 @@ void main() {
     test('toDomain handles empty custom fields', () {
       final row = EntityRow(
         id: 'test-id',
+        projectId: 'proj-id',
         name: 'Bilbo',
         entityType: 'character',
         status: 'draft',
@@ -88,6 +91,7 @@ void main() {
     test('toDomain handles soft-deleted entity', () {
       final row = EntityRow(
         id: 'test-id',
+        projectId: 'proj-id',
         name: 'Deleted',
         entityType: 'character',
         status: 'draft',
@@ -182,6 +186,7 @@ void main() {
         description: companion.description.value,
         customFields: companion.customFields.value,
         iconColor: companion.iconColor.value,
+        projectId: companion.projectId.value,
         isDeleted: companion.isDeleted.value,
         createdAt: companion.createdAt.value,
         updatedAt: companion.updatedAt.value,

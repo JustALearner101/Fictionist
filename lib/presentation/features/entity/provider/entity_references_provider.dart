@@ -1,5 +1,4 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import '../../../../domain/entity/entity.dart';
 import '../../../../domain/use_case/entity/get_entity_references_use_case.dart';
 import '../../../../injection.dart';
 import '../../entity/provider/entity_list_provider.dart';
@@ -11,7 +10,6 @@ Future<EntityReferences> entityReferences(
   EntityReferencesRef ref,
   String entityId,
 ) async {
-  // Get the entity from the entity list
   final entities = await ref.watch(entityListProvider.future);
   final entity = entities.firstWhere(
     (e) => e.id == entityId,

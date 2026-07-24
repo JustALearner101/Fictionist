@@ -9,7 +9,13 @@ class SetupPayoffDao extends DatabaseAccessor<AppDatabase>
     with _$SetupPayoffDaoMixin {
   SetupPayoffDao(AppDatabase db) : super(db);
 
-  Future<List<SetupPayoffRow>> getAll() => select(setupPayoffs).get();
+  Future<List<SetupPayoffRow>> getAll([String? projectId]) {
+    final query = select(setupPayoffs);
+    if (projectId != null) {
+      query.where((t) => t.projectId.equals(projectId));
+    }
+    return query.get();
+  }
 
   Future<int> insert(SetupPayoffsCompanion entry) =>
       into(setupPayoffs).insert(entry);

@@ -19,12 +19,20 @@ class MapDao extends DatabaseAccessor<AppDatabase> with _$MapDaoMixin {
     return (delete(worldMaps)..where((t) => t.id.equals(id))).go();
   }
 
-  Future<List<WorldMapRow>> getAllMaps() {
-    return select(worldMaps).get();
+  Future<List<WorldMapRow>> getAllMaps([String? projectId]) {
+    final query = select(worldMaps);
+    if (projectId != null) {
+      query.where((t) => t.projectId.equals(projectId));
+    }
+    return query.get();
   }
 
-  Future<WorldMapRow?> getMapById(String id) {
-    return (select(worldMaps)..where((t) => t.id.equals(id))).getSingleOrNull();
+  Future<WorldMapRow?> getMapById(String id, [String? projectId]) {
+    final query = select(worldMaps)..where((t) => t.id.equals(id));
+    if (projectId != null) {
+      query.where((t) => t.projectId.equals(projectId));
+    }
+    return query.getSingleOrNull();
   }
 
   Future<int> insertPin(MapPinsCompanion entry) {

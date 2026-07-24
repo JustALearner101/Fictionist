@@ -352,6 +352,7 @@ void main() {
           description: companion.description.value,
           customFields: companion.customFields.value,
           iconColor: companion.iconColor.value,
+          projectId: companion.projectId.value,
           isDeleted: companion.isDeleted.value,
           createdAt: companion.createdAt.value,
           updatedAt: companion.updatedAt.value,

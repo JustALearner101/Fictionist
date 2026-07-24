@@ -5,7 +5,7 @@ import 'package:fictionist/core/error/failure.dart';
 import 'package:fictionist/data/repository/entity_repository_impl.dart';
 import 'package:fictionist/data/repository/map_repository_impl.dart';
 import 'package:fictionist/data/repository/manuscript_repository_impl.dart';
-import 'package:fictionist/data/repository/relationship_repository_impl.dart';
+import 'package:fictionist/domain/repository/relationship_repository.dart';
 import 'package:fictionist/data/repository/tag_repository_impl.dart';
 import 'package:fictionist/data/repository/template_repository_impl.dart';
 import 'package:fictionist/data/repository/timeline_repository_impl.dart';
@@ -14,7 +14,7 @@ import 'package:fictionist/domain/services/backup_synchronizer.dart';
 @lazySingleton
 class SyncRepositoryImpl {
   final EntityRepositoryImpl _entityRepo;
-  final RelationshipRepositoryImpl _relationshipRepo;
+  final RelationshipRepository _relationshipRepo;
   final TagRepositoryImpl _tagRepo;
   final TimelineRepositoryImpl _timelineRepo;
   final TemplateRepositoryImpl _templateRepo;

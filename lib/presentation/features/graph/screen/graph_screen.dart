@@ -774,10 +774,53 @@ class _GraphScreenState extends ConsumerState<GraphScreen> {
 
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
-      body: graphState.when(
-        data: (data) {
-          final entities = data.$1;
-          final relationships = data.$2;
+      body: Column(
+        children: [
+          PageHeader(
+            title: 'Web',
+            subtitle: 'Entity relationship graph',
+            trailing: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                IconButton(
+                  icon: Icon(Icons.refresh, color: Theme.of(context).colorScheme.onSurface, size: 20),
+                  tooltip: 'Refresh Graph',
+                  onPressed: () => ref.invalidate(graphDataProvider),
+                ),
+                IconButton(
+                  icon: Icon(Icons.plagiarism_outlined, color: Theme.of(context).colorScheme.secondary, size: 20),
+                  tooltip: 'Continuity Check',
+                  onPressed: () async {
+                    final graphData = ref.read(graphDataProvider).valueOrNull;
+                    if (graphData == null || !mounted) return;
+                    _showContinuityCheck(
+                      graphData.$1,
+                      graphData.$2,
+                    );
+                  },
+                ),
+                if (_layoutMode != GraphLayoutMode.relationshipMatrix)
+                  IconButton(
+                    icon: Icon(
+                      _scrubberVisible ? Icons.timeline : Icons.timeline_outlined,
+                      color: _scrubberVisible
+                          ? Theme.of(context).colorScheme.primary
+                          : Theme.of(context).colorScheme.onSurfaceVariant,
+                      size: 20,
+                    ),
+                    tooltip: 'Timeline Scrubber',
+                    onPressed: () {
+                      setState(() => _scrubberVisible = !_scrubberVisible);
+                    },
+                  ),
+              ],
+            ),
+          ),
+          Expanded(
+            child: graphState.when(
+              data: (data) {
+                final entities = data.$1;
+                final relationships = data.$2;
 
 
 
@@ -963,46 +1006,6 @@ class _GraphScreenState extends ConsumerState<GraphScreen> {
 
           return Column(
             children: [
-              PageHeader(
-                title: 'Web',
-                subtitle: 'Entity relationship graph',
-                trailing: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    IconButton(
-                      icon: Icon(Icons.refresh, color: Theme.of(context).colorScheme.onSurface, size: 20),
-                      tooltip: 'Refresh Graph',
-                      onPressed: () => ref.invalidate(graphDataProvider),
-                    ),
-                    IconButton(
-                      icon: Icon(Icons.plagiarism_outlined, color: Theme.of(context).colorScheme.secondary, size: 20),
-                      tooltip: 'Continuity Check',
-                      onPressed: () async {
-                        final graphData = ref.read(graphDataProvider).valueOrNull;
-                        if (graphData == null || !mounted) return;
-                        _showContinuityCheck(
-                          graphData.$1,
-                          graphData.$2,
-                        );
-                      },
-                    ),
-                    if (_layoutMode != GraphLayoutMode.relationshipMatrix)
-                      IconButton(
-                        icon: Icon(
-                          _scrubberVisible ? Icons.timeline : Icons.timeline_outlined,
-                          color: _scrubberVisible
-                              ? Theme.of(context).colorScheme.primary
-                              : Theme.of(context).colorScheme.onSurfaceVariant,
-                          size: 20,
-                        ),
-                        tooltip: 'Timeline Scrubber',
-                        onPressed: () {
-                          setState(() => _scrubberVisible = !_scrubberVisible);
-                        },
-                      ),
-                  ],
-                ),
-              ),
               // Filters Chip Bar (Only in Web Mode)
               if (_layoutMode == GraphLayoutMode.chronicleWeb)
                 Container(
@@ -1300,12 +1303,15 @@ class _GraphScreenState extends ConsumerState<GraphScreen> {
             ],
           );
         },
-        loading: () => LoadingIndicator(),
+        loading: () => const LoadingIndicator(),
         error: (err, _) => ErrorDisplay(
           message: err.toString(),
           onRetry: () => ref.refresh(graphDataProvider),
         ),
       ),
+    ),
+  ],
+),
     );
   }
 }

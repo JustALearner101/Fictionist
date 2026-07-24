@@ -10,10 +10,13 @@ part 'entity_dao.g.dart';
 class EntityDao extends DatabaseAccessor<AppDatabase> with _$EntityDaoMixin {
   EntityDao(AppDatabase db) : super(db);
 
-  Future<EntityRow?> getById(String id) {
-    return (select(entities)
-          ..where((t) => t.id.equals(id) & t.isDeleted.equals(false)))
-        .getSingleOrNull();
+  Future<EntityRow?> getById(String id, [String? projectId]) {
+    final query = select(entities)
+      ..where((t) => t.id.equals(id) & t.isDeleted.equals(false));
+    if (projectId != null) {
+      query.where((t) => t.projectId.equals(projectId));
+    }
+    return query.getSingleOrNull();
   }
 
   Future<int> insertEntity(EntitiesCompanion entity) {
@@ -30,27 +33,38 @@ class EntityDao extends DatabaseAccessor<AppDatabase> with _$EntityDaoMixin {
         .write(const EntitiesCompanion(isDeleted: Value(true)));
   }
 
-  Future<List<EntityRow>> getAllActive() {
-    return (select(entities)
-          ..where((t) => t.isDeleted.equals(false))
+  Future<List<EntityRow>> getAllActive([String? projectId]) {
+    final query = select(entities)..where((t) => t.isDeleted.equals(false));
+    if (projectId != null) {
+      query.where((t) => t.projectId.equals(projectId));
+    }
+    return (query
           ..orderBy([
             (t) => OrderingTerm(expression: t.updatedAt, mode: OrderingMode.desc)
           ]))
         .get();
   }
 
-  Future<List<EntityRow>> getActiveByType(String type) {
-    return (select(entities)
-          ..where((t) => t.isDeleted.equals(false) & t.entityType.equals(type))
+  Future<List<EntityRow>> getActiveByType(String type, [String? projectId]) {
+    final query = select(entities)
+      ..where((t) => t.isDeleted.equals(false) & t.entityType.equals(type));
+    if (projectId != null) {
+      query.where((t) => t.projectId.equals(projectId));
+    }
+    return (query
           ..orderBy([
             (t) => OrderingTerm(expression: t.name, mode: OrderingMode.asc)
           ]))
         .get();
   }
 
-  Future<List<EntityRow>> getActiveByStatus(String status) {
-    return (select(entities)
-          ..where((t) => t.isDeleted.equals(false) & t.status.equals(status))
+  Future<List<EntityRow>> getActiveByStatus(String status, [String? projectId]) {
+    final query = select(entities)
+      ..where((t) => t.isDeleted.equals(false) & t.status.equals(status));
+    if (projectId != null) {
+      query.where((t) => t.projectId.equals(projectId));
+    }
+    return (query
           ..orderBy([
             (t) => OrderingTerm(expression: t.name, mode: OrderingMode.asc)
           ]))
@@ -58,15 +72,31 @@ class EntityDao extends DatabaseAccessor<AppDatabase> with _$EntityDaoMixin {
   }
 
   // FTS5 fuzzy match query using customSelect
-  Future<List<Map<String, dynamic>>> searchFts(String query) async {
+  Future<List<Map<String, dynamic>>> searchFts(String query, [String? projectId]) async {
     final escapedQuery = _escapeFtsQuery(query);
-    final rows = await customSelect(
-      'SELECT entity_id, snippet(entity_fts, 1, "<b>", "</b>", "...", 32) as snippet '
-      'FROM entity_fts WHERE entity_fts MATCH ? ORDER BY rank LIMIT 50',
-      variables: [Variable.withString(escapedQuery)],
-      readsFrom: {entities},
-    ).get();
+    if (escapedQuery.isEmpty) return [];
 
+    final Selectable<QueryRow> selectable;
+    if (projectId != null) {
+      selectable = customSelect(
+        'SELECT entity_fts.entity_id, snippet(entity_fts, 1, "<b>", "</b>", "...", 32) as snippet '
+        'FROM entity_fts '
+        'INNER JOIN entities ON entities.id = entity_fts.entity_id '
+        'WHERE entities.project_id = ? AND entities.is_deleted = 0 AND entity_fts MATCH ? '
+        'ORDER BY rank LIMIT 50',
+        variables: [Variable.withString(projectId), Variable.withString(escapedQuery)],
+        readsFrom: {entities},
+      );
+    } else {
+      selectable = customSelect(
+        'SELECT entity_id, snippet(entity_fts, 1, "<b>", "</b>", "...", 32) as snippet '
+        'FROM entity_fts WHERE entity_fts MATCH ? ORDER BY rank LIMIT 50',
+        variables: [Variable.withString(escapedQuery)],
+        readsFrom: {entities},
+      );
+    }
+
+    final rows = await selectable.get();
     return rows.map((row) => {
       'entity_id': row.read<String>('entity_id'),
       'snippet': row.read<String>('snippet'),

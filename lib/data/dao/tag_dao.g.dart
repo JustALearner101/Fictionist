@@ -4,6 +4,7 @@ part of 'tag_dao.dart';
 
 // ignore_for_file: type=lint
 mixin _$TagDaoMixin on DatabaseAccessor<AppDatabase> {
+  $ProjectsTable get projects => attachedDatabase.projects;
   $TagsTable get tags => attachedDatabase.tags;
   $EntitiesTable get entities => attachedDatabase.entities;
   $EntityTagsTable get entityTags => attachedDatabase.entityTags;

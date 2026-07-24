@@ -7,7 +7,7 @@ part of 'entity_relationships_provider.dart';
 // **************************************************************************
 
 String _$entityRelationshipsHash() =>
-    r'5458aaa7db88b7b1394cd8a128d46af9d7df6f6b';
+    r'527591899a6a78d2740cac56968ed3779761cc98';
 
 /// Copied from Dart SDK
 class _SystemHash {

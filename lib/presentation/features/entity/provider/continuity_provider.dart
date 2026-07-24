@@ -1,7 +1,7 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../../../../domain/relationship/relationship.dart';
 import '../../../../domain/use_case/continuity_check_use_case.dart';
-import '../../../../data/repository/relationship_repository_impl.dart';
+import '../../../../domain/use_case/relationship/get_all_active_relationships_use_case.dart';
 import '../../../../injection.dart';
 import '../../timeline/provider/timeline_provider.dart';
 import 'entity_list_provider.dart';
@@ -10,8 +10,8 @@ part 'continuity_provider.g.dart';
 
 @riverpod
 Future<List<Relationship>> allRelationships(AllRelationshipsRef ref) async {
-  final repo = getIt<RelationshipRepositoryImpl>();
-  final res = await repo.getAllActive();
+  final useCase = getIt<GetAllActiveRelationshipsUseCase>();
+  final res = await useCase();
   return res.fold(
     (f) => throw Exception(f.message),
     (list) => list,

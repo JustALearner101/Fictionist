@@ -6,6 +6,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:fictionist/domain/manuscript/manuscript_chapter.dart';
 import 'package:fictionist/domain/use_case/manuscript/manuscript_use_cases.dart';
 import 'package:fictionist/domain/use_case/entity/list_entities_use_case.dart';
+import 'package:fictionist/presentation/features/project/provider/active_project_provider.dart';
 import 'package:fictionist/domain/wikilink/wikilink_engine.dart';
 import 'package:fictionist/injection.dart';
 
@@ -43,7 +44,6 @@ class ManuscriptState {
   }
 }
 
-// ponytail: keepAlive so chapter list survives tab switches. ceiling: provider lives forever. upgrade: remove keepAlive if memory pressure arises.
 @Riverpod(keepAlive: true)
 class ManuscriptNotifier extends _$ManuscriptNotifier {
   @override
@@ -52,12 +52,15 @@ class ManuscriptNotifier extends _$ManuscriptNotifier {
     return const ManuscriptState();
   }
 
+  String? get _projectId =>
+      ref.read(activeProjectProvider).valueOrNull?.id;
+
   Future<void> refreshChapters() => _loadChapters();
 
   Future<void> _loadChapters() async {
     state = state.copyWith(isLoading: true, errorMessage: null);
     final useCase = getIt<ListChaptersUseCase>();
-    final result = await useCase();
+    final result = await useCase(projectId: _projectId);
     result.fold(
       (failure) {
         state = state.copyWith(
@@ -66,7 +69,6 @@ class ManuscriptNotifier extends _$ManuscriptNotifier {
         );
       },
       (chapters) {
-        // Rebuild wikilink trie from all entities
         _rebuildWikilinkEngine();
         state = state.copyWith(
           isLoading: false,
@@ -81,7 +83,7 @@ class ManuscriptNotifier extends _$ManuscriptNotifier {
 
   void _rebuildWikilinkEngine() {
     final listUseCase = getIt<ListEntitiesUseCase>();
-    listUseCase(const ListEntitiesParams()).then((result) {
+    listUseCase(ListEntitiesParams(projectId: _projectId)).then((result) {
       result.fold((_) {}, (entities) {
         getIt<WikilinkEngine>().rebuild(entities);
       });
@@ -94,6 +96,7 @@ class ManuscriptNotifier extends _$ManuscriptNotifier {
     final result = await useCase(CreateChapterParams(
       title: title,
       sortOrder: currentCount,
+      projectId: _projectId,
     ));
     result.fold(
       (failure) {
@@ -117,7 +120,6 @@ class ManuscriptNotifier extends _$ManuscriptNotifier {
     final useCase = getIt<UpdateChapterUseCase>();
     final chapter = state.chapters.firstWhere((c) => c.id == id);
 
-    // Auto-create a snapshot of the current content before updating
     if (chapter.content.isNotEmpty) {
       unawaited(createSnapshot(
         chapterId: id,
@@ -125,7 +127,6 @@ class ManuscriptNotifier extends _$ManuscriptNotifier {
       ));
     }
 
-    // Optimistic update
     final updatedChapters = state.chapters.map((c) {
       return c.id == id ? c.copyWith(content: content) : c;
     }).toList();
@@ -137,7 +138,7 @@ class ManuscriptNotifier extends _$ManuscriptNotifier {
     result.fold(
       (failure) {
         state = state.copyWith(errorMessage: failure.message);
-        _loadChapters(); // Reload on error
+        _loadChapters();
       },
       (_) {},
     );
@@ -190,7 +191,6 @@ class ManuscriptNotifier extends _$ManuscriptNotifier {
     final item = chapters.removeAt(oldIndex);
     chapters.insert(newIndex, item);
 
-    // Optimistic update
     state = state.copyWith(chapters: chapters);
 
     final useCase = getIt<ReorderChaptersUseCase>();
@@ -210,7 +210,6 @@ class ManuscriptNotifier extends _$ManuscriptNotifier {
     final useCase = getIt<UpdateChapterUseCase>();
     final chapter = state.chapters.firstWhere((c) => c.id == id);
 
-    // Optimistic update
     final updatedChapters = state.chapters.map((c) {
       return c.id == id ? c.copyWith(synopsis: synopsis) : c;
     }).toList();
@@ -232,7 +231,6 @@ class ManuscriptNotifier extends _$ManuscriptNotifier {
     final useCase = getIt<UpdateChapterUseCase>();
     final chapter = state.chapters.firstWhere((c) => c.id == id);
 
-    // Optimistic update
     final updatedChapters = state.chapters.map((c) {
       return c.id == id ? c.copyWith(status: status) : c;
     }).toList();
@@ -262,7 +260,6 @@ class ManuscriptNotifier extends _$ManuscriptNotifier {
         );
         affected.add(updated);
 
-        // Optimistic update
         final updatedChapters = state.chapters.map((c) {
           return c.id == chapter.id ? updated : c;
         }).toList();

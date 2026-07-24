@@ -209,6 +209,10 @@ Powered by **SQLite FTS5** — searches across entity names, descriptions, and a
 
 <table>
 <tr>
+<td>📁 <b>Multi-Project Workspaces</b></td>
+<td>Isolate worlds, novels, or campaigns into separate projects with per-project data isolation</td>
+</tr>
+<tr>
 <td>⚡ <b>Quick Capture</b></td>
 <td>FAB → name + type → saved in <b>under 5 seconds</b></td>
 </tr>
@@ -392,9 +396,9 @@ lib/
 
 | Phase | Version | Status | Duration | Key Deliverables |
 |-------|---------|:------:|----------|-----------------|
-| **1 — MVP** | V1.0 | 🔨 **In Progress** | 6–8 wks | Entity CRUD · Typed relationships · FTS5 search · Quick-capture · Timeline · JSON export |
-| **2 — Enhanced Viz** | V1.x | 📋 Planned | 4–6 wks | Graph view · Family tree · Faction map · Version history · Rich text `@mentions` |
-| **3 — Advanced** | V2.0 | 🔭 Future | 10–12 wks | World map · Custom calendars · Name generator · Conflict detection · iOS + tablet |
+| **1 — MVP** | V1.0 | ✅ **Complete** | 6–8 wks | Entity CRUD · Typed relationships · FTS5 search · Quick-capture · Timeline · JSON export |
+| **2 — Enhanced Viz** | V1.x | ✅ **Complete** | 4–6 wks | Graph view · Family tree · Faction map · Version history · Rich text `@mentions` · Name generator · World map · Plot canvas |
+| **3 — Multi-Project** | V1.2 | ✅ **Complete** | 2 wks | Schema v8 · Project workspaces · Startup auto-load · Per-project data isolation · Switch project UI |
 | **4 — Scale & Sync** | V3.0 | 🔭 Future | 17+ wks | Spring Boot backend · Encrypted cloud sync · Multi-device · Opt-in AI |
 
 </div>

@@ -1,8 +1,11 @@
 import 'package:drift/drift.dart';
+import 'projects_table.dart';
 
 @DataClassName('PlotCardRow')
 class PlotCards extends Table {
   TextColumn get id => text().withLength(min: 36, max: 36)();
+  TextColumn get projectId =>
+      text().references(Projects, #id, onDelete: KeyAction.cascade).nullable()();
   TextColumn get title => text().withLength(min: 1, max: 300)();
   TextColumn get summary => text().nullable()();
   RealColumn get xPosition => real()();
@@ -19,6 +22,8 @@ class PlotCards extends Table {
 @DataClassName('PlotConnectionRow')
 class PlotConnections extends Table {
   TextColumn get id => text().withLength(min: 36, max: 36)();
+  TextColumn get projectId =>
+      text().references(Projects, #id, onDelete: KeyAction.cascade).nullable()();
   TextColumn get sourceId => text().withLength(min: 36, max: 36)();
   TextColumn get targetId => text().withLength(min: 36, max: 36)();
   TextColumn get label => text().nullable()();

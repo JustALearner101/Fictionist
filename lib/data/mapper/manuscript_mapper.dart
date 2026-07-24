@@ -27,9 +27,10 @@ class ManuscriptMapper {
     );
   }
 
-  static ManuscriptChaptersCompanion toCompanion(ManuscriptChapter chapter) {
+  static ManuscriptChaptersCompanion toCompanion(ManuscriptChapter chapter, {String? projectId}) {
     return ManuscriptChaptersCompanion(
       id: Value(chapter.id),
+      projectId: projectId != null ? Value(projectId) : const Value.absent(),
       title: Value(chapter.title),
       content: Value(chapter.content),
       sortOrder: Value(chapter.sortOrder),

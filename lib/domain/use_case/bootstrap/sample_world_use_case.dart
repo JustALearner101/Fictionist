@@ -14,7 +14,7 @@ import '../../../data/repository/entity_version_repository_impl.dart';
 import '../../../data/repository/manuscript_repository_impl.dart';
 import '../../../data/repository/map_repository_impl.dart';
 import '../../../data/repository/plot_repository.dart';
-import '../../../data/repository/relationship_repository_impl.dart';
+import '../../repository/relationship_repository.dart';
 import '../../../data/repository/timeline_repository_impl.dart';
 import '../../timeline/timeline_entry.dart';
 import '../../version/entity_version.dart';
@@ -23,7 +23,7 @@ import '../../version/entity_version.dart';
 class SampleWorldUseCase {
   final EntityRepositoryImpl _entityRepo;
   final EntityVersionRepositoryImpl _versionRepo;
-  final RelationshipRepositoryImpl _relationshipRepo;
+  final RelationshipRepository _relationshipRepo;
   final TimelineRepositoryImpl _timelineRepo;
   final ManuscriptRepositoryImpl _manuscriptRepo;
   final MapRepositoryImpl _mapRepo;
@@ -39,8 +39,7 @@ class SampleWorldUseCase {
     this._plotRepo,
   );
 
-  @override
-  Future<Either<Failure, Unit>> call() async {
+  Future<Either<Failure, Unit>> call(String projectId) async {
     try {
       // 1. Generate data
       final data = SampleWorldData.generate();
@@ -55,7 +54,7 @@ class SampleWorldUseCase {
 
       // 2. Insert Entities and their initial versions
       for (final entity in entities) {
-        final entResult = await _entityRepo.create(entity);
+        final entResult = await _entityRepo.create(entity, projectId: projectId);
         if (entResult.isLeft()) {
           return Left(entResult.fold((l) => l, (r) => throw Exception()));
         }
@@ -85,7 +84,7 @@ class SampleWorldUseCase {
 
       // 4. Insert Timeline Entries
       for (final entry in timelineEntries) {
-        final timeResult = await _timelineRepo.create(entry);
+        final timeResult = await _timelineRepo.create(entry, projectId: projectId);
         if (timeResult.isLeft()) {
           return Left(timeResult.fold((l) => l, (r) => throw Exception()));
         }
@@ -93,7 +92,7 @@ class SampleWorldUseCase {
 
       // 5. Insert Manuscript Chapters
       for (final chapter in chapters) {
-        final chResult = await _manuscriptRepo.create(chapter);
+        final chResult = await _manuscriptRepo.create(chapter, projectId: projectId);
         if (chResult.isLeft()) {
           return Left(chResult.fold((l) => l, (r) => throw Exception()));
         }
@@ -108,6 +107,7 @@ class SampleWorldUseCase {
           xPosition: card.xPosition,
           yPosition: card.yPosition,
           colorHex: card.colorHex,
+          projectId: projectId,
         );
         if (result.isLeft()) {
           return Left(result.fold((l) => l, (r) => throw Exception()));
@@ -124,6 +124,7 @@ class SampleWorldUseCase {
             newSourceId,
             newTargetId,
             label: conn.label,
+            projectId: projectId,
           );
           if (result.isLeft()) {
             return Left(result.fold((l) => l, (r) => throw Exception()));
@@ -145,7 +146,7 @@ class SampleWorldUseCase {
           return Left(saveImgResult.fold((l) => l, (r) => throw Exception()));
         }
 
-        final mapResult = await _mapRepo.createMap(map);
+        final mapResult = await _mapRepo.createMap(map, projectId: projectId);
         if (mapResult.isLeft()) {
           return Left(mapResult.fold((l) => l, (r) => throw Exception()));
         }

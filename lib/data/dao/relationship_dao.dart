@@ -1,12 +1,13 @@
 import 'package:drift/drift.dart';
 import 'package:injectable/injectable.dart';
 import '../database/app_database.dart';
+import '../database/tables/entity_table.dart';
 import '../database/tables/relationship_table.dart';
 
 part 'relationship_dao.g.dart';
 
 @lazySingleton
-@DriftAccessor(tables: [Relationships])
+@DriftAccessor(tables: [Relationships, Entities])
 class RelationshipDao extends DatabaseAccessor<AppDatabase>
     with _$RelationshipDaoMixin {
   RelationshipDao(AppDatabase db) : super(db);
@@ -51,7 +52,18 @@ class RelationshipDao extends DatabaseAccessor<AppDatabase>
         .getSingleOrNull();
   }
 
-  Future<List<RelationshipRow>> getAllActive() {
-    return (select(relationships)..where((t) => t.isDeleted.equals(false))).get();
+  Future<List<RelationshipRow>> getAllActive([String? projectId]) async {
+    if (projectId == null) {
+      return (select(relationships)..where((t) => t.isDeleted.equals(false))).get();
+    }
+    final query = select(relationships).join([
+      innerJoin(entities, entities.id.equalsExp(relationships.sourceId)),
+    ])..where(
+      entities.projectId.equals(projectId) &
+      entities.isDeleted.equals(false) &
+      relationships.isDeleted.equals(false),
+    );
+    final rows = await query.get();
+    return rows.map((r) => r.readTable(relationships)).toList();
   }
 }

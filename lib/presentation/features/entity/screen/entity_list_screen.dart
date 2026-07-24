@@ -22,6 +22,7 @@ import '../../manuscript/provider/manuscript_provider.dart';
 import '../../map/provider/map_provider.dart';
 import '../../timeline/provider/timeline_provider.dart';
 import '../../graph/provider/graph_provider.dart';
+import '../../project/provider/active_project_provider.dart';
 
 class EntityListScreen extends ConsumerStatefulWidget {
   const EntityListScreen({super.key});
@@ -45,6 +46,17 @@ class _EntityListScreenState extends ConsumerState<EntityListScreen> {
   }
 
   Future<void> _forgeSampleWorld(BuildContext context) async {
+    final activeProjectId = ref.read(activeProjectProvider).valueOrNull?.id;
+    if (activeProjectId == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: const Text('No active project found.'),
+          backgroundColor: Theme.of(context).colorScheme.error,
+        ),
+      );
+      return;
+    }
+
     showDialog<bool>(
       context: context,
       barrierDismissible: false,
@@ -53,7 +65,7 @@ class _EntityListScreenState extends ConsumerState<EntityListScreen> {
       ),
     );
     final useCase = getIt<SampleWorldUseCase>();
-    final result = await useCase();
+    final result = await useCase(activeProjectId);
     if (mounted) Navigator.of(context, rootNavigator: true).pop();
     result.fold(
       (failure) {

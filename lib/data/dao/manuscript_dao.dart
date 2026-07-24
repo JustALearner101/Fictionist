@@ -16,10 +16,12 @@ class ManuscriptDao extends DatabaseAccessor<AppDatabase>
     return into(manuscriptChapters).insert(companion);
   }
 
-  Future<ManuscriptChapterRow?> getById(String id) {
-    return (select(manuscriptChapters)
-          ..where((t) => t.id.equals(id)))
-        .getSingleOrNull();
+  Future<ManuscriptChapterRow?> getById(String id, [String? projectId]) {
+    final query = select(manuscriptChapters)..where((t) => t.id.equals(id));
+    if (projectId != null) {
+      query.where((t) => t.projectId.equals(projectId));
+    }
+    return query.getSingleOrNull();
   }
 
   Future<bool> updateChapter(ManuscriptChaptersCompanion companion) {
@@ -35,11 +37,12 @@ class ManuscriptDao extends DatabaseAccessor<AppDatabase>
         .write(const ManuscriptChaptersCompanion(isDeleted: Value(true)));
   }
 
-  Future<List<ManuscriptChapterRow>> getAllActive() {
-    return (select(manuscriptChapters)
-          ..where((t) => t.isDeleted.equals(false))
-          ..orderBy([(t) => OrderingTerm.asc(t.sortOrder)]))
-        .get();
+  Future<List<ManuscriptChapterRow>> getAllActive([String? projectId]) {
+    final query = select(manuscriptChapters)..where((t) => t.isDeleted.equals(false));
+    if (projectId != null) {
+      query.where((t) => t.projectId.equals(projectId));
+    }
+    return (query..orderBy([(t) => OrderingTerm.asc(t.sortOrder)])).get();
   }
 
   Future<void> updateSortOrder(String id, int sortOrder) {

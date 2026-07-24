@@ -29,27 +29,28 @@ class FictionistApp extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final themeAsync = ref.watch(themeNotifierProvider);
+    final router = buildAppRouter(ref);
 
     return themeAsync.when(
       data: (config) => MaterialApp.router(
         title: 'Fictionist',
         theme: AppTheme.build(config),
         themeMode: config.themeMode,
-        routerConfig: appRouter,
+        routerConfig: router,
         debugShowCheckedModeBanner: false,
       ),
       loading: () => MaterialApp.router(
         title: 'Fictionist',
         theme: AppTheme.build(ThemePresets.grimoire),
         themeMode: ThemeMode.dark,
-        routerConfig: appRouter,
+        routerConfig: router,
         debugShowCheckedModeBanner: false,
       ),
       error: (_, __) => MaterialApp.router(
         title: 'Fictionist',
         theme: AppTheme.build(ThemePresets.grimoire),
         themeMode: ThemeMode.dark,
-        routerConfig: appRouter,
+        routerConfig: router,
         debugShowCheckedModeBanner: false,
       ),
     );

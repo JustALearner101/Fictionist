@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../features/project/provider/active_project_provider.dart';
+import '../../features/project/widget/project_switcher_bottom_sheet.dart';
 
-class PageHeader extends StatelessWidget {
+class PageHeader extends ConsumerWidget {
   final String title;
   final String? subtitle;
   final Widget? trailing;
@@ -15,9 +18,11 @@ class PageHeader extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final color = accentColor ?? theme.colorScheme.primary;
+    final activeProjectVal = ref.watch(activeProjectProvider);
+    final activeProject = activeProjectVal.valueOrNull;
 
     return SafeArea(
       top: true,
@@ -44,12 +49,47 @@ class PageHeader extends StatelessWidget {
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
-            // Title + subtitle
+            // Title + subtitle + active project breadcrumb
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
                 children: [
+                  if (activeProject != null)
+                    GestureDetector(
+                      onTap: () => _showProjectSelector(context),
+                      child: MouseRegion(
+                        cursor: SystemMouseCursors.click,
+                        child: Padding(
+                          padding: const EdgeInsets.only(bottom: 4),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                Icons.auto_stories_outlined,
+                                size: 12,
+                                color: theme.colorScheme.primary,
+                              ),
+                              const SizedBox(width: 5),
+                              Text(
+                                activeProject.name.toUpperCase(),
+                                style: theme.textTheme.labelSmall!.copyWith(
+                                  color: theme.colorScheme.primary,
+                                  fontWeight: FontWeight.bold,
+                                  letterSpacing: 0.8,
+                                  fontSize: 10,
+                                ),
+                              ),
+                              Icon(
+                                Icons.arrow_drop_down,
+                                size: 14,
+                                color: theme.colorScheme.primary,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
                   Text(
                     title,
                     style: theme.textTheme.headlineMedium!.copyWith(
@@ -77,6 +117,15 @@ class PageHeader extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+
+  void _showProjectSelector(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (context) => const ProjectSwitcherBottomSheet(),
     );
   }
 }

@@ -12,9 +12,9 @@ class TimelineRepositoryImpl {
 
   TimelineRepositoryImpl(this._dao);
 
-  Future<Either<Failure, TimelineEntry>> create(TimelineEntry entry) async {
+  Future<Either<Failure, TimelineEntry>> create(TimelineEntry entry, {String? projectId}) async {
     try {
-      final companion = TimelineEntryMapper.toCompanion(entry);
+      final companion = TimelineEntryMapper.toCompanion(entry, projectId: projectId);
       await _dao.insertEntry(companion);
       return Right(entry);
     } catch (e) {
@@ -72,9 +72,9 @@ class TimelineRepositoryImpl {
     }
   }
 
-  Future<Either<Failure, List<TimelineEntry>>> getAllActiveOrdered() async {
+  Future<Either<Failure, List<TimelineEntry>>> getAllActiveOrdered({String? projectId}) async {
     try {
-      final rows = await _dao.getAllActiveOrdered();
+      final rows = await _dao.getAllActiveOrdered(projectId);
       return Right(rows.map(TimelineEntryMapper.toDomain).toList());
     } catch (e) {
       return Left(Failure.database(
@@ -85,9 +85,9 @@ class TimelineRepositoryImpl {
   }
 
   Future<Either<Failure, List<TimelineEntry>>> getActiveForEntity(
-      String entityId) async {
+      String entityId, {String? projectId}) async {
     try {
-      final rows = await _dao.getActiveForEntity(entityId);
+      final rows = await _dao.getActiveForEntity(entityId, projectId);
       return Right(rows.map(TimelineEntryMapper.toDomain).toList());
     } catch (e) {
       return Left(Failure.database(

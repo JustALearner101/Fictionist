@@ -18,6 +18,7 @@ class CreateEntityParams {
   final String? description;
   final List<CustomField> customFields;
   final int iconColor;
+  final String? projectId;
 
   const CreateEntityParams({
     required this.name,
@@ -26,6 +27,7 @@ class CreateEntityParams {
     this.description,
     this.customFields = const [],
     required this.iconColor,
+    this.projectId,
   });
 }
 
@@ -58,7 +60,7 @@ class CreateEntityUseCase {
       updatedAt: DateTime.now(),
     );
 
-    final createResult = await _entityRepository.create(entity);
+    final createResult = await _entityRepository.create(entity, projectId: params.projectId);
     return createResult.fold(
       (failure) => Left(failure),
       (savedEntity) async {

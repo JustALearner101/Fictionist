@@ -15,16 +15,28 @@ class TagDao extends DatabaseAccessor<AppDatabase> with _$TagDaoMixin {
     return into(tags).insert(entry);
   }
 
-  Future<List<TagRow>> getAllTags() {
-    return select(tags).get();
+  Future<List<TagRow>> getAllTags([String? projectId]) {
+    final query = select(tags);
+    if (projectId != null) {
+      query.where((t) => t.projectId.equals(projectId));
+    }
+    return query.get();
   }
 
-  Future<TagRow?> getTagById(String id) {
-    return (select(tags)..where((t) => t.id.equals(id))).getSingleOrNull();
+  Future<TagRow?> getTagById(String id, [String? projectId]) {
+    final query = select(tags)..where((t) => t.id.equals(id));
+    if (projectId != null) {
+      query.where((t) => t.projectId.equals(projectId));
+    }
+    return query.getSingleOrNull();
   }
 
-  Future<TagRow?> getTagByName(String name) {
-    return (select(tags)..where((t) => t.name.equals(name))).getSingleOrNull();
+  Future<TagRow?> getTagByName(String name, [String? projectId]) {
+    final query = select(tags)..where((t) => t.name.equals(name));
+    if (projectId != null) {
+      query.where((t) => t.projectId.equals(projectId));
+    }
+    return query.getSingleOrNull();
   }
 
   Future<int> assignTagToEntity(EntityTagsCompanion entry) {

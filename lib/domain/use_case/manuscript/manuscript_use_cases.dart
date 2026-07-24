@@ -10,11 +10,13 @@ class CreateChapterParams {
   final String title;
   final String content;
   final int sortOrder;
+  final String? projectId;
 
   const CreateChapterParams({
     required this.title,
     this.content = '',
     this.sortOrder = 0,
+    this.projectId,
   });
 }
 
@@ -43,7 +45,7 @@ class CreateChapterUseCase {
       updatedAt: DateTime.now(),
     );
 
-    return _repository.create(chapter);
+    return _repository.create(chapter, projectId: params.projectId);
   }
 }
 
@@ -85,8 +87,8 @@ class ListChaptersUseCase {
 
   ListChaptersUseCase(this._repository);
 
-  Future<Either<Failure, List<ManuscriptChapter>>> call() async {
-    return _repository.getAllActive();
+  Future<Either<Failure, List<ManuscriptChapter>>> call({String? projectId}) async {
+    return _repository.getAllActive(projectId: projectId);
   }
 }
 

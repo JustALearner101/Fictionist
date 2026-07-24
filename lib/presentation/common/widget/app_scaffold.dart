@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../features/project/provider/active_project_provider.dart';
 
-class AppScaffold extends StatelessWidget {
+class AppScaffold extends ConsumerWidget {
   final Widget child;
 
   const AppScaffold({super.key, required this.child});
@@ -30,11 +32,13 @@ class AppScaffold extends StatelessWidget {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final selectedIndex = _getSelectedIndex(context);
+    final project = ref.watch(activeProjectProvider).valueOrNull;
 
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
+      appBar: null,
       body: child,
       bottomNavigationBar: Container(
         decoration: BoxDecoration(

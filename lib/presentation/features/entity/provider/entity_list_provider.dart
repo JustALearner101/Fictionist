@@ -4,6 +4,7 @@ import '../../../../data/repository/entity_repository_impl.dart';
 import '../../../../domain/use_case/entity/delete_entity_use_case.dart';
 import '../../../../domain/use_case/entity/list_entities_use_case.dart';
 import '../../../../injection.dart';
+import '../../project/provider/active_project_provider.dart';
 
 part 'entity_list_provider.g.dart';
 
@@ -11,8 +12,9 @@ part 'entity_list_provider.g.dart';
 class EntityList extends _$EntityList {
   @override
   FutureOr<List<Entity>> build() async {
+    final projectId = ref.watch(activeProjectProvider).valueOrNull?.id;
     final listUseCase = getIt<ListEntitiesUseCase>();
-    final result = await listUseCase(const ListEntitiesParams());
+    final result = await listUseCase(ListEntitiesParams(projectId: projectId));
     return result.fold(
       (failure) => throw Exception(failure.message),
       (entities) => entities,
@@ -21,17 +23,18 @@ class EntityList extends _$EntityList {
 
   Future<void> search(String query) async {
     state = const AsyncValue.loading();
+    final projectId = ref.read(activeProjectProvider).valueOrNull?.id;
     state = await AsyncValue.guard(() async {
       if (query.trim().isEmpty) {
         final listUseCase = getIt<ListEntitiesUseCase>();
-        final result = await listUseCase(const ListEntitiesParams());
+        final result = await listUseCase(ListEntitiesParams(projectId: projectId));
         return result.fold(
           (failure) => throw Exception(failure.message),
           (entities) => entities,
         );
       }
       final repo = getIt<EntityRepositoryImpl>();
-      final result = await repo.search(query);
+      final result = await repo.search(query, projectId: projectId);
       return result.fold(
         (failure) => throw Exception(failure.message),
         (entities) => entities,

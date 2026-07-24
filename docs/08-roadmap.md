@@ -129,6 +129,42 @@ gantt
 
 ---
 
+## Phase 3 — Multi-Project Workspaces (V1.2)
+
+**Goal:** Let writers manage multiple worlds, novels, or campaigns in a single install with full data isolation.
+
+**Effort:** 2 weeks
+
+### Key Deliverables
+
+| Feature | Description | Effort |
+|---|---|---|
+| Schema v8 — Projects Table | New `projects` table with name/description/last_accessed. All scoped tables get nullable `project_id` FK with CASCADE delete. | 3 days |
+| Project Selection UI | Project list screen, create dialog (name + description), delete with cascade warning. First route on launch. | 2 days |
+| Startup Auto-Load | Query most-recently-accessed project on launch. Bypass selection if found. GoRouter redirect + Riverpod ProjectGuard. | 1 day |
+| Per-Project Scoping | All feature providers (entity, timeline, map, manuscript, plot) pass active projectId to DAOs. SQL-level filtering. | 4 days |
+| Switch Project | AppBar button to exit current project and return to selection screen. | 1 day |
+
+### Dependencies
+
+- Phase 2 stable and released
+- All feature providers must support projectId parameter (backward-compatible: null = no filter)
+
+### Go/No-Go Criteria for Phase 4
+
+```
+[✓] Creating entity in Project A does not show in Project B
+[✓] Deleting project cascades to all associated data
+[✓] Fresh install with no projects → selection screen
+[✓] Restart with last project → auto-loads workspace
+[✓] All existing tests pass (208 tests)
+[✓] Schema migration from v7 → v8 drops and recreates all tables cleanly
+```
+
+---
+
+
+
 ## Phase 3 — Advanced Features (V2.0)
 
 **Goal:** Differentiate from competitors. Add features that make Fictionist the best-in-class worldbuilding tool.
@@ -152,7 +188,7 @@ gantt
 - Custom calendars require timeline refactor from Phase 1
 - iOS requires macOS dev environment, Apple Developer account ($99/yr)
 
-### Go/No-Go Criteria for Phase 4
+### Go/No-Go Criteria for Phase 5
 
 ```
 [✓] World map supports 50+ pins without performance degradation
@@ -165,7 +201,7 @@ gantt
 
 ---
 
-## Phase 4 — Scale & Sync (V3.0)
+## Phase 5 — Scale & Sync (V3.0)
 
 **Goal:** Go multi-device and online. This is a major architecture shift.
 
@@ -210,8 +246,9 @@ gantt
 |---|---|---|---|---|
 | 1 — MVP | V1.0 | 6–8 weeks | Scope creep on entity model | Usable for real worldbuilding |
 | 2 — Enhanced Viz | V1.x | 4–6 weeks | Graph performance at scale | 200+ entities render smoothly |
-| 3 — Advanced | V2.0 | 10–12 weeks | Custom calendar complexity | Cross-platform stable |
-| 4 — Scale & Sync | V3.0 | 17+ weeks | Sync conflict resolution | Zero data loss under all scenarios |
+| 3 — Multi-Project | V1.2 | 2 weeks | FK cascade correctness | 208 tests pass, data isolated per project |
+| 4 — Advanced | V2.0 | 10–12 weeks | Custom calendar complexity | Cross-platform stable |
+| 5 — Scale & Sync | V3.0 | 17+ weeks | Sync conflict resolution | Zero data loss under all scenarios |
 
 > [!IMPORTANT]
 > **Ship Phase 1 first. Use it. Get feedback. Then decide if Phase 2's priorities are right.** Roadmaps are hypotheses, not commitments. The Gantt chart shows sequencing, not deadlines.

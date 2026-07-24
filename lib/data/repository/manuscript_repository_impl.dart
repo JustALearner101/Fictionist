@@ -14,10 +14,11 @@ class ManuscriptRepositoryImpl {
   ManuscriptRepositoryImpl(this._dao);
 
   Future<Either<Failure, ManuscriptChapter>> create(
-    ManuscriptChapter chapter,
-  ) async {
+    ManuscriptChapter chapter, {
+    String? projectId,
+  }) async {
     try {
-      final companion = ManuscriptMapper.toCompanion(chapter);
+      final companion = ManuscriptMapper.toCompanion(chapter, projectId: projectId);
       await _dao.insertChapter(companion);
       return Right(chapter);
     } catch (e) {
@@ -83,9 +84,9 @@ class ManuscriptRepositoryImpl {
     }
   }
 
-  Future<Either<Failure, List<ManuscriptChapter>>> getAllActive() async {
+  Future<Either<Failure, List<ManuscriptChapter>>> getAllActive({String? projectId}) async {
     try {
-      final rows = await _dao.getAllActive();
+      final rows = await _dao.getAllActive(projectId);
       return Right(rows.map(ManuscriptMapper.toDomain).toList());
     } catch (e) {
       return Left(Failure.database(

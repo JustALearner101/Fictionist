@@ -16,9 +16,9 @@ class MapRepositoryImpl {
 
   MapRepositoryImpl(this._dao);
 
-  Future<Either<Failure, WorldMap>> createMap(WorldMap map) async {
+  Future<Either<Failure, WorldMap>> createMap(WorldMap map, {String? projectId}) async {
     try {
-      final companion = WorldMapMapper.toCompanion(map);
+      final companion = WorldMapMapper.toCompanion(map, projectId: projectId);
       await _dao.insertMap(companion);
       return Right(map);
     } catch (e) {
@@ -44,9 +44,9 @@ class MapRepositoryImpl {
     }
   }
 
-  Future<Either<Failure, List<WorldMap>>> getAllMaps() async {
+  Future<Either<Failure, List<WorldMap>>> getAllMaps({String? projectId}) async {
     try {
-      final rows = await _dao.getAllMaps();
+      final rows = await _dao.getAllMaps(projectId);
       return Right(rows.map(WorldMapMapper.toDomain).toList());
     } catch (e) {
       return Left(Failure.database(

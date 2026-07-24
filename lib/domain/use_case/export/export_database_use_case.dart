@@ -6,7 +6,7 @@ import '../../../data/repository/entity_repository_impl.dart';
 import '../../entity/entity.dart';
 import '../../../data/repository/entity_version_repository_impl.dart';
 import '../../../data/repository/map_repository_impl.dart';
-import '../../../data/repository/relationship_repository_impl.dart';
+import '../../repository/relationship_repository.dart';
 import '../../../data/repository/tag_repository_impl.dart';
 import '../../../data/repository/template_repository_impl.dart';
 import '../../../data/repository/timeline_repository_impl.dart';
@@ -15,7 +15,7 @@ import '../../version/entity_version.dart';
 @lazySingleton
 class ExportDatabaseUseCase {
   final EntityRepositoryImpl _entityRepository;
-  final RelationshipRepositoryImpl _relationshipRepository;
+  final RelationshipRepository _relationshipRepository;
   final TagRepositoryImpl _tagRepository;
   final TimelineRepositoryImpl _timelineRepository;
   final TemplateRepositoryImpl _templateRepository;

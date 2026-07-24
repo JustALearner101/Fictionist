@@ -3,6 +3,7 @@ import '../../../../domain/entity/entity.dart';
 import '../../../../domain/use_case/entity/list_entities_use_case.dart';
 import '../../../../domain/use_case/manuscript/manuscript_use_cases.dart';
 import '../../../../injection.dart';
+import '../../project/provider/active_project_provider.dart';
 
 part 'unused_entities_provider.g.dart';
 
@@ -10,16 +11,17 @@ part 'unused_entities_provider.g.dart';
 Future<UnusedEntitiesReport> unusedEntitiesReport(
   UnusedEntitiesReportRef ref,
 ) async {
+  final projectId = ref.watch(activeProjectProvider).valueOrNull?.id;
   final entitiesUseCase = getIt<ListEntitiesUseCase>();
   final chaptersUseCase = getIt<ListChaptersUseCase>();
 
-  final entitiesResult = await entitiesUseCase(const ListEntitiesParams());
+  final entitiesResult = await entitiesUseCase(ListEntitiesParams(projectId: projectId));
   if (entitiesResult.isLeft()) {
     throw Exception('Failed to load entities');
   }
   final entities = entitiesResult.getOrElse((_) => <Entity>[]);
 
-  final chaptersResult = await chaptersUseCase();
+  final chaptersResult = await chaptersUseCase(); // FIXME: pass projectId when ListChaptersUseCase supports it
   final allText = StringBuffer();
   chaptersResult.fold(
     (_) {},
@@ -37,7 +39,7 @@ Future<UnusedEntitiesReport> unusedEntitiesReport(
 
   for (final entity in entities) {
     if (entity.name.length < 3) {
-      used.add(entity); // too short to match reliably, consider used
+      used.add(entity);
       continue;
     }
     if (fullText.contains(entity.name.toLowerCase())) {

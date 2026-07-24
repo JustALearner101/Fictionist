@@ -1,9 +1,12 @@
 import 'package:drift/drift.dart';
 import 'entity_table.dart';
+import 'projects_table.dart';
 
 @DataClassName('TimelineEntryRow')
 class TimelineEntries extends Table {
   TextColumn get id => text()();
+  TextColumn get projectId =>
+      text().references(Projects, #id, onDelete: KeyAction.cascade).nullable()();
   TextColumn get title => text().withLength(min: 1, max: 500)();
   TextColumn get description => text().nullable()();
   TextColumn get dateLabel => text().nullable()();

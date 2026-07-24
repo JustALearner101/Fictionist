@@ -8,6 +8,7 @@ import '../dao/entity_dao.dart';
 import '../dao/manuscript_dao.dart';
 import '../dao/map_dao.dart';
 import '../dao/plot_dao.dart';
+import '../dao/project_dao.dart';
 import '../dao/setup_payoff_dao.dart';
 import '../dao/relationship_dao.dart';
 import '../dao/tag_dao.dart';
@@ -16,6 +17,7 @@ import '../dao/timeline_dao.dart';
 import '../dao/entity_version_dao.dart';
 import '../dao/snapshot_dao.dart';
 
+import 'tables/projects_table.dart';
 import 'tables/entity_table.dart';
 import 'tables/entity_tag_table.dart';
 import 'tables/entity_version_table.dart';
@@ -35,6 +37,7 @@ part 'app_database.g.dart';
 @lazySingleton
 @DriftDatabase(
   tables: [
+    Projects,
     Entities,
     Relationships,
     Tags,
@@ -51,6 +54,7 @@ part 'app_database.g.dart';
     SetupPayoffs,
   ],
   daos: [
+    ProjectDao,
     EntityDao,
     RelationshipDao,
     TagDao,
@@ -70,7 +74,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.forTesting(QueryExecutor e) : super(e);
 
   @override
-  int get schemaVersion => 7;
+  int get schemaVersion => 8;
 
   @override
   MigrationStrategy get migration {
@@ -107,30 +111,48 @@ class AppDatabase extends _$AppDatabase {
         ''');
       },
       onUpgrade: (m, from, to) async {
-        if (from < 2) {
-          await m.createTable(manuscriptChapters);
-        }
-        if (from < 3) {
-          await m.createTable(plotCards);
-          await m.createTable(plotConnections);
-        }
-        if (from < 4) {
-          await m.createTable(chapterSnapshots);
-        }
-        if (from >= 2 && from < 5) {
-          // Add columns added to manuscript_chapters after the original v2 creation
-          // Only needed for installs that were created at v2 (not fresh installs)
-          await m.addColumn(manuscriptChapters, manuscriptChapters.synopsis);
-          await m.addColumn(manuscriptChapters, manuscriptChapters.dateLabel);
-          await m.addColumn(manuscriptChapters, manuscriptChapters.eraLabel);
-          await m.addColumn(manuscriptChapters, manuscriptChapters.status);
-        }
-        if (from < 6) {
-          await m.addColumn(manuscriptChapters, manuscriptChapters.povCharacterId);
-          await m.addColumn(manuscriptChapters, manuscriptChapters.locationId);
-        }
-        if (from < 7) {
-          await m.createTable(setupPayoffs);
+        if (from < 8) {
+          // Drop existing FTS virtual table and triggers
+          await customStatement('DROP TRIGGER IF EXISTS trg_entity_fts_insert');
+          await customStatement('DROP TRIGGER IF EXISTS trg_entity_fts_update');
+          await customStatement('DROP TRIGGER IF EXISTS trg_entity_fts_delete');
+          await customStatement('DROP TABLE IF EXISTS entity_fts');
+
+          // Temporarily disable foreign keys for clean table dropping
+          await customStatement('PRAGMA foreign_keys = OFF');
+          for (final table in allTables) {
+            await m.drop(table);
+          }
+          await customStatement('PRAGMA foreign_keys = ON');
+
+          // Recreate all tables (including Projects) and FTS5 table + triggers
+          await m.createAll();
+          await customStatement('''
+            CREATE VIRTUAL TABLE entity_fts USING fts5(
+              entity_id UNINDEXED,
+              name,
+              description,
+              custom_fields_text
+            );
+          ''');
+          await customStatement('''
+            CREATE TRIGGER trg_entity_fts_insert AFTER INSERT ON entities BEGIN
+              INSERT INTO entity_fts(rowid, entity_id, name, description, custom_fields_text)
+              VALUES (new.rowid, new.id, new.name, new.description, new.custom_fields);
+            END;
+          ''');
+          await customStatement('''
+            CREATE TRIGGER trg_entity_fts_update AFTER UPDATE ON entities BEGIN
+              DELETE FROM entity_fts WHERE rowid = old.rowid;
+              INSERT INTO entity_fts(rowid, entity_id, name, description, custom_fields_text)
+              VALUES (new.rowid, new.id, new.name, new.description, new.custom_fields);
+            END;
+          ''');
+          await customStatement('''
+            CREATE TRIGGER trg_entity_fts_delete AFTER DELETE ON entities BEGIN
+              DELETE FROM entity_fts WHERE rowid = old.rowid;
+            END;
+          ''');
         }
       },
       beforeOpen: (details) async {

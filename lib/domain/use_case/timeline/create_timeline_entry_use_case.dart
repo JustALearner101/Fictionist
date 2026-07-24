@@ -11,6 +11,7 @@ class CreateTimelineEntryParams {
   final String? dateLabel;
   final String? eraLabel;
   final String? entityId;
+  final String? projectId;
 
   const CreateTimelineEntryParams({
     required this.title,
@@ -18,6 +19,7 @@ class CreateTimelineEntryParams {
     this.dateLabel,
     this.eraLabel,
     this.entityId,
+    this.projectId,
   });
 }
 
@@ -54,7 +56,7 @@ class CreateTimelineEntryUseCase {
           updatedAt: DateTime.now(),
         );
 
-        return _repository.create(entry);
+        return _repository.create(entry, projectId: params.projectId);
       },
     );
   }

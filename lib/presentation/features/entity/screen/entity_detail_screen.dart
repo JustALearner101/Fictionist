@@ -10,7 +10,7 @@ import '../../../../domain/relationship/relationship_type_registry.dart';
 import '../../../../domain/use_case/entity/delete_entity_use_case.dart';
 import '../../../../domain/use_case/entity/update_entity_use_case.dart';
 import '../../../../domain/use_case/relationship/create_relationship_use_case.dart';
-import '../../../../data/repository/relationship_repository_impl.dart';
+import '../../../../domain/use_case/relationship/delete_relationship_use_case.dart';
 import '../../../../domain/version/entity_version.dart';
 import '../../../../injection.dart';
 import '../../../common/widget/confirm_dialog.dart';
@@ -362,7 +362,7 @@ class _EntityDetailScreenState extends ConsumerState<EntityDetailScreen> {
       ),
     );
     if (confirm != true) return;
-    final res = await getIt<RelationshipRepositoryImpl>().delete(id);
+    final res = await getIt<DeleteRelationshipUseCase>()(id);
     res.fold(
       (f) => _snack(f.message, Theme.of(context).colorScheme.error),
       (_) {

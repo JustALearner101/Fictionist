@@ -5,7 +5,7 @@ import '../../entity/entity.dart';
 import '../../manuscript/manuscript_chapter.dart';
 import '../../relationship/relationship.dart';
 import '../../../data/repository/manuscript_repository_impl.dart';
-import '../../../data/repository/relationship_repository_impl.dart';
+import '../../repository/relationship_repository.dart';
 import '../../../data/repository/timeline_repository_impl.dart';
 import '../../timeline/timeline_entry.dart';
 
@@ -77,7 +77,7 @@ class EntityReferences {
 class GetEntityReferencesUseCase {
   final ManuscriptRepositoryImpl _manuscriptRepo;
   final TimelineRepositoryImpl _timelineRepo;
-  final RelationshipRepositoryImpl _relationshipRepo;
+  final RelationshipRepository _relationshipRepo;
 
   GetEntityReferencesUseCase(
     this._manuscriptRepo,

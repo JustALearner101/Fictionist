@@ -26,9 +26,10 @@ class EntityMapper {
     );
   }
 
-  static EntitiesCompanion toCompanion(Entity entity) {
+  static EntitiesCompanion toCompanion(Entity entity, {String? projectId}) {
     return EntitiesCompanion(
       id: Value(entity.id),
+      projectId: projectId != null ? Value(projectId) : const Value.absent(),
       name: Value(entity.name),
       entityType: Value(entity.type.key),
       status: Value(entity.status.key),

@@ -8,6 +8,7 @@ import '../../../../domain/use_case/entity/create_entity_use_case.dart';
 import '../../../../data/repository/template_repository_impl.dart';
 import '../../../../injection.dart';
 import '../../name_generator/widget/name_generator_sheet.dart';
+import '../../project/provider/active_project_provider.dart';
 import '../provider/entity_list_provider.dart';
 import '../../../common/widget/fictionist_dropdown.dart';
 
@@ -173,6 +174,7 @@ class _EntityCreateScreenState extends ConsumerState<EntityCreateScreen> {
   Future<void> _forge() async {
     if (!_formKey.currentState!.validate()) return;
     setState(() => _loading = true);
+    final projectId = ref.read(activeProjectProvider).valueOrNull?.id;
     final res = await getIt<CreateEntityUseCase>()(CreateEntityParams(
       name: _nameCtrl.text.trim(),
       type: _type,
@@ -180,6 +182,7 @@ class _EntityCreateScreenState extends ConsumerState<EntityCreateScreen> {
       description: _descCtrl.text.trim().isEmpty ? null : _descCtrl.text.trim(),
       customFields: _fields,
       iconColor: _color,
+      projectId: projectId,
     ));
     setState(() => _loading = false);
     res.fold(

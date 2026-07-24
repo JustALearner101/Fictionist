@@ -1,8 +1,11 @@
 import 'package:drift/drift.dart';
+import 'projects_table.dart';
 
 @DataClassName('ManuscriptChapterRow')
 class ManuscriptChapters extends Table {
   TextColumn get id => text().withLength(min: 36, max: 36)();
+  TextColumn get projectId =>
+      text().references(Projects, #id, onDelete: KeyAction.cascade).nullable()();
   TextColumn get title => text().withLength(min: 1, max: 500)();
   TextColumn get content => text().withDefault(const Constant(''))();
   IntColumn get sortOrder => integer().withDefault(const Constant(0))();

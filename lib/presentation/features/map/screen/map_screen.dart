@@ -1056,53 +1056,57 @@ class _MapScreenState extends ConsumerState<MapScreen> {
 
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
-      appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.surface,
-        elevation: 0,
-        toolbarHeight: 48,
-        actions: [
-          if (_selectedMap != null)
-            IconButton(
-              icon: Icon(Icons.delete_outline, color: Theme.of(context).colorScheme.error, size: 20),
-              tooltip: 'Delete Map',
-              onPressed: () => _deleteMap(_selectedMap!),
+      body: Column(
+        children: [
+          PageHeader(
+            title: 'World Map',
+            subtitle: 'Cartography and exploration',
+            trailing: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (_selectedMap != null)
+                  IconButton(
+                    icon: Icon(Icons.delete_outline, color: Theme.of(context).colorScheme.error, size: 20),
+                    tooltip: 'Delete Map',
+                    onPressed: () => _deleteMap(_selectedMap!),
+                  ),
+              ],
             ),
-        ],
-      ), // end AppBar
-      body: mapsState.when(
-        data: (maps) {
-          if (maps.isEmpty) {
-            return const EmptyState(
-              title: 'No World Maps Found',
-              message: 'Upload your fantasy cartography image to begin mapping out historical sites and cities.',
-              icon: Icons.map_outlined,
-            );
-          }
+          ),
+          Expanded(
+            child: mapsState.when(
+              data: (maps) {
+                if (maps.isEmpty) {
+                  return const EmptyState(
+                    title: 'No World Maps Found',
+                    message: 'Upload your fantasy cartography image to begin mapping out historical sites and cities.',
+                    icon: Icons.map_outlined,
+                  );
+                }
 
-          // Default selection
-          if (_selectedMap == null) {
-            _selectedMap = maps.first;
-          } else {
-            // Verify selected map still exists
-            if (!maps.any((m) => m.id == _selectedMap!.id)) {
-              _selectedMap = maps.first;
-            }
-          }
+                // Default selection
+                if (_selectedMap == null) {
+                  _selectedMap = maps.first;
+                } else {
+                  // Verify selected map still exists
+                  if (!maps.any((m) => m.id == _selectedMap!.id)) {
+                    _selectedMap = maps.first;
+                  }
+                }
 
-          if (_lastLoadedMapId != _selectedMap!.id) {
-            _lastLoadedMapId = _selectedMap!.id;
-            WidgetsBinding.instance.addPostFrameCallback((_) {
-              _loadMapConfig(_selectedMap!.id);
-            });
-          }
+                if (_lastLoadedMapId != _selectedMap!.id) {
+                  _lastLoadedMapId = _selectedMap!.id;
+                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                    _loadMapConfig(_selectedMap!.id);
+                  });
+                }
 
-          final selectedMap = _selectedMap!;
+                final selectedMap = _selectedMap!;
 
-          return entitiesState.when(
-            data: (entities) {
-              return Column(
-                children: [
-                  const PageHeader(title: 'World Map', subtitle: 'Cartography and exploration'),
+                return entitiesState.when(
+                  data: (entities) {
+                    return Column(
+                      children: [
                   if (maps.length > 1)
                     Padding(
                       padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
@@ -1658,13 +1662,16 @@ class _MapScreenState extends ConsumerState<MapScreen> {
                 ],
               );
             },
-              loading: () => LoadingIndicator(),
+              loading: () => const LoadingIndicator(),
               error: (e, _) => ErrorDisplay(message: e.toString()),
             );
         },
-        loading: () => LoadingIndicator(),
+        loading: () => const LoadingIndicator(),
         error: (err, _) => ErrorDisplay(message: err.toString()),
       ),
+    ),
+  ],
+),
     );
   }
 

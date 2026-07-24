@@ -1,8 +1,11 @@
 import 'package:drift/drift.dart';
+import 'projects_table.dart';
 
 @DataClassName('SetupPayoffRow')
 class SetupPayoffs extends Table {
   TextColumn get id => text().withLength(min: 36, max: 36)();
+  TextColumn get projectId =>
+      text().references(Projects, #id, onDelete: KeyAction.cascade).nullable()();
   TextColumn get setupChapterId =>
       text().withLength(min: 36, max: 36)();
   TextColumn get setupDescription => text()();

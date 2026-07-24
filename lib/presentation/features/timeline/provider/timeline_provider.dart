@@ -6,6 +6,7 @@ import '../../../../data/repository/timeline_repository_impl.dart';
 import '../../../../domain/use_case/timeline/create_timeline_entry_use_case.dart';
 import '../../../../domain/use_case/timeline/reorder_timeline_use_case.dart';
 import '../../../../injection.dart';
+import '../../project/provider/active_project_provider.dart';
 
 part 'timeline_provider.g.dart';
 
@@ -13,12 +14,13 @@ part 'timeline_provider.g.dart';
 class TimelineList extends _$TimelineList {
   @override
   FutureOr<List<TimelineEntry>> build({String? entityId}) async {
+    final projectId = ref.watch(activeProjectProvider).valueOrNull?.id;
     final repo = getIt<TimelineRepositoryImpl>();
     final Either<Failure, List<TimelineEntry>> result;
     if (entityId != null && entityId.isNotEmpty) {
-      result = await repo.getActiveForEntity(entityId!);
+      result = await repo.getActiveForEntity(entityId!, projectId: projectId);
     } else {
-      result = await repo.getAllActiveOrdered();
+      result = await repo.getAllActiveOrdered(projectId: projectId);
     }
     return result.fold(
       (failure) => throw Exception(failure.message),
@@ -33,6 +35,7 @@ class TimelineList extends _$TimelineList {
     String? eraLabel,
     String? entityId,
   }) async {
+    final projectId = ref.read(activeProjectProvider).valueOrNull?.id;
     state = const AsyncValue.loading();
     state = await AsyncValue.guard(() async {
       final createUseCase = getIt<CreateTimelineEntryUseCase>();
@@ -42,6 +45,7 @@ class TimelineList extends _$TimelineList {
         dateLabel: dateLabel,
         eraLabel: eraLabel,
         entityId: entityId,
+        projectId: projectId,
       ));
       final eid = entityId;
       return result.fold(
@@ -50,9 +54,9 @@ class TimelineList extends _$TimelineList {
           final repo = getIt<TimelineRepositoryImpl>();
           final Either<Failure, List<TimelineEntry>> listResult;
           if (eid != null && eid.isNotEmpty) {
-            listResult = await repo.getActiveForEntity(eid);
+            listResult = await repo.getActiveForEntity(eid, projectId: projectId);
           } else {
-            listResult = await repo.getAllActiveOrdered();
+            listResult = await repo.getAllActiveOrdered(projectId: projectId);
           }
           return listResult.fold(
             (f) => throw Exception(f.message),
@@ -73,6 +77,7 @@ class TimelineList extends _$TimelineList {
   }
 
   Future<void> reorderEntries(String entryId, int targetIndex) async {
+    final projectId = ref.read(activeProjectProvider).valueOrNull?.id;
     state = const AsyncValue.loading();
     state = await AsyncValue.guard(() async {
       final reorderUseCase = getIt<ReorderTimelineUseCase>();
@@ -87,9 +92,9 @@ class TimelineList extends _$TimelineList {
           final repo = getIt<TimelineRepositoryImpl>();
           final Either<Failure, List<TimelineEntry>> listResult;
           if (eid != null && eid.isNotEmpty) {
-            listResult = await repo.getActiveForEntity(eid);
+            listResult = await repo.getActiveForEntity(eid, projectId: projectId);
           } else {
-            listResult = await repo.getAllActiveOrdered();
+            listResult = await repo.getAllActiveOrdered(projectId: projectId);
           }
           return listResult.fold(
             (f) => throw Exception(f.message),

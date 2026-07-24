@@ -133,16 +133,16 @@ void main() {
   test(
       'should successfully save sample entities, relationships, timeline entries, chapters, plots, maps and pins',
       () async {
-    when(() => mockEntityRepo.create(any())).thenAnswer((invocation) =>
+    when(() => mockEntityRepo.create(any(), projectId: any(named: 'projectId'))).thenAnswer((invocation) =>
         Future.value(Right(invocation.positionalArguments[0] as Entity)));
     when(() => mockVersionRepo.create(any())).thenAnswer((invocation) =>
         Future.value(
             Right(invocation.positionalArguments[0] as EntityVersion)));
     when(() => mockRelationshipRepo.create(any())).thenAnswer((invocation) =>
         Future.value(Right(invocation.positionalArguments[0] as Relationship)));
-    when(() => mockTimelineRepo.create(any())).thenAnswer((invocation) =>
+    when(() => mockTimelineRepo.create(any(), projectId: any(named: 'projectId'))).thenAnswer((invocation) =>
         Future.value(Right(invocation.positionalArguments[0] as TimelineEntry)));
-    when(() => mockManuscriptRepo.create(any())).thenAnswer((invocation) =>
+    when(() => mockManuscriptRepo.create(any(), projectId: any(named: 'projectId'))).thenAnswer((invocation) =>
         Future.value(Right(invocation.positionalArguments[0] as ManuscriptChapter)));
     
     when(() => mockPlotRepo.createCard(
@@ -151,6 +151,7 @@ void main() {
       xPosition: any(named: 'xPosition'),
       yPosition: any(named: 'yPosition'),
       colorHex: any(named: 'colorHex'),
+      projectId: any(named: 'projectId'),
     )).thenAnswer((invocation) {
       final title = invocation.namedArguments[#title] as String;
       final summary = invocation.namedArguments[#summary] as String?;
@@ -173,6 +174,7 @@ void main() {
       any(),
       any(),
       label: any(named: 'label'),
+      projectId: any(named: 'projectId'),
     )).thenAnswer((invocation) {
       final s = invocation.positionalArguments[0] as String;
       final t = invocation.positionalArguments[1] as String;
@@ -187,12 +189,12 @@ void main() {
     });
 
     when(() => mockMapRepo.saveMapImage(any(), any())).thenAnswer((_) => Future.value(const Right(unit)));
-    when(() => mockMapRepo.createMap(any())).thenAnswer((invocation) =>
+    when(() => mockMapRepo.createMap(any(), projectId: any(named: 'projectId'))).thenAnswer((invocation) =>
         Future.value(Right(invocation.positionalArguments[0] as WorldMap)));
     when(() => mockMapRepo.createPin(any())).thenAnswer((invocation) =>
         Future.value(Right(invocation.positionalArguments[0] as MapPin)));
 
-    final result = await useCase();
+    final result = await useCase('test-project-id');
 
     expect(result.isRight(), true);
     result.fold(
@@ -200,33 +202,35 @@ void main() {
       (val) => expect(val, unit),
     );
 
-    verify(() => mockEntityRepo.create(any())).called(22);
+    verify(() => mockEntityRepo.create(any(), projectId: 'test-project-id')).called(22);
     verify(() => mockVersionRepo.create(any())).called(22);
     verify(() => mockRelationshipRepo.create(any())).called(12);
-    verify(() => mockTimelineRepo.create(any())).called(4);
-    verify(() => mockManuscriptRepo.create(any())).called(3);
+    verify(() => mockTimelineRepo.create(any(), projectId: 'test-project-id')).called(4);
+    verify(() => mockManuscriptRepo.create(any(), projectId: 'test-project-id')).called(3);
     verify(() => mockPlotRepo.createCard(
       title: any(named: 'title'),
       summary: any(named: 'summary'),
       xPosition: any(named: 'xPosition'),
       yPosition: any(named: 'yPosition'),
       colorHex: any(named: 'colorHex'),
+      projectId: 'test-project-id',
     )).called(4);
     verify(() => mockPlotRepo.createConnection(
       any(),
       any(),
       label: any(named: 'label'),
+      projectId: 'test-project-id',
     )).called(3);
     verify(() => mockMapRepo.saveMapImage(any(), any())).called(1);
-    verify(() => mockMapRepo.createMap(any())).called(1);
+    verify(() => mockMapRepo.createMap(any(), projectId: 'test-project-id')).called(1);
     verify(() => mockMapRepo.createPin(any())).called(3);
   });
 
   test('should halt and return failure if entity insertion fails', () async {
-    when(() => mockEntityRepo.create(any())).thenAnswer((_) => Future.value(
+    when(() => mockEntityRepo.create(any(), projectId: any(named: 'projectId'))).thenAnswer((_) => Future.value(
         const Left(Failure.database(message: 'Database error creating entity'))));
 
-    final result = await useCase();
+    final result = await useCase('test-project-id');
 
     expect(result.isLeft(), true);
     result.fold(
@@ -237,17 +241,18 @@ void main() {
       (_) => fail('Should have failed'),
     );
 
-    verify(() => mockEntityRepo.create(any())).called(1);
+    verify(() => mockEntityRepo.create(any(), projectId: 'test-project-id')).called(1);
     verifyNever(() => mockVersionRepo.create(any()));
     verifyNever(() => mockRelationshipRepo.create(any()));
-    verifyNever(() => mockTimelineRepo.create(any()));
-    verifyNever(() => mockManuscriptRepo.create(any()));
+    verifyNever(() => mockTimelineRepo.create(any(), projectId: any(named: 'projectId')));
+    verifyNever(() => mockManuscriptRepo.create(any(), projectId: any(named: 'projectId')));
     verifyNever(() => mockPlotRepo.createCard(
       title: any(named: 'title'),
       summary: any(named: 'summary'),
       xPosition: any(named: 'xPosition'),
       yPosition: any(named: 'yPosition'),
       colorHex: any(named: 'colorHex'),
+      projectId: any(named: 'projectId'),
     ));
     verifyNever(() => mockMapRepo.saveMapImage(any(), any()));
   });

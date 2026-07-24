@@ -494,9 +494,114 @@ The UI utilizes Riverpod's dependency tracking to filter candidates:
 
 ---
 
-## 8. Backup & Export Strategy
+## 8. Project Scoping (Schema v8)
 
-### 8.1 JSON Export
+### 8.1 Motivation
+
+> Every campaign, novel, or worldbuilding project deserves its own isolated sandbox.
+> Schema v8 introduces multi-project workspaces so a single Fictionist install can
+> host multiple independent worlds without data leaking between them.
+
+### 8.2 How It Works
+
+```
+┌─────────────┐     ┌──────────────────┐     ┌──────────────────┐
+│  Project A   │     │   Project B      │     │   (No Project)   │
+│  ─────────── │     │  ─────────────── │     │  ─────────────── │
+│  entities     │     │  entities        │     │  entities (NULL) │
+│  timelines    │     │  timelines       │     │  timelines       │
+│  maps         │     │  maps            │     │  maps            │
+│  manuscripts  │     │  manuscripts     │     │  manuscripts     │
+│  plot boards  │     │  plot boards     │     │  plot boards     │
+│  tags         │     │  tags            │     │  tags            │
+│  ...          │     │  ...             │     │  ...             │
+└──────┬───────┘     └──────┬────────────┘     └──────────────────┘
+       │                    │                    │
+       └────────────────────┴────────────────────┘
+                    all share one SQLite DB
+               filtered at query time via `project_id`
+```
+
+### 8.3 Database Schema
+
+The `projects` table (added in schema version 8):
+
+| Column | Type | Notes |
+|--------|------|-------|
+| `id` | TEXT (UUID, PK) | 36-char UUIDv4 |
+| `name` | TEXT (NOT NULL) | Non-empty project name |
+| `description` | TEXT (nullable) | Optional description |
+| `cover_image_path` | TEXT (nullable) | Optional cover image |
+| `last_accessed_at` | DATETIME | Used for auto-load ordering |
+| `created_at` | DATETIME | Row creation timestamp |
+| `updated_at` | DATETIME | Row update timestamp |
+| `is_deleted` | BOOLEAN | Soft-deletion flag |
+
+Every scoped table (entities, tags, timeline_entries, world_maps,
+manuscript_chapters, plot_cards, plot_connections, setup_payoffs) has
+a nullable `project_id` TEXT column referencing `projects(id)` with
+`ON DELETE CASCADE`.
+
+### 8.4 Startup Auto-Load Flow
+
+```
+App Launch
+    │
+    ▼
+ActiveProject.build()  ──►  GetLatestAccessedProjectUseCase
+    │                               │
+    │                        projects sorted by
+    │                        last_accessed_at DESC
+    │                               │
+    │                    ┌──────────┴──────────┐
+    │                    ▼                     ▼
+    │              Project found          No projects
+    │                    │                     │
+    │                    ▼                     ▼
+    │             Update last_            Redirect to
+    │             accessed_at             /projects
+    │                    │
+    │                    ▼
+    │             Redirect to
+    │             /entities
+    ▼
+GoRouter refreshListenable checks redirect
+on ProjectGuard state changes
+```
+
+### 8.5 Key Files
+
+| File | Purpose |
+|------|---------|
+| `lib/domain/project/project.dart` | Freezed domain model |
+| `lib/domain/repository/project_repository.dart` | Abstract repository interface |
+| `lib/data/database/tables/projects_table.dart` | Drift table definition |
+| `lib/data/dao/project_dao.dart` | DAO with project queries |
+| `lib/data/repositories/project_repository_impl.dart` | Repository implementation |
+| `lib/presentation/features/project/provider/active_project_provider.dart` | Global current-project state (`keepAlive: true`) |
+| `lib/presentation/features/project/provider/project_guard.dart` | GoRouter refresh bridge |
+| `lib/presentation/features/project/screen/project_selection_screen.dart` | Project list + create/delete |
+| `lib/presentation/router/app_router.dart` | Auto-load redirect, `/projects` route |
+
+### 8.6 Provider Scoping Pattern
+
+Every feature provider reads the active project and passes `projectId` to
+repository methods. The DAOs then filter by `project_id` at the SQL level.
+
+```dart
+// In any feature provider:
+final projectId = ref.watch(activeProjectProvider).valueOrNull?.id;
+final result = await someRepository.getAllActive(projectId: projectId);
+```
+
+If `projectId` is null (legacy data or no project selected), queries return
+all rows — maintaining backward compatibility with pre-v8 databases.
+
+---
+
+## 9. Backup & Export Strategy
+
+### 9.1 JSON Export
 
 The app exports the entire database as a single JSON file:
 
@@ -520,24 +625,24 @@ The app exports the entire database as a single JSON file:
 }
 ```
 
-### 8.2 Format Versioning
+### 9.2 Format Versioning
 
 - `export_format_version` is an integer that increments on breaking schema changes.
 - The import flow reads `export_format_version` first and applies migration transforms if the format is older than the app's current version.
 - Map images are exported as base64-encoded strings within the `world_maps` entries, or as a companion ZIP when the export size exceeds a threshold.
 
-### 8.3 Import Behavior
+### 9.3 Import Behavior
 
 - **Merge vs Replace**: The user chooses. Replace wipes the local DB. Merge uses UUID-based deduplication — matching UUIDs update the local row if the import's `updated_at` is newer.
 - **Conflict resolution on merge**: Last-write-wins based on `updated_at`. No interactive conflict resolution in v1.
 
 ---
 
-## 9. Future Sync Architecture
+## 10. Future Sync Architecture
 
 Fictionist is offline-first today, but the architecture is designed to support cloud sync later without rewrites.
 
-### 9.1 Why It's Ready
+### 10.1 Why It's Ready
 
 | Concern | Current design choice | Sync implication |
 |---|---|---|
@@ -547,7 +652,7 @@ Fictionist is offline-first today, but the architecture is designed to support c
 | **Repository pattern** | Domain depends on abstract interfaces | Swap `DriftEntityRepository` for `SyncedEntityRepository` without touching domain or presentation |
 | **Version history** | `EntityVersion` table | Full audit trail for three-way merge |
 
-### 9.2 What Sync Would Add
+### 10.2 What Sync Would Add
 
 - **Dirty flag**: Add `is_dirty` column to all synced tables. Set on local write, clear on successful push.
 - **Sync queue**: A `SyncQueue` table tracking pending operations (`create`, `update`, `delete`) with retry counts.
@@ -555,7 +660,7 @@ Fictionist is offline-first today, but the architecture is designed to support c
 - **Sync repository**: A new repository implementation that composes `LocalDataSource` + `RemoteDataSource`, handles conflict resolution, and manages the sync queue.
 - **Background sync**: Using `workmanager` or isolates for periodic push/pull.
 
-### 9.3 Sync Will NOT Require
+### 10.3 Sync Will NOT Require
 
 - Changes to domain entities or use cases.
 - Changes to Riverpod providers or presentation logic.
@@ -564,7 +669,7 @@ Fictionist is offline-first today, but the architecture is designed to support c
 
 ---
 
-## References
+## 11. References
 
 - [Repository Structure](file:///D:/Fictionist/docs/04-repository-structure.md)
 - [Coding Standards](file:///D:/Fictionist/docs/05-coding-standard.md)

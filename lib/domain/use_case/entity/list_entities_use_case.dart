@@ -9,8 +9,9 @@ import '../../../data/repository/entity_repository_impl.dart';
 class ListEntitiesParams {
   final EntityType? type;
   final EntityStatus? status;
+  final String? projectId;
 
-  const ListEntitiesParams({this.type, this.status});
+  const ListEntitiesParams({this.type, this.status, this.projectId});
 }
 
 @lazySingleton
@@ -21,7 +22,7 @@ class ListEntitiesUseCase {
 
   Future<Either<Failure, List<Entity>>> call(ListEntitiesParams params) async {
     if (params.type != null) {
-      final result = await _repository.getActiveByType(params.type!);
+      final result = await _repository.getActiveByType(params.type!, projectId: params.projectId);
       if (params.status == null) return result;
       return result.map(
         (list) => list.where((e) => e.status == params.status).toList(),
@@ -29,10 +30,10 @@ class ListEntitiesUseCase {
     }
 
     if (params.status != null) {
-      final result = await _repository.getActiveByStatus(params.status!);
+      final result = await _repository.getActiveByStatus(params.status!, projectId: params.projectId);
       return result;
     }
 
-    return _repository.getAllActive();
+    return _repository.getAllActive(projectId: params.projectId);
   }
 }

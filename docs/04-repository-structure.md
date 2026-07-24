@@ -58,7 +58,12 @@ fictionist/
 │   │   │       ├── template_table.dart
 │   │   │       ├── quick_capture_table.dart
 │   │   │       ├── world_map_table.dart
-│   │   │       └── map_pin_table.dart
+│   │   │       ├── map_pin_table.dart
+│   │   │       ├── projects_table.dart      # Schema v8 — multi-project workspaces
+│   │   │       ├── setup_payoff_table.dart
+│   │   │       ├── plot_tables.dart         # PlotCards + PlotConnections
+│   │   │       ├── chapter_snapshot_table.dart
+│   │   │       └── manuscript_chapter_table.dart
 │   │   ├── dao/
 │   │   │   ├── entity_dao.dart       # CRUD + search + FTS queries
 │   │   │   ├── relationship_dao.dart # Join queries for entity graph
@@ -67,7 +72,9 @@ fictionist/
 │   │   │   ├── entity_version_dao.dart
 │   │   │   ├── template_dao.dart
 │   │   │   ├── quick_capture_dao.dart
-│   │   │   └── map_dao.dart          # WorldMap + MapPin queries
+│   │   │   ├── map_dao.dart          # WorldMap + MapPin queries
+│   │   │   ├── project_dao.dart      # Project CRUD + last-accessed queries
+│   │   │   └── manuscript_dao.dart   # Manuscript chapter queries
 │   │   ├── mapper/
 │   │   │   ├── entity_mapper.dart
 │   │   │   ├── relationship_mapper.dart
@@ -89,6 +96,8 @@ fictionist/
 │   │       └── map_repository_impl.dart
 │   │
 │   ├── domain/
+│   │   ├── project/
+│   │   │   └── project.dart          # Project domain model (freezed)
 │   │   ├── entity/
 │   │   │   ├── entity.dart           # Immutable Entity (freezed)
 │   │   │   ├── entity.freezed.dart   # Generated
@@ -115,6 +124,7 @@ fictionist/
 │   │   ├── repository/
 │   │   │   ├── entity_repository.dart          # Abstract
 │   │   │   ├── relationship_repository.dart
+│   │   │   ├── project_repository.dart         # Abstract — Schema v8
 │   │   │   ├── tag_repository.dart
 │   │   │   ├── timeline_repository.dart
 │   │   │   ├── entity_version_repository.dart
@@ -146,6 +156,16 @@ fictionist/
 │   │       ├── quick_capture/
 │   │       │   ├── create_quick_capture_use_case.dart
 │   │       │   └── process_quick_capture_use_case.dart
+│   │       ├── project/
+│   │       │   ├── get_projects_use_case.dart
+│   │       │   ├── create_project_use_case.dart
+│   │       │   ├── delete_project_use_case.dart
+│   │       │   ├── get_latest_accessed_project_use_case.dart
+│   │       │   └── update_project_last_accessed_use_case.dart
+│   │       ├── relationship/
+│   │       │   ├── delete_relationship_use_case.dart
+│   │       │   ├── get_relationships_for_entity_use_case.dart
+│   │       │   └── get_all_active_relationships_use_case.dart
 │   │       ├── map/
 │   │       │   ├── create_map_pin_use_case.dart
 │   │       │   └── get_map_pins_use_case.dart
@@ -154,8 +174,19 @@ fictionist/
 │   │           └── import_database_use_case.dart
 │   │
 │   └── presentation/
+│       ├── features/
+│       │   ├── project/
+│       │   │   ├── provider/
+│       │   │   │   ├── active_project_provider.dart  # Global current-project state
+│       │   │   │   └── project_guard.dart            # GoRouter refresh bridge
+│       │   │   ├── screen/
+│       │   │   │   └── project_selection_screen.dart
+│       │   │   └── widget/
+│       │   │       ├── project_card.dart
+│       │   │       ├── project_create_dialog.dart
+│       │   │       └── project_delete_dialog.dart
 │       ├── router/
-│       │   └── app_router.dart       # GoRouter configuration
+│       │   └── app_router.dart       # GoRouter configuration (project-aware)
 │       ├── home/
 │       │   ├── page/
 │       │   │   └── home_page.dart

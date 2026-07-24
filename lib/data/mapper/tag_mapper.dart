@@ -11,9 +11,10 @@ class TagMapper {
     );
   }
 
-  static TagsCompanion toCompanion(Tag tag) {
+  static TagsCompanion toCompanion(Tag tag, {String? projectId}) {
     return TagsCompanion(
       id: Value(tag.id),
+      projectId: projectId != null ? Value(projectId) : const Value.absent(),
       name: Value(tag.name),
       color: Value(tag.color),
     );

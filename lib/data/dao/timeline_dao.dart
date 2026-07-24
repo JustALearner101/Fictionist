@@ -23,15 +23,22 @@ class TimelineDao extends DatabaseAccessor<AppDatabase> with _$TimelineDaoMixin 
         .write(const TimelineEntriesCompanion(isDeleted: Value(true)));
   }
 
-  Future<TimelineEntryRow?> getById(String id) {
-    return (select(timelineEntries)
-          ..where((t) => t.id.equals(id) & t.isDeleted.equals(false)))
-        .getSingleOrNull();
+  Future<TimelineEntryRow?> getById(String id, [String? projectId]) {
+    final query = select(timelineEntries)
+      ..where((t) => t.id.equals(id) & t.isDeleted.equals(false));
+    if (projectId != null) {
+      query.where((t) => t.projectId.equals(projectId));
+    }
+    return query.getSingleOrNull();
   }
 
-  Future<List<TimelineEntryRow>> getAllActiveOrdered() {
-    return (select(timelineEntries)
-          ..where((t) => t.isDeleted.equals(false))
+  Future<List<TimelineEntryRow>> getAllActiveOrdered([String? projectId]) {
+    final query = select(timelineEntries)
+      ..where((t) => t.isDeleted.equals(false));
+    if (projectId != null) {
+      query.where((t) => t.projectId.equals(projectId));
+    }
+    return (query
           ..orderBy([
             (t) => OrderingTerm(expression: t.sortOrder, mode: OrderingMode.asc),
             (t) => OrderingTerm(expression: t.createdAt, mode: OrderingMode.asc)
@@ -39,9 +46,13 @@ class TimelineDao extends DatabaseAccessor<AppDatabase> with _$TimelineDaoMixin 
         .get();
   }
 
-  Future<List<TimelineEntryRow>> getActiveForEntity(String entityId) {
-    return (select(timelineEntries)
-          ..where((t) => t.isDeleted.equals(false) & t.entityId.equals(entityId))
+  Future<List<TimelineEntryRow>> getActiveForEntity(String entityId, [String? projectId]) {
+    final query = select(timelineEntries)
+      ..where((t) => t.isDeleted.equals(false) & t.entityId.equals(entityId));
+    if (projectId != null) {
+      query.where((t) => t.projectId.equals(projectId));
+    }
+    return (query
           ..orderBy([
             (t) => OrderingTerm(expression: t.sortOrder, mode: OrderingMode.asc),
             (t) => OrderingTerm(expression: t.createdAt, mode: OrderingMode.asc)
@@ -49,9 +60,14 @@ class TimelineDao extends DatabaseAccessor<AppDatabase> with _$TimelineDaoMixin 
         .get();
   }
 
-  Future<int> getMaxSortOrder() async {
+  Future<int> getMaxSortOrder([String? projectId]) async {
     final query = selectOnly(timelineEntries)
       ..addColumns([timelineEntries.sortOrder.max()]);
+    if (projectId != null) {
+      query.where(timelineEntries.projectId.equals(projectId) & timelineEntries.isDeleted.equals(false));
+    } else {
+      query.where(timelineEntries.isDeleted.equals(false));
+    }
     final result = await query.getSingle();
     return result.read(timelineEntries.sortOrder.max()) ?? 0;
   }

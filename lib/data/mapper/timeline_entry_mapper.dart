@@ -18,9 +18,10 @@ class TimelineEntryMapper {
     );
   }
 
-  static TimelineEntriesCompanion toCompanion(TimelineEntry entry) {
+  static TimelineEntriesCompanion toCompanion(TimelineEntry entry, {String? projectId}) {
     return TimelineEntriesCompanion(
       id: Value(entry.id),
+      projectId: projectId != null ? Value(projectId) : const Value.absent(),
       title: Value(entry.title),
       description: Value(entry.description),
       dateLabel: Value(entry.dateLabel),

@@ -4,6 +4,7 @@ part of 'entity_version_dao.dart';
 
 // ignore_for_file: type=lint
 mixin _$EntityVersionDaoMixin on DatabaseAccessor<AppDatabase> {
+  $ProjectsTable get projects => attachedDatabase.projects;
   $EntitiesTable get entities => attachedDatabase.entities;
   $EntityVersionsTable get entityVersions => attachedDatabase.entityVersions;
 }

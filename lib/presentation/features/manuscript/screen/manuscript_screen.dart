@@ -112,65 +112,71 @@ class _ManuscriptScreenState extends ConsumerState<ManuscriptScreen> {
 
     return Scaffold(
       backgroundColor: theme.colorScheme.surface,
-      body: chapters.isEmpty
-          ? _EmptyManuscript(onCreate: _createChapter)
-          : Column(
+      body: Column(
+        children: [
+          // ── Page header ─────────────────────────────────────────────
+          PageHeader(
+            title: 'Manuscript',
+            subtitle: 'Write and organize your story',
+            trailing: Row(
+              mainAxisSize: MainAxisSize.min,
               children: [
-                // ── Page header ─────────────────────────────────────────────
-                PageHeader(
-                  title: 'Manuscript',
-                  subtitle: 'Write and organize your story',
-                  trailing: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      IconButton(
-                        icon: Icon(Icons.dashboard_outlined, color: theme.colorScheme.onSurface, size: 20),
-                        tooltip: 'Dashboard',
-                        onPressed: () => showDashboardSheet(context, ref),
-                      ),
-                      IconButton(
-                        icon: Icon(Icons.add_circle_outline, color: theme.colorScheme.primary, size: 20),
-                        tooltip: 'New Chapter',
-                        onPressed: _createChapter,
-                      ),
-                    ],
-                  ),
+                IconButton(
+                  icon: Icon(Icons.dashboard_outlined, color: theme.colorScheme.onSurface, size: 20),
+                  tooltip: 'Dashboard',
+                  onPressed: () => showDashboardSheet(context, ref),
                 ),
-                // ── Summary strip ───────────────────────────────────────────
-                _SummaryStrip(
-                  totalChapters: chapters.length,
-                  totalWords: totalWords,
-                  doneCount: doneCount,
-                  theme: theme,
-                ),
-                Divider(height: 1,
-                    color: theme.colorScheme.outline.withOpacity(0.08)),
-
-                // ── Chapter list ────────────────────────────────────────────
-                Expanded(
-                  child: ReorderableListView.builder(
-                    padding: const EdgeInsets.only(bottom: 100),
-                    buildDefaultDragHandles: false,
-                    itemCount: chapters.length,
-                    onReorder: _reorderChapters,
-                    itemBuilder: (context, index) {
-                      final chapter = chapters[index];
-                      return _ChapterCard(
-                        key: ValueKey(chapter.id),
-                        chapter: chapter,
-                        index: index,
-                        onTap: () {
-                          HapticFeedback.lightImpact();
-                          context.push('/manuscript/write/${chapter.id}');
-                        },
-                        onDelete: () =>
-                            _deleteChapter(chapter.id, chapter.title),
-                      );
-                    },
-                  ),
+                IconButton(
+                  icon: Icon(Icons.add_circle_outline, color: theme.colorScheme.primary, size: 20),
+                  tooltip: 'New Chapter',
+                  onPressed: _createChapter,
                 ),
               ],
             ),
+          ),
+          Expanded(
+            child: chapters.isEmpty
+                ? _EmptyManuscript(onCreate: _createChapter)
+                : Column(
+                    children: [
+                      // ── Summary strip ───────────────────────────────────────────
+                      _SummaryStrip(
+                        totalChapters: chapters.length,
+                        totalWords: totalWords,
+                        doneCount: doneCount,
+                        theme: theme,
+                      ),
+                      Divider(height: 1,
+                          color: theme.colorScheme.outline.withOpacity(0.08)),
+
+                      // ── Chapter list ────────────────────────────────────────────
+                      Expanded(
+                        child: ReorderableListView.builder(
+                          padding: const EdgeInsets.only(bottom: 100),
+                          buildDefaultDragHandles: false,
+                          itemCount: chapters.length,
+                          onReorder: _reorderChapters,
+                          itemBuilder: (context, index) {
+                            final chapter = chapters[index];
+                            return _ChapterCard(
+                              key: ValueKey(chapter.id),
+                              chapter: chapter,
+                              index: index,
+                              onTap: () {
+                                HapticFeedback.lightImpact();
+                                context.push('/manuscript/write/${chapter.id}');
+                              },
+                              onDelete: () =>
+                                  _deleteChapter(chapter.id, chapter.title),
+                            );
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+          ),
+        ],
+      ),
       // FAB
       floatingActionButton: chapters.isNotEmpty
           ? FloatingActionButton.extended(

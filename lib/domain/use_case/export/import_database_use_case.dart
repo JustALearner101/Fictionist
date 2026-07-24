@@ -7,7 +7,7 @@ import '../../map/world_map.dart';
 import '../../relationship/relationship.dart';
 import '../../../data/repository/entity_repository_impl.dart';
 import '../../../data/repository/map_repository_impl.dart';
-import '../../../data/repository/relationship_repository_impl.dart';
+import '../../repository/relationship_repository.dart';
 import '../../../data/repository/tag_repository_impl.dart';
 import '../../../data/repository/template_repository_impl.dart';
 import '../../../data/repository/timeline_repository_impl.dart';
@@ -28,7 +28,7 @@ class ImportDatabaseParams {
 @lazySingleton
 class ImportDatabaseUseCase {
   final EntityRepositoryImpl _entityRepository;
-  final RelationshipRepositoryImpl _relationshipRepository;
+  final RelationshipRepository _relationshipRepository;
   final TagRepositoryImpl _tagRepository;
   final TimelineRepositoryImpl _timelineRepository;
   final TemplateRepositoryImpl _templateRepository;

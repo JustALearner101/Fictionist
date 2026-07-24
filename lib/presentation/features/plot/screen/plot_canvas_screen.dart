@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fictionist/data/repository/plot_repository.dart';
 import 'package:fictionist/domain/plot/plot_card.dart';
 import 'package:fictionist/injection.dart';
+import 'package:fictionist/presentation/features/project/provider/active_project_provider.dart';
 import 'package:fictionist/presentation/common/widget/empty_state.dart';
 import 'package:fictionist/presentation/common/widget/loading_indicator.dart';
 import 'package:fictionist/presentation/common/widget/page_header.dart';
@@ -30,10 +31,12 @@ class _PlotCanvasScreenState extends ConsumerState<PlotCanvasScreen> {
     _loadData();
   }
 
+  String? get _projectId => ref.read(activeProjectProvider).valueOrNull?.id;
+
   Future<void> _loadData() async {
     final repo = getIt<PlotRepositoryImpl>();
-    final cards = await repo.getAllCards();
-    final conns = await repo.getAllConnections();
+    final cards = await repo.getAllCards(projectId: _projectId);
+    final conns = await repo.getAllConnections(projectId: _projectId);
     if (mounted) {
       setState(() {
         cards.fold((_) => _cards = [], (c) => _cards = c);
@@ -63,7 +66,7 @@ class _PlotCanvasScreenState extends ConsumerState<PlotCanvasScreen> {
     );
     if (title != null && title.trim().isNotEmpty) {
       final repo = getIt<PlotRepositoryImpl>();
-      await repo.createCard(title: title.trim());
+      await repo.createCard(title: title.trim(), projectId: _projectId);
       _loadData();
     }
   }
@@ -90,7 +93,7 @@ class _PlotCanvasScreenState extends ConsumerState<PlotCanvasScreen> {
   Future<void> _createConnection(String targetId) async {
     if (_connectingFromId == null || _connectingFromId == targetId) return;
     final repo = getIt<PlotRepositoryImpl>();
-    await repo.createConnection(_connectingFromId!, targetId);
+    await repo.createConnection(_connectingFromId!, targetId, projectId: _projectId);
     setState(() => _connectingFromId = null);
     _loadData();
   }
@@ -106,107 +109,110 @@ class _PlotCanvasScreenState extends ConsumerState<PlotCanvasScreen> {
 
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
-      body: _cards.isEmpty
-          ? Center(
-              child: EmptyState(
-                title: 'Corkboard is Empty',
-                message: 'Add plot cards to outline story beats and connect them with cause-and-effect arrows.',
-                icon: Icons.dashboard_customize_outlined,
-                actionLabel: 'Add Plot Card',
-                onActionPressed: _addCard,
-              ),
-            )
-          : Stack(
+      body: Column(
+        children: [
+          PageHeader(
+            title: 'Plot',
+            subtitle: 'Story outline and plot cards',
+            trailing: Row(
+              mainAxisSize: MainAxisSize.min,
               children: [
-                Positioned(
-                  top: 0, left: 0, right: 0,
-                  child: PageHeader(
-                    title: 'Plot',
-                    subtitle: 'Story outline and plot cards',
-                    trailing: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        if (_connectingFromId != null)
-                          TextButton.icon(
-                            onPressed: () => setState(() => _connectingFromId = null),
-                            icon: Icon(Icons.close, color: Theme.of(context).colorScheme.error, size: 18),
-                            label: Text('Cancel Link', style: TextStyle(color: Theme.of(context).colorScheme.error)),
-                          ),
-                        IconButton(icon: Icon(Icons.add, color: Theme.of(context).colorScheme.primary, size: 20), tooltip: 'Add Card', onPressed: _addCard),
-                        IconButton(icon: Icon(Icons.refresh, color: Theme.of(context).colorScheme.onSurfaceVariant, size: 20), tooltip: 'Refresh', onPressed: _loadData),
-                      ],
-                    ),
-                  ),
-                ),
-                InteractiveViewer(
-                  constrained: false,
-                  boundaryMargin: const EdgeInsets.all(500),
-                  minScale: 0.2,
-                  maxScale: 3.0,
-                  child: SizedBox(
-                    width: 2000,
-                    height: 2000,
-                    child: CustomPaint(
-                      painter: _ConnectionPainter(
-                        connections: _connections,
-                        cards: _cards,
-                        color: Theme.of(context).colorScheme.primary,
-                      ),
-                      child: Stack(
-                        children: _cards.map((card) {
-                          final color = Color(card.colorHex);
-                          return Positioned(
-                            left: card.xPosition,
-                            top: card.yPosition,
-                            child: GestureDetector(
-                              onPanUpdate: (details) {
-                                setState(() {
-                                  final idx = _cards.indexWhere((c) => c.id == card.id);
-                                  if (idx != -1) {
-                                    final current = _cards[idx];
-                                    _cards[idx] = current.copyWith(
-                                      xPosition: current.xPosition + details.delta.dx,
-                                      yPosition: current.yPosition + details.delta.dy,
-                                    );
-                                  }
-                                });
-                              },
-                              onPanEnd: (details) async {
-                                final current = _cards.firstWhere((c) => c.id == card.id);
-                                final repo = getIt<PlotRepositoryImpl>();
-                                await repo.updateCardPosition(card.id, current.xPosition, current.yPosition);
-                              },
-                              child: _PlotCardWidget(
-                                card: card,
-                                color: color,
-                                isConnecting: _connectingFromId == card.id,
-                                isConnectTarget: _connectingFromId != null && _connectingFromId != card.id,
-                                onDelete: () => _deleteCard(card.id),
-                                onConnect: () => _toggleConnectionMode(card.id),
-                                onConnectTarget: () => _createConnection(card.id),
-                              ).animate(key: ValueKey(card.id))
-                               .fade(duration: 250.ms)
-                               .scale(begin: const Offset(0.8, 0.8), end: const Offset(1.0, 1.0), duration: 250.ms, curve: Curves.easeOut),
-                            ),
-                          );
-                        }).toList(),
-                      ),
-                    ),
-                  ),
-                ),
                 if (_connectingFromId != null)
-                  Positioned(
-                    bottom: 20, left: 0, right: 0,
-                    child: Center(
-                      child: Container(
-                        padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                        decoration: BoxDecoration(color: Theme.of(context).colorScheme.primary, borderRadius: BorderRadius.circular(20)),
-                        child: const Text('Tap a target card to connect →', style: TextStyle(color: Colors.white)),
-                      ),
-                    ),
+                  TextButton.icon(
+                    onPressed: () => setState(() => _connectingFromId = null),
+                    icon: Icon(Icons.close, color: Theme.of(context).colorScheme.error, size: 18),
+                    label: Text('Cancel Link', style: TextStyle(color: Theme.of(context).colorScheme.error)),
                   ),
+                IconButton(icon: Icon(Icons.add, color: Theme.of(context).colorScheme.primary, size: 20), tooltip: 'Add Card', onPressed: _addCard),
+                IconButton(icon: Icon(Icons.refresh, color: Theme.of(context).colorScheme.onSurfaceVariant, size: 20), tooltip: 'Refresh', onPressed: _loadData),
               ],
             ),
+          ),
+          Expanded(
+            child: _cards.isEmpty
+                ? Center(
+                    child: EmptyState(
+                      title: 'Corkboard is Empty',
+                      message: 'Add plot cards to outline story beats and connect them with cause-and-effect arrows.',
+                      icon: Icons.dashboard_customize_outlined,
+                      actionLabel: 'Add Plot Card',
+                      onActionPressed: _addCard,
+                    ),
+                  )
+                : Stack(
+                    children: [
+                      InteractiveViewer(
+                        constrained: false,
+                        boundaryMargin: const EdgeInsets.all(500),
+                        minScale: 0.2,
+                        maxScale: 3.0,
+                        child: SizedBox(
+                          width: 2000,
+                          height: 2000,
+                          child: CustomPaint(
+                            painter: _ConnectionPainter(
+                              connections: _connections,
+                              cards: _cards,
+                              color: Theme.of(context).colorScheme.primary,
+                            ),
+                            child: Stack(
+                              children: _cards.map((card) {
+                                final color = Color(card.colorHex);
+                                return Positioned(
+                                  left: card.xPosition,
+                                  top: card.yPosition,
+                                  child: GestureDetector(
+                                    onPanUpdate: (details) {
+                                      setState(() {
+                                        final idx = _cards.indexWhere((c) => c.id == card.id);
+                                        if (idx != -1) {
+                                          final current = _cards[idx];
+                                          _cards[idx] = current.copyWith(
+                                            xPosition: current.xPosition + details.delta.dx,
+                                            yPosition: current.yPosition + details.delta.dy,
+                                          );
+                                        }
+                                      });
+                                    },
+                                    onPanEnd: (details) async {
+                                      final current = _cards.firstWhere((c) => c.id == card.id);
+                                      final repo = getIt<PlotRepositoryImpl>();
+                                      await repo.updateCardPosition(card.id, current.xPosition, current.yPosition);
+                                    },
+                                    child: _PlotCardWidget(
+                                      card: card,
+                                      color: color,
+                                      isConnecting: _connectingFromId == card.id,
+                                      isConnectTarget: _connectingFromId != null && _connectingFromId != card.id,
+                                      onDelete: () => _deleteCard(card.id),
+                                      onConnect: () => _toggleConnectionMode(card.id),
+                                      onConnectTarget: () => _createConnection(card.id),
+                                    ).animate(key: ValueKey(card.id))
+                                     .fade(duration: 250.ms)
+                                     .scale(begin: const Offset(0.8, 0.8), end: const Offset(1.0, 1.0), duration: 250.ms, curve: Curves.easeOut),
+                                  ),
+                                );
+                              }).toList(),
+                            ),
+                          ),
+                        ),
+                      ),
+                      if (_connectingFromId != null)
+                        Positioned(
+                          bottom: 20, left: 0, right: 0,
+                          child: Center(
+                            child: Container(
+                              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                              decoration: BoxDecoration(color: Theme.of(context).colorScheme.primary, borderRadius: BorderRadius.circular(20)),
+                              child: const Text('Tap a target card to connect →', style: TextStyle(color: Colors.white)),
+                            ),
+                          ),
+                        ),
+                    ],
+                  ),
+          ),
+        ],
+      ),
     );
   }
 }

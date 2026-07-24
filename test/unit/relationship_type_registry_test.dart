@@ -16,8 +16,43 @@ void main() {
       expect(def, isNull);
     });
 
-    test('builtinTypes contains all expected definitions', () {
-      expect(RelationshipTypeRegistry.builtinTypes.length, 20);
+    test('all 32 relationship types can be looked up via getDef(key) without returning null', () {
+      expect(RelationshipTypeRegistry.builtinTypes.length, 32);
+      for (final def in RelationshipTypeRegistry.builtinTypes) {
+        final lookedUp = RelationshipTypeRegistry.getDef(def.key);
+        expect(lookedUp, isNotNull, reason: 'getDef failed for key: ${def.key}');
+        expect(lookedUp!.key, equals(def.key));
+      }
+    });
+
+    test('all 32 relationship types have a valid non-null inverseKey registered', () {
+      for (final def in RelationshipTypeRegistry.builtinTypes) {
+        final inverseKey = RelationshipTypeRegistry.getInverseKey(def.key);
+        expect(inverseKey, isNotNull, reason: 'getInverseKey returned null for key: ${def.key}');
+        final inverseDef = RelationshipTypeRegistry.getDef(inverseKey!);
+        expect(inverseDef, isNotNull, reason: 'getDef returned null for inverseKey: $inverseKey (from ${def.key})');
+      }
+    });
+
+    test('reciprocal mapping is strictly symmetric (getInverseKey of inverseKey equals original key)', () {
+      for (final def in RelationshipTypeRegistry.builtinTypes) {
+        final inverseKey = RelationshipTypeRegistry.getInverseKey(def.key)!;
+        final reciprocalKey = RelationshipTypeRegistry.getInverseKey(inverseKey);
+        expect(reciprocalKey, equals(def.key),
+            reason: 'Reciprocal of inverseKey ($inverseKey) for ${def.key} was $reciprocalKey');
+      }
+    });
+
+    test('source and target entity types match inversely across reciprocal pairs', () {
+      for (final def in RelationshipTypeRegistry.builtinTypes) {
+        final inverseKey = RelationshipTypeRegistry.getInverseKey(def.key)!;
+        final inverseDef = RelationshipTypeRegistry.getDef(inverseKey)!;
+
+        expect(inverseDef.applicableSourceTypes, equals(def.applicableTargetTypes),
+            reason: 'Inverse source types for ${def.key} -> $inverseKey do not match target types');
+        expect(inverseDef.applicableTargetTypes, equals(def.applicableSourceTypes),
+            reason: 'Inverse target types for ${def.key} -> $inverseKey do not match source types');
+      }
     });
 
     test('all definitions have non-empty keys and labels', () {
@@ -37,6 +72,7 @@ void main() {
         expect(def, isNotNull, reason: '$key not found');
         expect(def!.label, def.inverseLabel,
             reason: '$key should be symmetric');
+        expect(def.isBidirectional, isTrue, reason: '$key should have isBidirectional=true');
       }
     });
 
@@ -49,6 +85,7 @@ void main() {
         expect(def, isNotNull, reason: '$key not found');
         expect(def!.label, isNot(def.inverseLabel),
             reason: '$key should be asymmetric');
+        expect(def.isBidirectional, isFalse, reason: '$key should have isBidirectional=false');
       }
     });
 
@@ -83,3 +120,4 @@ void main() {
     });
   });
 }
+

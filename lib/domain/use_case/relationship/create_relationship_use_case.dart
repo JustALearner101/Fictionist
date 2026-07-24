@@ -4,7 +4,7 @@ import 'package:uuid/uuid.dart';
 import '../../../core/error/failure.dart';
 import '../../relationship/relationship.dart';
 import '../../relationship/relationship_type_registry.dart';
-import '../../../data/repository/relationship_repository_impl.dart';
+import '../../repository/relationship_repository.dart';
 
 class CreateRelationshipParams {
   final String sourceId;
@@ -34,7 +34,7 @@ class CreateRelationshipResult {
 
 @lazySingleton
 class CreateRelationshipUseCase {
-  final RelationshipRepositoryImpl _repository;
+  final RelationshipRepository _repository;
 
   CreateRelationshipUseCase(this._repository);
 

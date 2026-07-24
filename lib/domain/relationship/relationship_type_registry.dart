@@ -213,6 +213,137 @@ class RelationshipTypeRegistry {
       },
       isBidirectional: true,
     ),
+    RelationshipTypeDef(
+      key: 'led_by',
+      label: 'Led by',
+      inverseLabel: 'Leader of',
+      applicableSourceTypes: {
+        EntityType.faction,
+        EntityType.raceCulture,
+        EntityType.location
+      },
+      applicableTargetTypes: {EntityType.character},
+      isBidirectional: false,
+    ),
+    RelationshipTypeDef(
+      key: 'has_member',
+      label: 'Has member',
+      inverseLabel: 'Member of',
+      applicableSourceTypes: {EntityType.faction, EntityType.raceCulture},
+      applicableTargetTypes: {EntityType.character},
+      isBidirectional: false,
+    ),
+    RelationshipTypeDef(
+      key: 'contains',
+      label: 'Contains',
+      inverseLabel: 'Located in',
+      applicableSourceTypes: {EntityType.location},
+      applicableTargetTypes: {
+        EntityType.character,
+        EntityType.faction,
+        EntityType.itemArtifact,
+        EntityType.event
+      },
+      isBidirectional: false,
+    ),
+    RelationshipTypeDef(
+      key: 'creator_of',
+      label: 'Creator of',
+      inverseLabel: 'Created by',
+      applicableSourceTypes: {
+        EntityType.character,
+        EntityType.faction,
+        EntityType.raceCulture
+      },
+      applicableTargetTypes: {
+        EntityType.itemArtifact,
+        EntityType.powerMagicSystem,
+        EntityType.conceptGlossary
+      },
+      isBidirectional: false,
+    ),
+    RelationshipTypeDef(
+      key: 'owns',
+      label: 'Owns',
+      inverseLabel: 'Belongs to',
+      applicableSourceTypes: {
+        EntityType.character,
+        EntityType.faction,
+        EntityType.location
+      },
+      applicableTargetTypes: {EntityType.itemArtifact},
+      isBidirectional: false,
+    ),
+    RelationshipTypeDef(
+      key: 'wielded_by',
+      label: 'Wielded by',
+      inverseLabel: 'Wields',
+      applicableSourceTypes: {
+        EntityType.itemArtifact,
+        EntityType.powerMagicSystem
+      },
+      applicableTargetTypes: {EntityType.character},
+      isBidirectional: false,
+    ),
+    RelationshipTypeDef(
+      key: 'has_participant',
+      label: 'Has participant',
+      inverseLabel: 'Participates in',
+      applicableSourceTypes: {EntityType.event},
+      applicableTargetTypes: {EntityType.character, EntityType.faction},
+      isBidirectional: false,
+    ),
+    RelationshipTypeDef(
+      key: 'event_site_of',
+      label: 'Event site of',
+      inverseLabel: 'Occurred at',
+      applicableSourceTypes: {EntityType.location},
+      applicableTargetTypes: {EntityType.event},
+      isBidirectional: false,
+    ),
+    RelationshipTypeDef(
+      key: 'practiced_by',
+      label: 'Practiced by',
+      inverseLabel: 'Practices',
+      applicableSourceTypes: {
+        EntityType.powerMagicSystem,
+        EntityType.conceptGlossary
+      },
+      applicableTargetTypes: {
+        EntityType.character,
+        EntityType.raceCulture,
+        EntityType.faction
+      },
+      isBidirectional: false,
+    ),
+    RelationshipTypeDef(
+      key: 'ruled_by',
+      label: 'Ruled by',
+      inverseLabel: 'Rules over',
+      applicableSourceTypes: {EntityType.location, EntityType.faction},
+      applicableTargetTypes: {EntityType.character, EntityType.faction},
+      isBidirectional: false,
+    ),
+    RelationshipTypeDef(
+      key: 'worshipped_by',
+      label: 'Worshipped by',
+      inverseLabel: 'Worships',
+      applicableSourceTypes: {EntityType.character, EntityType.conceptGlossary},
+      applicableTargetTypes: {
+        EntityType.character,
+        EntityType.raceCulture,
+        EntityType.faction
+      },
+      isBidirectional: false,
+    ),
+    RelationshipTypeDef(
+      key: 'mentored_by',
+      label: 'Mentored by',
+      inverseLabel: 'Mentors',
+      applicableSourceTypes: {EntityType.character},
+      applicableTargetTypes: {EntityType.character},
+      isBidirectional: false,
+    ),
   ];
 
   static RelationshipTypeDef? getDef(String key) {

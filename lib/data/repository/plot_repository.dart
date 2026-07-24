@@ -20,6 +20,7 @@ class PlotRepositoryImpl {
     double xPosition = 200,
     double yPosition = 200,
     int colorHex = 0xFFA78BFA,
+    String? projectId,
   }) async {
     try {
       final now = DateTime.now();
@@ -35,6 +36,7 @@ class PlotRepositoryImpl {
       );
       await _dao.insertCard(PlotCardsCompanion(
         id: Value(card.id),
+        projectId: projectId != null ? Value(projectId) : const Value.absent(),
         title: Value(card.title),
         summary: Value(card.summary),
         xPosition: Value(card.xPosition),
@@ -64,9 +66,9 @@ class PlotRepositoryImpl {
     }
   }
 
-  Future<Either<Failure, List<PlotCard>>> getAllCards() async {
+  Future<Either<Failure, List<PlotCard>>> getAllCards({String? projectId}) async {
     try {
-      final rows = await _dao.getAllActiveCards();
+      final rows = await _dao.getAllActiveCards(projectId);
       return Right(rows.map((r) => PlotCard(
         id: r.id, title: r.title, summary: r.summary,
         xPosition: r.xPosition, yPosition: r.yPosition,
@@ -78,14 +80,16 @@ class PlotRepositoryImpl {
     }
   }
 
-  Future<Either<Failure, PlotConnection>> createConnection(String sourceId, String targetId, {String? label}) async {
+  Future<Either<Failure, PlotConnection>> createConnection(String sourceId, String targetId, {String? label, String? projectId}) async {
     try {
       final conn = PlotConnection(
         id: const Uuid().v4(), sourceId: sourceId, targetId: targetId,
         label: label, createdAt: DateTime.now(),
       );
       await _dao.insertConnection(PlotConnectionsCompanion(
-        id: Value(conn.id), sourceId: Value(conn.sourceId),
+        id: Value(conn.id),
+        projectId: projectId != null ? Value(projectId) : const Value.absent(),
+        sourceId: Value(conn.sourceId),
         targetId: Value(conn.targetId), label: Value(conn.label),
         isDeleted: const Value(false), createdAt: Value(conn.createdAt),
       ));
@@ -95,9 +99,9 @@ class PlotRepositoryImpl {
     }
   }
 
-  Future<Either<Failure, List<PlotConnection>>> getAllConnections() async {
+  Future<Either<Failure, List<PlotConnection>>> getAllConnections({String? projectId}) async {
     try {
-      final rows = await _dao.getAllActiveConnections();
+      final rows = await _dao.getAllActiveConnections(projectId);
       return Right(rows.map((r) => PlotConnection(
         id: r.id, sourceId: r.sourceId, targetId: r.targetId,
         label: r.label, isDeleted: r.isDeleted, createdAt: r.createdAt,

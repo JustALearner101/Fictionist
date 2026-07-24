@@ -11,9 +11,10 @@ class WorldMapMapper {
     );
   }
 
-  static WorldMapsCompanion toCompanion(WorldMap map) {
+  static WorldMapsCompanion toCompanion(WorldMap map, {String? projectId}) {
     return WorldMapsCompanion(
       id: Value(map.id),
+      projectId: projectId != null ? Value(projectId) : const Value.absent(),
       name: Value(map.name),
       imagePath: Value(map.imagePath),
     );

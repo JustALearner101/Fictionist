@@ -8,7 +8,7 @@ import '../../../../data/repository/map_repository_impl.dart';
 import '../../../../domain/map/map_pin.dart';
 import '../../../../domain/map/world_map.dart';
 import '../../../../injection.dart';
-import '../../../../core/error/failure.dart';
+import '../../project/provider/active_project_provider.dart';
 
 part 'map_provider.g.dart';
 
@@ -18,7 +18,8 @@ MapRepositoryImpl _repo() => getIt<MapRepositoryImpl>();
 class WorldMapList extends _$WorldMapList {
   @override
   FutureOr<List<WorldMap>> build() async {
-    final result = await _repo().getAllMaps();
+    final projectId = ref.watch(activeProjectProvider).valueOrNull?.id;
+    final result = await _repo().getAllMaps(projectId: projectId);
     return result.fold(
       (failure) => throw Exception(failure.message),
       (list) => list,
@@ -26,6 +27,7 @@ class WorldMapList extends _$WorldMapList {
   }
 
   Future<WorldMap> addMap(String name, String pickedFilePath) async {
+    final projectId = ref.read(activeProjectProvider).valueOrNull?.id;
     final docs = await getApplicationDocumentsDirectory();
     final mapsDir = Directory(p.join(docs.path, 'world_maps'));
     if (!await mapsDir.exists()) {
@@ -37,7 +39,6 @@ class WorldMapList extends _$WorldMapList {
     final filename = '$uuid$extension';
     final destinationPath = p.join(mapsDir.path, filename);
 
-    // Copy image file to documents directory
     final sourceFile = File(pickedFilePath);
     await sourceFile.copy(destinationPath);
 
@@ -50,11 +51,11 @@ class WorldMapList extends _$WorldMapList {
 
     state = const AsyncValue.loading();
     state = await AsyncValue.guard(() async {
-      final result = await _repo().createMap(newMap);
+      final result = await _repo().createMap(newMap, projectId: projectId);
       return result.fold(
         (failure) => throw Exception(failure.message),
         (_) async {
-          final listResult = await _repo().getAllMaps();
+          final listResult = await _repo().getAllMaps(projectId: projectId);
           return listResult.fold(
             (f) => throw Exception(f.message),
             (list) => list,
@@ -67,6 +68,7 @@ class WorldMapList extends _$WorldMapList {
   }
 
   Future<void> deleteMap(String id, String relativePath) async {
+    final projectId = ref.read(activeProjectProvider).valueOrNull?.id;
     state = const AsyncValue.loading();
     state = await AsyncValue.guard(() async {
       final result = await _repo().deleteMap(id);
@@ -74,7 +76,6 @@ class WorldMapList extends _$WorldMapList {
       return result.fold(
         (failure) => throw Exception(failure.message),
         (_) async {
-          // Attempt to delete physical file
           try {
             final docs = await getApplicationDocumentsDirectory();
             final absPath = p.join(docs.path, relativePath);
@@ -82,11 +83,9 @@ class WorldMapList extends _$WorldMapList {
             if (await file.exists()) {
               await file.delete();
             }
-          } catch (_) {
-            // Silently swallow file deletion failures to not block state reload
-          }
+          } catch (_) {}
 
-          final listResult = await _repo().getAllMaps();
+          final listResult = await _repo().getAllMaps(projectId: projectId);
           return listResult.fold(
             (f) => throw Exception(f.message),
             (list) => list,

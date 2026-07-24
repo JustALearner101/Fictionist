@@ -2,12 +2,12 @@ import 'package:fpdart/fpdart.dart';
 import 'package:injectable/injectable.dart';
 import '../../../core/error/failure.dart';
 import '../../../data/repository/entity_repository_impl.dart';
-import '../../../data/repository/relationship_repository_impl.dart';
+import '../../repository/relationship_repository.dart';
 
 @lazySingleton
 class DeleteEntityUseCase {
   final EntityRepositoryImpl _entityRepository;
-  final RelationshipRepositoryImpl _relationshipRepository;
+  final RelationshipRepository _relationshipRepository;
 
   DeleteEntityUseCase(this._entityRepository, this._relationshipRepository);
 

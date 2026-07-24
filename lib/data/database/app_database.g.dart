@@ -3,6 +3,455 @@
 part of 'app_database.dart';
 
 // ignore_for_file: type=lint
+class $ProjectsTable extends Projects
+    with TableInfo<$ProjectsTable, ProjectRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $ProjectsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+      'id', aliasedName, false,
+      additionalChecks:
+          GeneratedColumn.checkTextLength(minTextLength: 36, maxTextLength: 36),
+      type: DriftSqlType.string,
+      requiredDuringInsert: true);
+  static const VerificationMeta _nameMeta = const VerificationMeta('name');
+  @override
+  late final GeneratedColumn<String> name = GeneratedColumn<String>(
+      'name', aliasedName, false,
+      additionalChecks:
+          GeneratedColumn.checkTextLength(minTextLength: 1, maxTextLength: 200),
+      type: DriftSqlType.string,
+      requiredDuringInsert: true);
+  static const VerificationMeta _descriptionMeta =
+      const VerificationMeta('description');
+  @override
+  late final GeneratedColumn<String> description = GeneratedColumn<String>(
+      'description', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _coverImagePathMeta =
+      const VerificationMeta('coverImagePath');
+  @override
+  late final GeneratedColumn<String> coverImagePath = GeneratedColumn<String>(
+      'cover_image_path', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _lastAccessedAtMeta =
+      const VerificationMeta('lastAccessedAt');
+  @override
+  late final GeneratedColumn<DateTime> lastAccessedAt =
+      GeneratedColumn<DateTime>('last_accessed_at', aliasedName, false,
+          type: DriftSqlType.dateTime, requiredDuringInsert: true);
+  static const VerificationMeta _createdAtMeta =
+      const VerificationMeta('createdAt');
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+      'created_at', aliasedName, false,
+      type: DriftSqlType.dateTime, requiredDuringInsert: true);
+  static const VerificationMeta _updatedAtMeta =
+      const VerificationMeta('updatedAt');
+  @override
+  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
+      'updated_at', aliasedName, false,
+      type: DriftSqlType.dateTime, requiredDuringInsert: true);
+  static const VerificationMeta _isDeletedMeta =
+      const VerificationMeta('isDeleted');
+  @override
+  late final GeneratedColumn<bool> isDeleted = GeneratedColumn<bool>(
+      'is_deleted', aliasedName, false,
+      type: DriftSqlType.bool,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('CHECK ("is_deleted" IN (0, 1))'),
+      defaultValue: const Constant(false));
+  @override
+  List<GeneratedColumn> get $columns => [
+        id,
+        name,
+        description,
+        coverImagePath,
+        lastAccessedAt,
+        createdAt,
+        updatedAt,
+        isDeleted
+      ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'projects';
+  @override
+  VerificationContext validateIntegrity(Insertable<ProjectRow> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('name')) {
+      context.handle(
+          _nameMeta, name.isAcceptableOrUnknown(data['name']!, _nameMeta));
+    } else if (isInserting) {
+      context.missing(_nameMeta);
+    }
+    if (data.containsKey('description')) {
+      context.handle(
+          _descriptionMeta,
+          description.isAcceptableOrUnknown(
+              data['description']!, _descriptionMeta));
+    }
+    if (data.containsKey('cover_image_path')) {
+      context.handle(
+          _coverImagePathMeta,
+          coverImagePath.isAcceptableOrUnknown(
+              data['cover_image_path']!, _coverImagePathMeta));
+    }
+    if (data.containsKey('last_accessed_at')) {
+      context.handle(
+          _lastAccessedAtMeta,
+          lastAccessedAt.isAcceptableOrUnknown(
+              data['last_accessed_at']!, _lastAccessedAtMeta));
+    } else if (isInserting) {
+      context.missing(_lastAccessedAtMeta);
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(_createdAtMeta,
+          createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta));
+    } else if (isInserting) {
+      context.missing(_createdAtMeta);
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(_updatedAtMeta,
+          updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta));
+    } else if (isInserting) {
+      context.missing(_updatedAtMeta);
+    }
+    if (data.containsKey('is_deleted')) {
+      context.handle(_isDeletedMeta,
+          isDeleted.isAcceptableOrUnknown(data['is_deleted']!, _isDeletedMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  ProjectRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return ProjectRow(
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
+      name: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}name'])!,
+      description: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}description']),
+      coverImagePath: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}cover_image_path']),
+      lastAccessedAt: attachedDatabase.typeMapping.read(
+          DriftSqlType.dateTime, data['${effectivePrefix}last_accessed_at'])!,
+      createdAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}created_at'])!,
+      updatedAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}updated_at'])!,
+      isDeleted: attachedDatabase.typeMapping
+          .read(DriftSqlType.bool, data['${effectivePrefix}is_deleted'])!,
+    );
+  }
+
+  @override
+  $ProjectsTable createAlias(String alias) {
+    return $ProjectsTable(attachedDatabase, alias);
+  }
+}
+
+class ProjectRow extends DataClass implements Insertable<ProjectRow> {
+  final String id;
+  final String name;
+  final String? description;
+  final String? coverImagePath;
+  final DateTime lastAccessedAt;
+  final DateTime createdAt;
+  final DateTime updatedAt;
+  final bool isDeleted;
+  const ProjectRow(
+      {required this.id,
+      required this.name,
+      this.description,
+      this.coverImagePath,
+      required this.lastAccessedAt,
+      required this.createdAt,
+      required this.updatedAt,
+      required this.isDeleted});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['name'] = Variable<String>(name);
+    if (!nullToAbsent || description != null) {
+      map['description'] = Variable<String>(description);
+    }
+    if (!nullToAbsent || coverImagePath != null) {
+      map['cover_image_path'] = Variable<String>(coverImagePath);
+    }
+    map['last_accessed_at'] = Variable<DateTime>(lastAccessedAt);
+    map['created_at'] = Variable<DateTime>(createdAt);
+    map['updated_at'] = Variable<DateTime>(updatedAt);
+    map['is_deleted'] = Variable<bool>(isDeleted);
+    return map;
+  }
+
+  ProjectsCompanion toCompanion(bool nullToAbsent) {
+    return ProjectsCompanion(
+      id: Value(id),
+      name: Value(name),
+      description: description == null && nullToAbsent
+          ? const Value.absent()
+          : Value(description),
+      coverImagePath: coverImagePath == null && nullToAbsent
+          ? const Value.absent()
+          : Value(coverImagePath),
+      lastAccessedAt: Value(lastAccessedAt),
+      createdAt: Value(createdAt),
+      updatedAt: Value(updatedAt),
+      isDeleted: Value(isDeleted),
+    );
+  }
+
+  factory ProjectRow.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return ProjectRow(
+      id: serializer.fromJson<String>(json['id']),
+      name: serializer.fromJson<String>(json['name']),
+      description: serializer.fromJson<String?>(json['description']),
+      coverImagePath: serializer.fromJson<String?>(json['coverImagePath']),
+      lastAccessedAt: serializer.fromJson<DateTime>(json['lastAccessedAt']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+      updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
+      isDeleted: serializer.fromJson<bool>(json['isDeleted']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'name': serializer.toJson<String>(name),
+      'description': serializer.toJson<String?>(description),
+      'coverImagePath': serializer.toJson<String?>(coverImagePath),
+      'lastAccessedAt': serializer.toJson<DateTime>(lastAccessedAt),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+      'updatedAt': serializer.toJson<DateTime>(updatedAt),
+      'isDeleted': serializer.toJson<bool>(isDeleted),
+    };
+  }
+
+  ProjectRow copyWith(
+          {String? id,
+          String? name,
+          Value<String?> description = const Value.absent(),
+          Value<String?> coverImagePath = const Value.absent(),
+          DateTime? lastAccessedAt,
+          DateTime? createdAt,
+          DateTime? updatedAt,
+          bool? isDeleted}) =>
+      ProjectRow(
+        id: id ?? this.id,
+        name: name ?? this.name,
+        description: description.present ? description.value : this.description,
+        coverImagePath:
+            coverImagePath.present ? coverImagePath.value : this.coverImagePath,
+        lastAccessedAt: lastAccessedAt ?? this.lastAccessedAt,
+        createdAt: createdAt ?? this.createdAt,
+        updatedAt: updatedAt ?? this.updatedAt,
+        isDeleted: isDeleted ?? this.isDeleted,
+      );
+  ProjectRow copyWithCompanion(ProjectsCompanion data) {
+    return ProjectRow(
+      id: data.id.present ? data.id.value : this.id,
+      name: data.name.present ? data.name.value : this.name,
+      description:
+          data.description.present ? data.description.value : this.description,
+      coverImagePath: data.coverImagePath.present
+          ? data.coverImagePath.value
+          : this.coverImagePath,
+      lastAccessedAt: data.lastAccessedAt.present
+          ? data.lastAccessedAt.value
+          : this.lastAccessedAt,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+      isDeleted: data.isDeleted.present ? data.isDeleted.value : this.isDeleted,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ProjectRow(')
+          ..write('id: $id, ')
+          ..write('name: $name, ')
+          ..write('description: $description, ')
+          ..write('coverImagePath: $coverImagePath, ')
+          ..write('lastAccessedAt: $lastAccessedAt, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('isDeleted: $isDeleted')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(id, name, description, coverImagePath,
+      lastAccessedAt, createdAt, updatedAt, isDeleted);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is ProjectRow &&
+          other.id == this.id &&
+          other.name == this.name &&
+          other.description == this.description &&
+          other.coverImagePath == this.coverImagePath &&
+          other.lastAccessedAt == this.lastAccessedAt &&
+          other.createdAt == this.createdAt &&
+          other.updatedAt == this.updatedAt &&
+          other.isDeleted == this.isDeleted);
+}
+
+class ProjectsCompanion extends UpdateCompanion<ProjectRow> {
+  final Value<String> id;
+  final Value<String> name;
+  final Value<String?> description;
+  final Value<String?> coverImagePath;
+  final Value<DateTime> lastAccessedAt;
+  final Value<DateTime> createdAt;
+  final Value<DateTime> updatedAt;
+  final Value<bool> isDeleted;
+  final Value<int> rowid;
+  const ProjectsCompanion({
+    this.id = const Value.absent(),
+    this.name = const Value.absent(),
+    this.description = const Value.absent(),
+    this.coverImagePath = const Value.absent(),
+    this.lastAccessedAt = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.isDeleted = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  ProjectsCompanion.insert({
+    required String id,
+    required String name,
+    this.description = const Value.absent(),
+    this.coverImagePath = const Value.absent(),
+    required DateTime lastAccessedAt,
+    required DateTime createdAt,
+    required DateTime updatedAt,
+    this.isDeleted = const Value.absent(),
+    this.rowid = const Value.absent(),
+  })  : id = Value(id),
+        name = Value(name),
+        lastAccessedAt = Value(lastAccessedAt),
+        createdAt = Value(createdAt),
+        updatedAt = Value(updatedAt);
+  static Insertable<ProjectRow> custom({
+    Expression<String>? id,
+    Expression<String>? name,
+    Expression<String>? description,
+    Expression<String>? coverImagePath,
+    Expression<DateTime>? lastAccessedAt,
+    Expression<DateTime>? createdAt,
+    Expression<DateTime>? updatedAt,
+    Expression<bool>? isDeleted,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (name != null) 'name': name,
+      if (description != null) 'description': description,
+      if (coverImagePath != null) 'cover_image_path': coverImagePath,
+      if (lastAccessedAt != null) 'last_accessed_at': lastAccessedAt,
+      if (createdAt != null) 'created_at': createdAt,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (isDeleted != null) 'is_deleted': isDeleted,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  ProjectsCompanion copyWith(
+      {Value<String>? id,
+      Value<String>? name,
+      Value<String?>? description,
+      Value<String?>? coverImagePath,
+      Value<DateTime>? lastAccessedAt,
+      Value<DateTime>? createdAt,
+      Value<DateTime>? updatedAt,
+      Value<bool>? isDeleted,
+      Value<int>? rowid}) {
+    return ProjectsCompanion(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      description: description ?? this.description,
+      coverImagePath: coverImagePath ?? this.coverImagePath,
+      lastAccessedAt: lastAccessedAt ?? this.lastAccessedAt,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      isDeleted: isDeleted ?? this.isDeleted,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (name.present) {
+      map['name'] = Variable<String>(name.value);
+    }
+    if (description.present) {
+      map['description'] = Variable<String>(description.value);
+    }
+    if (coverImagePath.present) {
+      map['cover_image_path'] = Variable<String>(coverImagePath.value);
+    }
+    if (lastAccessedAt.present) {
+      map['last_accessed_at'] = Variable<DateTime>(lastAccessedAt.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<DateTime>(updatedAt.value);
+    }
+    if (isDeleted.present) {
+      map['is_deleted'] = Variable<bool>(isDeleted.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ProjectsCompanion(')
+          ..write('id: $id, ')
+          ..write('name: $name, ')
+          ..write('description: $description, ')
+          ..write('coverImagePath: $coverImagePath, ')
+          ..write('lastAccessedAt: $lastAccessedAt, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('isDeleted: $isDeleted, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 class $EntitiesTable extends Entities
     with TableInfo<$EntitiesTable, EntityRow> {
   @override
@@ -14,6 +463,15 @@ class $EntitiesTable extends Entities
   late final GeneratedColumn<String> id = GeneratedColumn<String>(
       'id', aliasedName, false,
       type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _projectIdMeta =
+      const VerificationMeta('projectId');
+  @override
+  late final GeneratedColumn<String> projectId = GeneratedColumn<String>(
+      'project_id', aliasedName, true,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      defaultConstraints: GeneratedColumn.constraintIsAlways(
+          'REFERENCES projects (id) ON DELETE CASCADE'));
   static const VerificationMeta _nameMeta = const VerificationMeta('name');
   @override
   late final GeneratedColumn<String> name = GeneratedColumn<String>(
@@ -80,6 +538,7 @@ class $EntitiesTable extends Entities
   @override
   List<GeneratedColumn> get $columns => [
         id,
+        projectId,
         name,
         entityType,
         status,
@@ -104,6 +563,10 @@ class $EntitiesTable extends Entities
       context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
     } else if (isInserting) {
       context.missing(_idMeta);
+    }
+    if (data.containsKey('project_id')) {
+      context.handle(_projectIdMeta,
+          projectId.isAcceptableOrUnknown(data['project_id']!, _projectIdMeta));
     }
     if (data.containsKey('name')) {
       context.handle(
@@ -168,6 +631,8 @@ class $EntitiesTable extends Entities
     return EntityRow(
       id: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
+      projectId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}project_id']),
       name: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}name'])!,
       entityType: attachedDatabase.typeMapping
@@ -197,6 +662,7 @@ class $EntitiesTable extends Entities
 
 class EntityRow extends DataClass implements Insertable<EntityRow> {
   final String id;
+  final String? projectId;
   final String name;
   final String entityType;
   final String status;
@@ -208,6 +674,7 @@ class EntityRow extends DataClass implements Insertable<EntityRow> {
   final DateTime updatedAt;
   const EntityRow(
       {required this.id,
+      this.projectId,
       required this.name,
       required this.entityType,
       required this.status,
@@ -221,6 +688,9 @@ class EntityRow extends DataClass implements Insertable<EntityRow> {
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     map['id'] = Variable<String>(id);
+    if (!nullToAbsent || projectId != null) {
+      map['project_id'] = Variable<String>(projectId);
+    }
     map['name'] = Variable<String>(name);
     map['entity_type'] = Variable<String>(entityType);
     map['status'] = Variable<String>(status);
@@ -238,6 +708,9 @@ class EntityRow extends DataClass implements Insertable<EntityRow> {
   EntitiesCompanion toCompanion(bool nullToAbsent) {
     return EntitiesCompanion(
       id: Value(id),
+      projectId: projectId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(projectId),
       name: Value(name),
       entityType: Value(entityType),
       status: Value(status),
@@ -257,6 +730,7 @@ class EntityRow extends DataClass implements Insertable<EntityRow> {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return EntityRow(
       id: serializer.fromJson<String>(json['id']),
+      projectId: serializer.fromJson<String?>(json['projectId']),
       name: serializer.fromJson<String>(json['name']),
       entityType: serializer.fromJson<String>(json['entityType']),
       status: serializer.fromJson<String>(json['status']),
@@ -273,6 +747,7 @@ class EntityRow extends DataClass implements Insertable<EntityRow> {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
       'id': serializer.toJson<String>(id),
+      'projectId': serializer.toJson<String?>(projectId),
       'name': serializer.toJson<String>(name),
       'entityType': serializer.toJson<String>(entityType),
       'status': serializer.toJson<String>(status),
@@ -287,6 +762,7 @@ class EntityRow extends DataClass implements Insertable<EntityRow> {
 
   EntityRow copyWith(
           {String? id,
+          Value<String?> projectId = const Value.absent(),
           String? name,
           String? entityType,
           String? status,
@@ -298,6 +774,7 @@ class EntityRow extends DataClass implements Insertable<EntityRow> {
           DateTime? updatedAt}) =>
       EntityRow(
         id: id ?? this.id,
+        projectId: projectId.present ? projectId.value : this.projectId,
         name: name ?? this.name,
         entityType: entityType ?? this.entityType,
         status: status ?? this.status,
@@ -311,6 +788,7 @@ class EntityRow extends DataClass implements Insertable<EntityRow> {
   EntityRow copyWithCompanion(EntitiesCompanion data) {
     return EntityRow(
       id: data.id.present ? data.id.value : this.id,
+      projectId: data.projectId.present ? data.projectId.value : this.projectId,
       name: data.name.present ? data.name.value : this.name,
       entityType:
           data.entityType.present ? data.entityType.value : this.entityType,
@@ -331,6 +809,7 @@ class EntityRow extends DataClass implements Insertable<EntityRow> {
   String toString() {
     return (StringBuffer('EntityRow(')
           ..write('id: $id, ')
+          ..write('projectId: $projectId, ')
           ..write('name: $name, ')
           ..write('entityType: $entityType, ')
           ..write('status: $status, ')
@@ -345,13 +824,14 @@ class EntityRow extends DataClass implements Insertable<EntityRow> {
   }
 
   @override
-  int get hashCode => Object.hash(id, name, entityType, status, description,
-      customFields, iconColor, isDeleted, createdAt, updatedAt);
+  int get hashCode => Object.hash(id, projectId, name, entityType, status,
+      description, customFields, iconColor, isDeleted, createdAt, updatedAt);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is EntityRow &&
           other.id == this.id &&
+          other.projectId == this.projectId &&
           other.name == this.name &&
           other.entityType == this.entityType &&
           other.status == this.status &&
@@ -365,6 +845,7 @@ class EntityRow extends DataClass implements Insertable<EntityRow> {
 
 class EntitiesCompanion extends UpdateCompanion<EntityRow> {
   final Value<String> id;
+  final Value<String?> projectId;
   final Value<String> name;
   final Value<String> entityType;
   final Value<String> status;
@@ -377,6 +858,7 @@ class EntitiesCompanion extends UpdateCompanion<EntityRow> {
   final Value<int> rowid;
   const EntitiesCompanion({
     this.id = const Value.absent(),
+    this.projectId = const Value.absent(),
     this.name = const Value.absent(),
     this.entityType = const Value.absent(),
     this.status = const Value.absent(),
@@ -390,6 +872,7 @@ class EntitiesCompanion extends UpdateCompanion<EntityRow> {
   });
   EntitiesCompanion.insert({
     required String id,
+    this.projectId = const Value.absent(),
     required String name,
     required String entityType,
     this.status = const Value.absent(),
@@ -408,6 +891,7 @@ class EntitiesCompanion extends UpdateCompanion<EntityRow> {
         updatedAt = Value(updatedAt);
   static Insertable<EntityRow> custom({
     Expression<String>? id,
+    Expression<String>? projectId,
     Expression<String>? name,
     Expression<String>? entityType,
     Expression<String>? status,
@@ -421,6 +905,7 @@ class EntitiesCompanion extends UpdateCompanion<EntityRow> {
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
+      if (projectId != null) 'project_id': projectId,
       if (name != null) 'name': name,
       if (entityType != null) 'entity_type': entityType,
       if (status != null) 'status': status,
@@ -436,6 +921,7 @@ class EntitiesCompanion extends UpdateCompanion<EntityRow> {
 
   EntitiesCompanion copyWith(
       {Value<String>? id,
+      Value<String?>? projectId,
       Value<String>? name,
       Value<String>? entityType,
       Value<String>? status,
@@ -448,6 +934,7 @@ class EntitiesCompanion extends UpdateCompanion<EntityRow> {
       Value<int>? rowid}) {
     return EntitiesCompanion(
       id: id ?? this.id,
+      projectId: projectId ?? this.projectId,
       name: name ?? this.name,
       entityType: entityType ?? this.entityType,
       status: status ?? this.status,
@@ -466,6 +953,9 @@ class EntitiesCompanion extends UpdateCompanion<EntityRow> {
     final map = <String, Expression>{};
     if (id.present) {
       map['id'] = Variable<String>(id.value);
+    }
+    if (projectId.present) {
+      map['project_id'] = Variable<String>(projectId.value);
     }
     if (name.present) {
       map['name'] = Variable<String>(name.value);
@@ -504,6 +994,7 @@ class EntitiesCompanion extends UpdateCompanion<EntityRow> {
   String toString() {
     return (StringBuffer('EntitiesCompanion(')
           ..write('id: $id, ')
+          ..write('projectId: $projectId, ')
           ..write('name: $name, ')
           ..write('entityType: $entityType, ')
           ..write('status: $status, ')
@@ -1005,6 +1496,15 @@ class $TagsTable extends Tags with TableInfo<$TagsTable, TagRow> {
   late final GeneratedColumn<String> id = GeneratedColumn<String>(
       'id', aliasedName, false,
       type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _projectIdMeta =
+      const VerificationMeta('projectId');
+  @override
+  late final GeneratedColumn<String> projectId = GeneratedColumn<String>(
+      'project_id', aliasedName, true,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      defaultConstraints: GeneratedColumn.constraintIsAlways(
+          'REFERENCES projects (id) ON DELETE CASCADE'));
   static const VerificationMeta _nameMeta = const VerificationMeta('name');
   @override
   late final GeneratedColumn<String> name = GeneratedColumn<String>(
@@ -1012,15 +1512,14 @@ class $TagsTable extends Tags with TableInfo<$TagsTable, TagRow> {
       additionalChecks:
           GeneratedColumn.checkTextLength(minTextLength: 1, maxTextLength: 100),
       type: DriftSqlType.string,
-      requiredDuringInsert: true,
-      defaultConstraints: GeneratedColumn.constraintIsAlways('UNIQUE'));
+      requiredDuringInsert: true);
   static const VerificationMeta _colorMeta = const VerificationMeta('color');
   @override
   late final GeneratedColumn<int> color = GeneratedColumn<int>(
       'color', aliasedName, false,
       type: DriftSqlType.int, requiredDuringInsert: true);
   @override
-  List<GeneratedColumn> get $columns => [id, name, color];
+  List<GeneratedColumn> get $columns => [id, projectId, name, color];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
@@ -1035,6 +1534,10 @@ class $TagsTable extends Tags with TableInfo<$TagsTable, TagRow> {
       context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
     } else if (isInserting) {
       context.missing(_idMeta);
+    }
+    if (data.containsKey('project_id')) {
+      context.handle(_projectIdMeta,
+          projectId.isAcceptableOrUnknown(data['project_id']!, _projectIdMeta));
     }
     if (data.containsKey('name')) {
       context.handle(
@@ -1059,6 +1562,8 @@ class $TagsTable extends Tags with TableInfo<$TagsTable, TagRow> {
     return TagRow(
       id: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
+      projectId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}project_id']),
       name: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}name'])!,
       color: attachedDatabase.typeMapping
@@ -1074,13 +1579,21 @@ class $TagsTable extends Tags with TableInfo<$TagsTable, TagRow> {
 
 class TagRow extends DataClass implements Insertable<TagRow> {
   final String id;
+  final String? projectId;
   final String name;
   final int color;
-  const TagRow({required this.id, required this.name, required this.color});
+  const TagRow(
+      {required this.id,
+      this.projectId,
+      required this.name,
+      required this.color});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     map['id'] = Variable<String>(id);
+    if (!nullToAbsent || projectId != null) {
+      map['project_id'] = Variable<String>(projectId);
+    }
     map['name'] = Variable<String>(name);
     map['color'] = Variable<int>(color);
     return map;
@@ -1089,6 +1602,9 @@ class TagRow extends DataClass implements Insertable<TagRow> {
   TagsCompanion toCompanion(bool nullToAbsent) {
     return TagsCompanion(
       id: Value(id),
+      projectId: projectId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(projectId),
       name: Value(name),
       color: Value(color),
     );
@@ -1099,6 +1615,7 @@ class TagRow extends DataClass implements Insertable<TagRow> {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return TagRow(
       id: serializer.fromJson<String>(json['id']),
+      projectId: serializer.fromJson<String?>(json['projectId']),
       name: serializer.fromJson<String>(json['name']),
       color: serializer.fromJson<int>(json['color']),
     );
@@ -1108,19 +1625,27 @@ class TagRow extends DataClass implements Insertable<TagRow> {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
       'id': serializer.toJson<String>(id),
+      'projectId': serializer.toJson<String?>(projectId),
       'name': serializer.toJson<String>(name),
       'color': serializer.toJson<int>(color),
     };
   }
 
-  TagRow copyWith({String? id, String? name, int? color}) => TagRow(
+  TagRow copyWith(
+          {String? id,
+          Value<String?> projectId = const Value.absent(),
+          String? name,
+          int? color}) =>
+      TagRow(
         id: id ?? this.id,
+        projectId: projectId.present ? projectId.value : this.projectId,
         name: name ?? this.name,
         color: color ?? this.color,
       );
   TagRow copyWithCompanion(TagsCompanion data) {
     return TagRow(
       id: data.id.present ? data.id.value : this.id,
+      projectId: data.projectId.present ? data.projectId.value : this.projectId,
       name: data.name.present ? data.name.value : this.name,
       color: data.color.present ? data.color.value : this.color,
     );
@@ -1130,6 +1655,7 @@ class TagRow extends DataClass implements Insertable<TagRow> {
   String toString() {
     return (StringBuffer('TagRow(')
           ..write('id: $id, ')
+          ..write('projectId: $projectId, ')
           ..write('name: $name, ')
           ..write('color: $color')
           ..write(')'))
@@ -1137,29 +1663,33 @@ class TagRow extends DataClass implements Insertable<TagRow> {
   }
 
   @override
-  int get hashCode => Object.hash(id, name, color);
+  int get hashCode => Object.hash(id, projectId, name, color);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is TagRow &&
           other.id == this.id &&
+          other.projectId == this.projectId &&
           other.name == this.name &&
           other.color == this.color);
 }
 
 class TagsCompanion extends UpdateCompanion<TagRow> {
   final Value<String> id;
+  final Value<String?> projectId;
   final Value<String> name;
   final Value<int> color;
   final Value<int> rowid;
   const TagsCompanion({
     this.id = const Value.absent(),
+    this.projectId = const Value.absent(),
     this.name = const Value.absent(),
     this.color = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   TagsCompanion.insert({
     required String id,
+    this.projectId = const Value.absent(),
     required String name,
     required int color,
     this.rowid = const Value.absent(),
@@ -1168,12 +1698,14 @@ class TagsCompanion extends UpdateCompanion<TagRow> {
         color = Value(color);
   static Insertable<TagRow> custom({
     Expression<String>? id,
+    Expression<String>? projectId,
     Expression<String>? name,
     Expression<int>? color,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
+      if (projectId != null) 'project_id': projectId,
       if (name != null) 'name': name,
       if (color != null) 'color': color,
       if (rowid != null) 'rowid': rowid,
@@ -1182,11 +1714,13 @@ class TagsCompanion extends UpdateCompanion<TagRow> {
 
   TagsCompanion copyWith(
       {Value<String>? id,
+      Value<String?>? projectId,
       Value<String>? name,
       Value<int>? color,
       Value<int>? rowid}) {
     return TagsCompanion(
       id: id ?? this.id,
+      projectId: projectId ?? this.projectId,
       name: name ?? this.name,
       color: color ?? this.color,
       rowid: rowid ?? this.rowid,
@@ -1198,6 +1732,9 @@ class TagsCompanion extends UpdateCompanion<TagRow> {
     final map = <String, Expression>{};
     if (id.present) {
       map['id'] = Variable<String>(id.value);
+    }
+    if (projectId.present) {
+      map['project_id'] = Variable<String>(projectId.value);
     }
     if (name.present) {
       map['name'] = Variable<String>(name.value);
@@ -1215,6 +1752,7 @@ class TagsCompanion extends UpdateCompanion<TagRow> {
   String toString() {
     return (StringBuffer('TagsCompanion(')
           ..write('id: $id, ')
+          ..write('projectId: $projectId, ')
           ..write('name: $name, ')
           ..write('color: $color, ')
           ..write('rowid: $rowid')
@@ -1431,6 +1969,15 @@ class $TimelineEntriesTable extends TimelineEntries
   late final GeneratedColumn<String> id = GeneratedColumn<String>(
       'id', aliasedName, false,
       type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _projectIdMeta =
+      const VerificationMeta('projectId');
+  @override
+  late final GeneratedColumn<String> projectId = GeneratedColumn<String>(
+      'project_id', aliasedName, true,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      defaultConstraints: GeneratedColumn.constraintIsAlways(
+          'REFERENCES projects (id) ON DELETE CASCADE'));
   static const VerificationMeta _titleMeta = const VerificationMeta('title');
   @override
   late final GeneratedColumn<String> title = GeneratedColumn<String>(
@@ -1497,6 +2044,7 @@ class $TimelineEntriesTable extends TimelineEntries
   @override
   List<GeneratedColumn> get $columns => [
         id,
+        projectId,
         title,
         description,
         dateLabel,
@@ -1521,6 +2069,10 @@ class $TimelineEntriesTable extends TimelineEntries
       context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
     } else if (isInserting) {
       context.missing(_idMeta);
+    }
+    if (data.containsKey('project_id')) {
+      context.handle(_projectIdMeta,
+          projectId.isAcceptableOrUnknown(data['project_id']!, _projectIdMeta));
     }
     if (data.containsKey('title')) {
       context.handle(
@@ -1579,6 +2131,8 @@ class $TimelineEntriesTable extends TimelineEntries
     return TimelineEntryRow(
       id: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
+      projectId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}project_id']),
       title: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}title'])!,
       description: attachedDatabase.typeMapping
@@ -1609,6 +2163,7 @@ class $TimelineEntriesTable extends TimelineEntries
 class TimelineEntryRow extends DataClass
     implements Insertable<TimelineEntryRow> {
   final String id;
+  final String? projectId;
   final String title;
   final String? description;
   final String? dateLabel;
@@ -1620,6 +2175,7 @@ class TimelineEntryRow extends DataClass
   final DateTime updatedAt;
   const TimelineEntryRow(
       {required this.id,
+      this.projectId,
       required this.title,
       this.description,
       this.dateLabel,
@@ -1633,6 +2189,9 @@ class TimelineEntryRow extends DataClass
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     map['id'] = Variable<String>(id);
+    if (!nullToAbsent || projectId != null) {
+      map['project_id'] = Variable<String>(projectId);
+    }
     map['title'] = Variable<String>(title);
     if (!nullToAbsent || description != null) {
       map['description'] = Variable<String>(description);
@@ -1656,6 +2215,9 @@ class TimelineEntryRow extends DataClass
   TimelineEntriesCompanion toCompanion(bool nullToAbsent) {
     return TimelineEntriesCompanion(
       id: Value(id),
+      projectId: projectId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(projectId),
       title: Value(title),
       description: description == null && nullToAbsent
           ? const Value.absent()
@@ -1681,6 +2243,7 @@ class TimelineEntryRow extends DataClass
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return TimelineEntryRow(
       id: serializer.fromJson<String>(json['id']),
+      projectId: serializer.fromJson<String?>(json['projectId']),
       title: serializer.fromJson<String>(json['title']),
       description: serializer.fromJson<String?>(json['description']),
       dateLabel: serializer.fromJson<String?>(json['dateLabel']),
@@ -1697,6 +2260,7 @@ class TimelineEntryRow extends DataClass
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
       'id': serializer.toJson<String>(id),
+      'projectId': serializer.toJson<String?>(projectId),
       'title': serializer.toJson<String>(title),
       'description': serializer.toJson<String?>(description),
       'dateLabel': serializer.toJson<String?>(dateLabel),
@@ -1711,6 +2275,7 @@ class TimelineEntryRow extends DataClass
 
   TimelineEntryRow copyWith(
           {String? id,
+          Value<String?> projectId = const Value.absent(),
           String? title,
           Value<String?> description = const Value.absent(),
           Value<String?> dateLabel = const Value.absent(),
@@ -1722,6 +2287,7 @@ class TimelineEntryRow extends DataClass
           DateTime? updatedAt}) =>
       TimelineEntryRow(
         id: id ?? this.id,
+        projectId: projectId.present ? projectId.value : this.projectId,
         title: title ?? this.title,
         description: description.present ? description.value : this.description,
         dateLabel: dateLabel.present ? dateLabel.value : this.dateLabel,
@@ -1735,6 +2301,7 @@ class TimelineEntryRow extends DataClass
   TimelineEntryRow copyWithCompanion(TimelineEntriesCompanion data) {
     return TimelineEntryRow(
       id: data.id.present ? data.id.value : this.id,
+      projectId: data.projectId.present ? data.projectId.value : this.projectId,
       title: data.title.present ? data.title.value : this.title,
       description:
           data.description.present ? data.description.value : this.description,
@@ -1752,6 +2319,7 @@ class TimelineEntryRow extends DataClass
   String toString() {
     return (StringBuffer('TimelineEntryRow(')
           ..write('id: $id, ')
+          ..write('projectId: $projectId, ')
           ..write('title: $title, ')
           ..write('description: $description, ')
           ..write('dateLabel: $dateLabel, ')
@@ -1766,13 +2334,14 @@ class TimelineEntryRow extends DataClass
   }
 
   @override
-  int get hashCode => Object.hash(id, title, description, dateLabel, eraLabel,
-      sortOrder, entityId, isDeleted, createdAt, updatedAt);
+  int get hashCode => Object.hash(id, projectId, title, description, dateLabel,
+      eraLabel, sortOrder, entityId, isDeleted, createdAt, updatedAt);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is TimelineEntryRow &&
           other.id == this.id &&
+          other.projectId == this.projectId &&
           other.title == this.title &&
           other.description == this.description &&
           other.dateLabel == this.dateLabel &&
@@ -1786,6 +2355,7 @@ class TimelineEntryRow extends DataClass
 
 class TimelineEntriesCompanion extends UpdateCompanion<TimelineEntryRow> {
   final Value<String> id;
+  final Value<String?> projectId;
   final Value<String> title;
   final Value<String?> description;
   final Value<String?> dateLabel;
@@ -1798,6 +2368,7 @@ class TimelineEntriesCompanion extends UpdateCompanion<TimelineEntryRow> {
   final Value<int> rowid;
   const TimelineEntriesCompanion({
     this.id = const Value.absent(),
+    this.projectId = const Value.absent(),
     this.title = const Value.absent(),
     this.description = const Value.absent(),
     this.dateLabel = const Value.absent(),
@@ -1811,6 +2382,7 @@ class TimelineEntriesCompanion extends UpdateCompanion<TimelineEntryRow> {
   });
   TimelineEntriesCompanion.insert({
     required String id,
+    this.projectId = const Value.absent(),
     required String title,
     this.description = const Value.absent(),
     this.dateLabel = const Value.absent(),
@@ -1828,6 +2400,7 @@ class TimelineEntriesCompanion extends UpdateCompanion<TimelineEntryRow> {
         updatedAt = Value(updatedAt);
   static Insertable<TimelineEntryRow> custom({
     Expression<String>? id,
+    Expression<String>? projectId,
     Expression<String>? title,
     Expression<String>? description,
     Expression<String>? dateLabel,
@@ -1841,6 +2414,7 @@ class TimelineEntriesCompanion extends UpdateCompanion<TimelineEntryRow> {
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
+      if (projectId != null) 'project_id': projectId,
       if (title != null) 'title': title,
       if (description != null) 'description': description,
       if (dateLabel != null) 'date_label': dateLabel,
@@ -1856,6 +2430,7 @@ class TimelineEntriesCompanion extends UpdateCompanion<TimelineEntryRow> {
 
   TimelineEntriesCompanion copyWith(
       {Value<String>? id,
+      Value<String?>? projectId,
       Value<String>? title,
       Value<String?>? description,
       Value<String?>? dateLabel,
@@ -1868,6 +2443,7 @@ class TimelineEntriesCompanion extends UpdateCompanion<TimelineEntryRow> {
       Value<int>? rowid}) {
     return TimelineEntriesCompanion(
       id: id ?? this.id,
+      projectId: projectId ?? this.projectId,
       title: title ?? this.title,
       description: description ?? this.description,
       dateLabel: dateLabel ?? this.dateLabel,
@@ -1886,6 +2462,9 @@ class TimelineEntriesCompanion extends UpdateCompanion<TimelineEntryRow> {
     final map = <String, Expression>{};
     if (id.present) {
       map['id'] = Variable<String>(id.value);
+    }
+    if (projectId.present) {
+      map['project_id'] = Variable<String>(projectId.value);
     }
     if (title.present) {
       map['title'] = Variable<String>(title.value);
@@ -1924,6 +2503,7 @@ class TimelineEntriesCompanion extends UpdateCompanion<TimelineEntryRow> {
   String toString() {
     return (StringBuffer('TimelineEntriesCompanion(')
           ..write('id: $id, ')
+          ..write('projectId: $projectId, ')
           ..write('title: $title, ')
           ..write('description: $description, ')
           ..write('dateLabel: $dateLabel, ')
@@ -2679,6 +3259,15 @@ class $ManuscriptChaptersTable extends ManuscriptChapters
           GeneratedColumn.checkTextLength(minTextLength: 36, maxTextLength: 36),
       type: DriftSqlType.string,
       requiredDuringInsert: true);
+  static const VerificationMeta _projectIdMeta =
+      const VerificationMeta('projectId');
+  @override
+  late final GeneratedColumn<String> projectId = GeneratedColumn<String>(
+      'project_id', aliasedName, true,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      defaultConstraints: GeneratedColumn.constraintIsAlways(
+          'REFERENCES projects (id) ON DELETE CASCADE'));
   static const VerificationMeta _titleMeta = const VerificationMeta('title');
   @override
   late final GeneratedColumn<String> title = GeneratedColumn<String>(
@@ -2765,6 +3354,7 @@ class $ManuscriptChaptersTable extends ManuscriptChapters
   @override
   List<GeneratedColumn> get $columns => [
         id,
+        projectId,
         title,
         content,
         sortOrder,
@@ -2793,6 +3383,10 @@ class $ManuscriptChaptersTable extends ManuscriptChapters
       context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
     } else if (isInserting) {
       context.missing(_idMeta);
+    }
+    if (data.containsKey('project_id')) {
+      context.handle(_projectIdMeta,
+          projectId.isAcceptableOrUnknown(data['project_id']!, _projectIdMeta));
     }
     if (data.containsKey('title')) {
       context.handle(
@@ -2863,6 +3457,8 @@ class $ManuscriptChaptersTable extends ManuscriptChapters
     return ManuscriptChapterRow(
       id: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
+      projectId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}project_id']),
       title: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}title'])!,
       content: attachedDatabase.typeMapping
@@ -2899,6 +3495,7 @@ class $ManuscriptChaptersTable extends ManuscriptChapters
 class ManuscriptChapterRow extends DataClass
     implements Insertable<ManuscriptChapterRow> {
   final String id;
+  final String? projectId;
   final String title;
   final String content;
   final int sortOrder;
@@ -2913,6 +3510,7 @@ class ManuscriptChapterRow extends DataClass
   final DateTime updatedAt;
   const ManuscriptChapterRow(
       {required this.id,
+      this.projectId,
       required this.title,
       required this.content,
       required this.sortOrder,
@@ -2929,6 +3527,9 @@ class ManuscriptChapterRow extends DataClass
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     map['id'] = Variable<String>(id);
+    if (!nullToAbsent || projectId != null) {
+      map['project_id'] = Variable<String>(projectId);
+    }
     map['title'] = Variable<String>(title);
     map['content'] = Variable<String>(content);
     map['sort_order'] = Variable<int>(sortOrder);
@@ -2957,6 +3558,9 @@ class ManuscriptChapterRow extends DataClass
   ManuscriptChaptersCompanion toCompanion(bool nullToAbsent) {
     return ManuscriptChaptersCompanion(
       id: Value(id),
+      projectId: projectId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(projectId),
       title: Value(title),
       content: Value(content),
       sortOrder: Value(sortOrder),
@@ -2987,6 +3591,7 @@ class ManuscriptChapterRow extends DataClass
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return ManuscriptChapterRow(
       id: serializer.fromJson<String>(json['id']),
+      projectId: serializer.fromJson<String?>(json['projectId']),
       title: serializer.fromJson<String>(json['title']),
       content: serializer.fromJson<String>(json['content']),
       sortOrder: serializer.fromJson<int>(json['sortOrder']),
@@ -3006,6 +3611,7 @@ class ManuscriptChapterRow extends DataClass
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
       'id': serializer.toJson<String>(id),
+      'projectId': serializer.toJson<String?>(projectId),
       'title': serializer.toJson<String>(title),
       'content': serializer.toJson<String>(content),
       'sortOrder': serializer.toJson<int>(sortOrder),
@@ -3023,6 +3629,7 @@ class ManuscriptChapterRow extends DataClass
 
   ManuscriptChapterRow copyWith(
           {String? id,
+          Value<String?> projectId = const Value.absent(),
           String? title,
           String? content,
           int? sortOrder,
@@ -3037,6 +3644,7 @@ class ManuscriptChapterRow extends DataClass
           DateTime? updatedAt}) =>
       ManuscriptChapterRow(
         id: id ?? this.id,
+        projectId: projectId.present ? projectId.value : this.projectId,
         title: title ?? this.title,
         content: content ?? this.content,
         sortOrder: sortOrder ?? this.sortOrder,
@@ -3054,6 +3662,7 @@ class ManuscriptChapterRow extends DataClass
   ManuscriptChapterRow copyWithCompanion(ManuscriptChaptersCompanion data) {
     return ManuscriptChapterRow(
       id: data.id.present ? data.id.value : this.id,
+      projectId: data.projectId.present ? data.projectId.value : this.projectId,
       title: data.title.present ? data.title.value : this.title,
       content: data.content.present ? data.content.value : this.content,
       sortOrder: data.sortOrder.present ? data.sortOrder.value : this.sortOrder,
@@ -3076,6 +3685,7 @@ class ManuscriptChapterRow extends DataClass
   String toString() {
     return (StringBuffer('ManuscriptChapterRow(')
           ..write('id: $id, ')
+          ..write('projectId: $projectId, ')
           ..write('title: $title, ')
           ..write('content: $content, ')
           ..write('sortOrder: $sortOrder, ')
@@ -3095,6 +3705,7 @@ class ManuscriptChapterRow extends DataClass
   @override
   int get hashCode => Object.hash(
       id,
+      projectId,
       title,
       content,
       sortOrder,
@@ -3112,6 +3723,7 @@ class ManuscriptChapterRow extends DataClass
       identical(this, other) ||
       (other is ManuscriptChapterRow &&
           other.id == this.id &&
+          other.projectId == this.projectId &&
           other.title == this.title &&
           other.content == this.content &&
           other.sortOrder == this.sortOrder &&
@@ -3129,6 +3741,7 @@ class ManuscriptChapterRow extends DataClass
 class ManuscriptChaptersCompanion
     extends UpdateCompanion<ManuscriptChapterRow> {
   final Value<String> id;
+  final Value<String?> projectId;
   final Value<String> title;
   final Value<String> content;
   final Value<int> sortOrder;
@@ -3144,6 +3757,7 @@ class ManuscriptChaptersCompanion
   final Value<int> rowid;
   const ManuscriptChaptersCompanion({
     this.id = const Value.absent(),
+    this.projectId = const Value.absent(),
     this.title = const Value.absent(),
     this.content = const Value.absent(),
     this.sortOrder = const Value.absent(),
@@ -3160,6 +3774,7 @@ class ManuscriptChaptersCompanion
   });
   ManuscriptChaptersCompanion.insert({
     required String id,
+    this.projectId = const Value.absent(),
     required String title,
     this.content = const Value.absent(),
     this.sortOrder = const Value.absent(),
@@ -3179,6 +3794,7 @@ class ManuscriptChaptersCompanion
         updatedAt = Value(updatedAt);
   static Insertable<ManuscriptChapterRow> custom({
     Expression<String>? id,
+    Expression<String>? projectId,
     Expression<String>? title,
     Expression<String>? content,
     Expression<int>? sortOrder,
@@ -3195,6 +3811,7 @@ class ManuscriptChaptersCompanion
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
+      if (projectId != null) 'project_id': projectId,
       if (title != null) 'title': title,
       if (content != null) 'content': content,
       if (sortOrder != null) 'sort_order': sortOrder,
@@ -3213,6 +3830,7 @@ class ManuscriptChaptersCompanion
 
   ManuscriptChaptersCompanion copyWith(
       {Value<String>? id,
+      Value<String?>? projectId,
       Value<String>? title,
       Value<String>? content,
       Value<int>? sortOrder,
@@ -3228,6 +3846,7 @@ class ManuscriptChaptersCompanion
       Value<int>? rowid}) {
     return ManuscriptChaptersCompanion(
       id: id ?? this.id,
+      projectId: projectId ?? this.projectId,
       title: title ?? this.title,
       content: content ?? this.content,
       sortOrder: sortOrder ?? this.sortOrder,
@@ -3249,6 +3868,9 @@ class ManuscriptChaptersCompanion
     final map = <String, Expression>{};
     if (id.present) {
       map['id'] = Variable<String>(id.value);
+    }
+    if (projectId.present) {
+      map['project_id'] = Variable<String>(projectId.value);
     }
     if (title.present) {
       map['title'] = Variable<String>(title.value);
@@ -3296,6 +3918,7 @@ class ManuscriptChaptersCompanion
   String toString() {
     return (StringBuffer('ManuscriptChaptersCompanion(')
           ..write('id: $id, ')
+          ..write('projectId: $projectId, ')
           ..write('title: $title, ')
           ..write('content: $content, ')
           ..write('sortOrder: $sortOrder, ')
@@ -3606,6 +4229,15 @@ class $PlotCardsTable extends PlotCards
           GeneratedColumn.checkTextLength(minTextLength: 36, maxTextLength: 36),
       type: DriftSqlType.string,
       requiredDuringInsert: true);
+  static const VerificationMeta _projectIdMeta =
+      const VerificationMeta('projectId');
+  @override
+  late final GeneratedColumn<String> projectId = GeneratedColumn<String>(
+      'project_id', aliasedName, true,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      defaultConstraints: GeneratedColumn.constraintIsAlways(
+          'REFERENCES projects (id) ON DELETE CASCADE'));
   static const VerificationMeta _titleMeta = const VerificationMeta('title');
   @override
   late final GeneratedColumn<String> title = GeneratedColumn<String>(
@@ -3665,6 +4297,7 @@ class $PlotCardsTable extends PlotCards
   @override
   List<GeneratedColumn> get $columns => [
         id,
+        projectId,
         title,
         summary,
         xPosition,
@@ -3688,6 +4321,10 @@ class $PlotCardsTable extends PlotCards
       context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
     } else if (isInserting) {
       context.missing(_idMeta);
+    }
+    if (data.containsKey('project_id')) {
+      context.handle(_projectIdMeta,
+          projectId.isAcceptableOrUnknown(data['project_id']!, _projectIdMeta));
     }
     if (data.containsKey('title')) {
       context.handle(
@@ -3742,6 +4379,8 @@ class $PlotCardsTable extends PlotCards
     return PlotCardRow(
       id: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
+      projectId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}project_id']),
       title: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}title'])!,
       summary: attachedDatabase.typeMapping
@@ -3769,6 +4408,7 @@ class $PlotCardsTable extends PlotCards
 
 class PlotCardRow extends DataClass implements Insertable<PlotCardRow> {
   final String id;
+  final String? projectId;
   final String title;
   final String? summary;
   final double xPosition;
@@ -3779,6 +4419,7 @@ class PlotCardRow extends DataClass implements Insertable<PlotCardRow> {
   final DateTime updatedAt;
   const PlotCardRow(
       {required this.id,
+      this.projectId,
       required this.title,
       this.summary,
       required this.xPosition,
@@ -3791,6 +4432,9 @@ class PlotCardRow extends DataClass implements Insertable<PlotCardRow> {
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     map['id'] = Variable<String>(id);
+    if (!nullToAbsent || projectId != null) {
+      map['project_id'] = Variable<String>(projectId);
+    }
     map['title'] = Variable<String>(title);
     if (!nullToAbsent || summary != null) {
       map['summary'] = Variable<String>(summary);
@@ -3807,6 +4451,9 @@ class PlotCardRow extends DataClass implements Insertable<PlotCardRow> {
   PlotCardsCompanion toCompanion(bool nullToAbsent) {
     return PlotCardsCompanion(
       id: Value(id),
+      projectId: projectId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(projectId),
       title: Value(title),
       summary: summary == null && nullToAbsent
           ? const Value.absent()
@@ -3825,6 +4472,7 @@ class PlotCardRow extends DataClass implements Insertable<PlotCardRow> {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return PlotCardRow(
       id: serializer.fromJson<String>(json['id']),
+      projectId: serializer.fromJson<String?>(json['projectId']),
       title: serializer.fromJson<String>(json['title']),
       summary: serializer.fromJson<String?>(json['summary']),
       xPosition: serializer.fromJson<double>(json['xPosition']),
@@ -3840,6 +4488,7 @@ class PlotCardRow extends DataClass implements Insertable<PlotCardRow> {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
       'id': serializer.toJson<String>(id),
+      'projectId': serializer.toJson<String?>(projectId),
       'title': serializer.toJson<String>(title),
       'summary': serializer.toJson<String?>(summary),
       'xPosition': serializer.toJson<double>(xPosition),
@@ -3853,6 +4502,7 @@ class PlotCardRow extends DataClass implements Insertable<PlotCardRow> {
 
   PlotCardRow copyWith(
           {String? id,
+          Value<String?> projectId = const Value.absent(),
           String? title,
           Value<String?> summary = const Value.absent(),
           double? xPosition,
@@ -3863,6 +4513,7 @@ class PlotCardRow extends DataClass implements Insertable<PlotCardRow> {
           DateTime? updatedAt}) =>
       PlotCardRow(
         id: id ?? this.id,
+        projectId: projectId.present ? projectId.value : this.projectId,
         title: title ?? this.title,
         summary: summary.present ? summary.value : this.summary,
         xPosition: xPosition ?? this.xPosition,
@@ -3875,6 +4526,7 @@ class PlotCardRow extends DataClass implements Insertable<PlotCardRow> {
   PlotCardRow copyWithCompanion(PlotCardsCompanion data) {
     return PlotCardRow(
       id: data.id.present ? data.id.value : this.id,
+      projectId: data.projectId.present ? data.projectId.value : this.projectId,
       title: data.title.present ? data.title.value : this.title,
       summary: data.summary.present ? data.summary.value : this.summary,
       xPosition: data.xPosition.present ? data.xPosition.value : this.xPosition,
@@ -3890,6 +4542,7 @@ class PlotCardRow extends DataClass implements Insertable<PlotCardRow> {
   String toString() {
     return (StringBuffer('PlotCardRow(')
           ..write('id: $id, ')
+          ..write('projectId: $projectId, ')
           ..write('title: $title, ')
           ..write('summary: $summary, ')
           ..write('xPosition: $xPosition, ')
@@ -3903,13 +4556,14 @@ class PlotCardRow extends DataClass implements Insertable<PlotCardRow> {
   }
 
   @override
-  int get hashCode => Object.hash(id, title, summary, xPosition, yPosition,
-      colorHex, isDeleted, createdAt, updatedAt);
+  int get hashCode => Object.hash(id, projectId, title, summary, xPosition,
+      yPosition, colorHex, isDeleted, createdAt, updatedAt);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is PlotCardRow &&
           other.id == this.id &&
+          other.projectId == this.projectId &&
           other.title == this.title &&
           other.summary == this.summary &&
           other.xPosition == this.xPosition &&
@@ -3922,6 +4576,7 @@ class PlotCardRow extends DataClass implements Insertable<PlotCardRow> {
 
 class PlotCardsCompanion extends UpdateCompanion<PlotCardRow> {
   final Value<String> id;
+  final Value<String?> projectId;
   final Value<String> title;
   final Value<String?> summary;
   final Value<double> xPosition;
@@ -3933,6 +4588,7 @@ class PlotCardsCompanion extends UpdateCompanion<PlotCardRow> {
   final Value<int> rowid;
   const PlotCardsCompanion({
     this.id = const Value.absent(),
+    this.projectId = const Value.absent(),
     this.title = const Value.absent(),
     this.summary = const Value.absent(),
     this.xPosition = const Value.absent(),
@@ -3945,6 +4601,7 @@ class PlotCardsCompanion extends UpdateCompanion<PlotCardRow> {
   });
   PlotCardsCompanion.insert({
     required String id,
+    this.projectId = const Value.absent(),
     required String title,
     this.summary = const Value.absent(),
     required double xPosition,
@@ -3962,6 +4619,7 @@ class PlotCardsCompanion extends UpdateCompanion<PlotCardRow> {
         updatedAt = Value(updatedAt);
   static Insertable<PlotCardRow> custom({
     Expression<String>? id,
+    Expression<String>? projectId,
     Expression<String>? title,
     Expression<String>? summary,
     Expression<double>? xPosition,
@@ -3974,6 +4632,7 @@ class PlotCardsCompanion extends UpdateCompanion<PlotCardRow> {
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
+      if (projectId != null) 'project_id': projectId,
       if (title != null) 'title': title,
       if (summary != null) 'summary': summary,
       if (xPosition != null) 'x_position': xPosition,
@@ -3988,6 +4647,7 @@ class PlotCardsCompanion extends UpdateCompanion<PlotCardRow> {
 
   PlotCardsCompanion copyWith(
       {Value<String>? id,
+      Value<String?>? projectId,
       Value<String>? title,
       Value<String?>? summary,
       Value<double>? xPosition,
@@ -3999,6 +4659,7 @@ class PlotCardsCompanion extends UpdateCompanion<PlotCardRow> {
       Value<int>? rowid}) {
     return PlotCardsCompanion(
       id: id ?? this.id,
+      projectId: projectId ?? this.projectId,
       title: title ?? this.title,
       summary: summary ?? this.summary,
       xPosition: xPosition ?? this.xPosition,
@@ -4016,6 +4677,9 @@ class PlotCardsCompanion extends UpdateCompanion<PlotCardRow> {
     final map = <String, Expression>{};
     if (id.present) {
       map['id'] = Variable<String>(id.value);
+    }
+    if (projectId.present) {
+      map['project_id'] = Variable<String>(projectId.value);
     }
     if (title.present) {
       map['title'] = Variable<String>(title.value);
@@ -4051,6 +4715,7 @@ class PlotCardsCompanion extends UpdateCompanion<PlotCardRow> {
   String toString() {
     return (StringBuffer('PlotCardsCompanion(')
           ..write('id: $id, ')
+          ..write('projectId: $projectId, ')
           ..write('title: $title, ')
           ..write('summary: $summary, ')
           ..write('xPosition: $xPosition, ')
@@ -4079,6 +4744,15 @@ class $PlotConnectionsTable extends PlotConnections
           GeneratedColumn.checkTextLength(minTextLength: 36, maxTextLength: 36),
       type: DriftSqlType.string,
       requiredDuringInsert: true);
+  static const VerificationMeta _projectIdMeta =
+      const VerificationMeta('projectId');
+  @override
+  late final GeneratedColumn<String> projectId = GeneratedColumn<String>(
+      'project_id', aliasedName, true,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      defaultConstraints: GeneratedColumn.constraintIsAlways(
+          'REFERENCES projects (id) ON DELETE CASCADE'));
   static const VerificationMeta _sourceIdMeta =
       const VerificationMeta('sourceId');
   @override
@@ -4120,7 +4794,7 @@ class $PlotConnectionsTable extends PlotConnections
       type: DriftSqlType.dateTime, requiredDuringInsert: true);
   @override
   List<GeneratedColumn> get $columns =>
-      [id, sourceId, targetId, label, isDeleted, createdAt];
+      [id, projectId, sourceId, targetId, label, isDeleted, createdAt];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
@@ -4135,6 +4809,10 @@ class $PlotConnectionsTable extends PlotConnections
       context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
     } else if (isInserting) {
       context.missing(_idMeta);
+    }
+    if (data.containsKey('project_id')) {
+      context.handle(_projectIdMeta,
+          projectId.isAcceptableOrUnknown(data['project_id']!, _projectIdMeta));
     }
     if (data.containsKey('source_id')) {
       context.handle(_sourceIdMeta,
@@ -4173,6 +4851,8 @@ class $PlotConnectionsTable extends PlotConnections
     return PlotConnectionRow(
       id: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
+      projectId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}project_id']),
       sourceId: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}source_id'])!,
       targetId: attachedDatabase.typeMapping
@@ -4195,6 +4875,7 @@ class $PlotConnectionsTable extends PlotConnections
 class PlotConnectionRow extends DataClass
     implements Insertable<PlotConnectionRow> {
   final String id;
+  final String? projectId;
   final String sourceId;
   final String targetId;
   final String? label;
@@ -4202,6 +4883,7 @@ class PlotConnectionRow extends DataClass
   final DateTime createdAt;
   const PlotConnectionRow(
       {required this.id,
+      this.projectId,
       required this.sourceId,
       required this.targetId,
       this.label,
@@ -4211,6 +4893,9 @@ class PlotConnectionRow extends DataClass
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     map['id'] = Variable<String>(id);
+    if (!nullToAbsent || projectId != null) {
+      map['project_id'] = Variable<String>(projectId);
+    }
     map['source_id'] = Variable<String>(sourceId);
     map['target_id'] = Variable<String>(targetId);
     if (!nullToAbsent || label != null) {
@@ -4224,6 +4909,9 @@ class PlotConnectionRow extends DataClass
   PlotConnectionsCompanion toCompanion(bool nullToAbsent) {
     return PlotConnectionsCompanion(
       id: Value(id),
+      projectId: projectId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(projectId),
       sourceId: Value(sourceId),
       targetId: Value(targetId),
       label:
@@ -4238,6 +4926,7 @@ class PlotConnectionRow extends DataClass
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return PlotConnectionRow(
       id: serializer.fromJson<String>(json['id']),
+      projectId: serializer.fromJson<String?>(json['projectId']),
       sourceId: serializer.fromJson<String>(json['sourceId']),
       targetId: serializer.fromJson<String>(json['targetId']),
       label: serializer.fromJson<String?>(json['label']),
@@ -4250,6 +4939,7 @@ class PlotConnectionRow extends DataClass
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
       'id': serializer.toJson<String>(id),
+      'projectId': serializer.toJson<String?>(projectId),
       'sourceId': serializer.toJson<String>(sourceId),
       'targetId': serializer.toJson<String>(targetId),
       'label': serializer.toJson<String?>(label),
@@ -4260,6 +4950,7 @@ class PlotConnectionRow extends DataClass
 
   PlotConnectionRow copyWith(
           {String? id,
+          Value<String?> projectId = const Value.absent(),
           String? sourceId,
           String? targetId,
           Value<String?> label = const Value.absent(),
@@ -4267,6 +4958,7 @@ class PlotConnectionRow extends DataClass
           DateTime? createdAt}) =>
       PlotConnectionRow(
         id: id ?? this.id,
+        projectId: projectId.present ? projectId.value : this.projectId,
         sourceId: sourceId ?? this.sourceId,
         targetId: targetId ?? this.targetId,
         label: label.present ? label.value : this.label,
@@ -4276,6 +4968,7 @@ class PlotConnectionRow extends DataClass
   PlotConnectionRow copyWithCompanion(PlotConnectionsCompanion data) {
     return PlotConnectionRow(
       id: data.id.present ? data.id.value : this.id,
+      projectId: data.projectId.present ? data.projectId.value : this.projectId,
       sourceId: data.sourceId.present ? data.sourceId.value : this.sourceId,
       targetId: data.targetId.present ? data.targetId.value : this.targetId,
       label: data.label.present ? data.label.value : this.label,
@@ -4288,6 +4981,7 @@ class PlotConnectionRow extends DataClass
   String toString() {
     return (StringBuffer('PlotConnectionRow(')
           ..write('id: $id, ')
+          ..write('projectId: $projectId, ')
           ..write('sourceId: $sourceId, ')
           ..write('targetId: $targetId, ')
           ..write('label: $label, ')
@@ -4298,13 +4992,14 @@ class PlotConnectionRow extends DataClass
   }
 
   @override
-  int get hashCode =>
-      Object.hash(id, sourceId, targetId, label, isDeleted, createdAt);
+  int get hashCode => Object.hash(
+      id, projectId, sourceId, targetId, label, isDeleted, createdAt);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is PlotConnectionRow &&
           other.id == this.id &&
+          other.projectId == this.projectId &&
           other.sourceId == this.sourceId &&
           other.targetId == this.targetId &&
           other.label == this.label &&
@@ -4314,6 +5009,7 @@ class PlotConnectionRow extends DataClass
 
 class PlotConnectionsCompanion extends UpdateCompanion<PlotConnectionRow> {
   final Value<String> id;
+  final Value<String?> projectId;
   final Value<String> sourceId;
   final Value<String> targetId;
   final Value<String?> label;
@@ -4322,6 +5018,7 @@ class PlotConnectionsCompanion extends UpdateCompanion<PlotConnectionRow> {
   final Value<int> rowid;
   const PlotConnectionsCompanion({
     this.id = const Value.absent(),
+    this.projectId = const Value.absent(),
     this.sourceId = const Value.absent(),
     this.targetId = const Value.absent(),
     this.label = const Value.absent(),
@@ -4331,6 +5028,7 @@ class PlotConnectionsCompanion extends UpdateCompanion<PlotConnectionRow> {
   });
   PlotConnectionsCompanion.insert({
     required String id,
+    this.projectId = const Value.absent(),
     required String sourceId,
     required String targetId,
     this.label = const Value.absent(),
@@ -4343,6 +5041,7 @@ class PlotConnectionsCompanion extends UpdateCompanion<PlotConnectionRow> {
         createdAt = Value(createdAt);
   static Insertable<PlotConnectionRow> custom({
     Expression<String>? id,
+    Expression<String>? projectId,
     Expression<String>? sourceId,
     Expression<String>? targetId,
     Expression<String>? label,
@@ -4352,6 +5051,7 @@ class PlotConnectionsCompanion extends UpdateCompanion<PlotConnectionRow> {
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
+      if (projectId != null) 'project_id': projectId,
       if (sourceId != null) 'source_id': sourceId,
       if (targetId != null) 'target_id': targetId,
       if (label != null) 'label': label,
@@ -4363,6 +5063,7 @@ class PlotConnectionsCompanion extends UpdateCompanion<PlotConnectionRow> {
 
   PlotConnectionsCompanion copyWith(
       {Value<String>? id,
+      Value<String?>? projectId,
       Value<String>? sourceId,
       Value<String>? targetId,
       Value<String?>? label,
@@ -4371,6 +5072,7 @@ class PlotConnectionsCompanion extends UpdateCompanion<PlotConnectionRow> {
       Value<int>? rowid}) {
     return PlotConnectionsCompanion(
       id: id ?? this.id,
+      projectId: projectId ?? this.projectId,
       sourceId: sourceId ?? this.sourceId,
       targetId: targetId ?? this.targetId,
       label: label ?? this.label,
@@ -4385,6 +5087,9 @@ class PlotConnectionsCompanion extends UpdateCompanion<PlotConnectionRow> {
     final map = <String, Expression>{};
     if (id.present) {
       map['id'] = Variable<String>(id.value);
+    }
+    if (projectId.present) {
+      map['project_id'] = Variable<String>(projectId.value);
     }
     if (sourceId.present) {
       map['source_id'] = Variable<String>(sourceId.value);
@@ -4411,6 +5116,7 @@ class PlotConnectionsCompanion extends UpdateCompanion<PlotConnectionRow> {
   String toString() {
     return (StringBuffer('PlotConnectionsCompanion(')
           ..write('id: $id, ')
+          ..write('projectId: $projectId, ')
           ..write('sourceId: $sourceId, ')
           ..write('targetId: $targetId, ')
           ..write('label: $label, ')
@@ -4433,6 +5139,15 @@ class $WorldMapsTable extends WorldMaps
   late final GeneratedColumn<String> id = GeneratedColumn<String>(
       'id', aliasedName, false,
       type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _projectIdMeta =
+      const VerificationMeta('projectId');
+  @override
+  late final GeneratedColumn<String> projectId = GeneratedColumn<String>(
+      'project_id', aliasedName, true,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      defaultConstraints: GeneratedColumn.constraintIsAlways(
+          'REFERENCES projects (id) ON DELETE CASCADE'));
   static const VerificationMeta _nameMeta = const VerificationMeta('name');
   @override
   late final GeneratedColumn<String> name = GeneratedColumn<String>(
@@ -4448,7 +5163,7 @@ class $WorldMapsTable extends WorldMaps
       'image_path', aliasedName, false,
       type: DriftSqlType.string, requiredDuringInsert: true);
   @override
-  List<GeneratedColumn> get $columns => [id, name, imagePath];
+  List<GeneratedColumn> get $columns => [id, projectId, name, imagePath];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
@@ -4463,6 +5178,10 @@ class $WorldMapsTable extends WorldMaps
       context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
     } else if (isInserting) {
       context.missing(_idMeta);
+    }
+    if (data.containsKey('project_id')) {
+      context.handle(_projectIdMeta,
+          projectId.isAcceptableOrUnknown(data['project_id']!, _projectIdMeta));
     }
     if (data.containsKey('name')) {
       context.handle(
@@ -4487,6 +5206,8 @@ class $WorldMapsTable extends WorldMaps
     return WorldMapRow(
       id: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
+      projectId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}project_id']),
       name: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}name'])!,
       imagePath: attachedDatabase.typeMapping
@@ -4502,14 +5223,21 @@ class $WorldMapsTable extends WorldMaps
 
 class WorldMapRow extends DataClass implements Insertable<WorldMapRow> {
   final String id;
+  final String? projectId;
   final String name;
   final String imagePath;
   const WorldMapRow(
-      {required this.id, required this.name, required this.imagePath});
+      {required this.id,
+      this.projectId,
+      required this.name,
+      required this.imagePath});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     map['id'] = Variable<String>(id);
+    if (!nullToAbsent || projectId != null) {
+      map['project_id'] = Variable<String>(projectId);
+    }
     map['name'] = Variable<String>(name);
     map['image_path'] = Variable<String>(imagePath);
     return map;
@@ -4518,6 +5246,9 @@ class WorldMapRow extends DataClass implements Insertable<WorldMapRow> {
   WorldMapsCompanion toCompanion(bool nullToAbsent) {
     return WorldMapsCompanion(
       id: Value(id),
+      projectId: projectId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(projectId),
       name: Value(name),
       imagePath: Value(imagePath),
     );
@@ -4528,6 +5259,7 @@ class WorldMapRow extends DataClass implements Insertable<WorldMapRow> {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return WorldMapRow(
       id: serializer.fromJson<String>(json['id']),
+      projectId: serializer.fromJson<String?>(json['projectId']),
       name: serializer.fromJson<String>(json['name']),
       imagePath: serializer.fromJson<String>(json['imagePath']),
     );
@@ -4537,20 +5269,27 @@ class WorldMapRow extends DataClass implements Insertable<WorldMapRow> {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
       'id': serializer.toJson<String>(id),
+      'projectId': serializer.toJson<String?>(projectId),
       'name': serializer.toJson<String>(name),
       'imagePath': serializer.toJson<String>(imagePath),
     };
   }
 
-  WorldMapRow copyWith({String? id, String? name, String? imagePath}) =>
+  WorldMapRow copyWith(
+          {String? id,
+          Value<String?> projectId = const Value.absent(),
+          String? name,
+          String? imagePath}) =>
       WorldMapRow(
         id: id ?? this.id,
+        projectId: projectId.present ? projectId.value : this.projectId,
         name: name ?? this.name,
         imagePath: imagePath ?? this.imagePath,
       );
   WorldMapRow copyWithCompanion(WorldMapsCompanion data) {
     return WorldMapRow(
       id: data.id.present ? data.id.value : this.id,
+      projectId: data.projectId.present ? data.projectId.value : this.projectId,
       name: data.name.present ? data.name.value : this.name,
       imagePath: data.imagePath.present ? data.imagePath.value : this.imagePath,
     );
@@ -4560,6 +5299,7 @@ class WorldMapRow extends DataClass implements Insertable<WorldMapRow> {
   String toString() {
     return (StringBuffer('WorldMapRow(')
           ..write('id: $id, ')
+          ..write('projectId: $projectId, ')
           ..write('name: $name, ')
           ..write('imagePath: $imagePath')
           ..write(')'))
@@ -4567,29 +5307,33 @@ class WorldMapRow extends DataClass implements Insertable<WorldMapRow> {
   }
 
   @override
-  int get hashCode => Object.hash(id, name, imagePath);
+  int get hashCode => Object.hash(id, projectId, name, imagePath);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is WorldMapRow &&
           other.id == this.id &&
+          other.projectId == this.projectId &&
           other.name == this.name &&
           other.imagePath == this.imagePath);
 }
 
 class WorldMapsCompanion extends UpdateCompanion<WorldMapRow> {
   final Value<String> id;
+  final Value<String?> projectId;
   final Value<String> name;
   final Value<String> imagePath;
   final Value<int> rowid;
   const WorldMapsCompanion({
     this.id = const Value.absent(),
+    this.projectId = const Value.absent(),
     this.name = const Value.absent(),
     this.imagePath = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   WorldMapsCompanion.insert({
     required String id,
+    this.projectId = const Value.absent(),
     required String name,
     required String imagePath,
     this.rowid = const Value.absent(),
@@ -4598,12 +5342,14 @@ class WorldMapsCompanion extends UpdateCompanion<WorldMapRow> {
         imagePath = Value(imagePath);
   static Insertable<WorldMapRow> custom({
     Expression<String>? id,
+    Expression<String>? projectId,
     Expression<String>? name,
     Expression<String>? imagePath,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
+      if (projectId != null) 'project_id': projectId,
       if (name != null) 'name': name,
       if (imagePath != null) 'image_path': imagePath,
       if (rowid != null) 'rowid': rowid,
@@ -4612,11 +5358,13 @@ class WorldMapsCompanion extends UpdateCompanion<WorldMapRow> {
 
   WorldMapsCompanion copyWith(
       {Value<String>? id,
+      Value<String?>? projectId,
       Value<String>? name,
       Value<String>? imagePath,
       Value<int>? rowid}) {
     return WorldMapsCompanion(
       id: id ?? this.id,
+      projectId: projectId ?? this.projectId,
       name: name ?? this.name,
       imagePath: imagePath ?? this.imagePath,
       rowid: rowid ?? this.rowid,
@@ -4628,6 +5376,9 @@ class WorldMapsCompanion extends UpdateCompanion<WorldMapRow> {
     final map = <String, Expression>{};
     if (id.present) {
       map['id'] = Variable<String>(id.value);
+    }
+    if (projectId.present) {
+      map['project_id'] = Variable<String>(projectId.value);
     }
     if (name.present) {
       map['name'] = Variable<String>(name.value);
@@ -4645,6 +5396,7 @@ class WorldMapsCompanion extends UpdateCompanion<WorldMapRow> {
   String toString() {
     return (StringBuffer('WorldMapsCompanion(')
           ..write('id: $id, ')
+          ..write('projectId: $projectId, ')
           ..write('name: $name, ')
           ..write('imagePath: $imagePath, ')
           ..write('rowid: $rowid')
@@ -5017,6 +5769,15 @@ class $SetupPayoffsTable extends SetupPayoffs
           GeneratedColumn.checkTextLength(minTextLength: 36, maxTextLength: 36),
       type: DriftSqlType.string,
       requiredDuringInsert: true);
+  static const VerificationMeta _projectIdMeta =
+      const VerificationMeta('projectId');
+  @override
+  late final GeneratedColumn<String> projectId = GeneratedColumn<String>(
+      'project_id', aliasedName, true,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      defaultConstraints: GeneratedColumn.constraintIsAlways(
+          'REFERENCES projects (id) ON DELETE CASCADE'));
   static const VerificationMeta _setupChapterIdMeta =
       const VerificationMeta('setupChapterId');
   @override
@@ -5075,6 +5836,7 @@ class $SetupPayoffsTable extends SetupPayoffs
   @override
   List<GeneratedColumn> get $columns => [
         id,
+        projectId,
         setupChapterId,
         setupDescription,
         payoffChapterId,
@@ -5098,6 +5860,10 @@ class $SetupPayoffsTable extends SetupPayoffs
       context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
     } else if (isInserting) {
       context.missing(_idMeta);
+    }
+    if (data.containsKey('project_id')) {
+      context.handle(_projectIdMeta,
+          projectId.isAcceptableOrUnknown(data['project_id']!, _projectIdMeta));
     }
     if (data.containsKey('setup_chapter_id')) {
       context.handle(
@@ -5160,6 +5926,8 @@ class $SetupPayoffsTable extends SetupPayoffs
     return SetupPayoffRow(
       id: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
+      projectId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}project_id']),
       setupChapterId: attachedDatabase.typeMapping.read(
           DriftSqlType.string, data['${effectivePrefix}setup_chapter_id'])!,
       setupDescription: attachedDatabase.typeMapping.read(
@@ -5187,6 +5955,7 @@ class $SetupPayoffsTable extends SetupPayoffs
 
 class SetupPayoffRow extends DataClass implements Insertable<SetupPayoffRow> {
   final String id;
+  final String? projectId;
   final String setupChapterId;
   final String setupDescription;
   final String? payoffChapterId;
@@ -5197,6 +5966,7 @@ class SetupPayoffRow extends DataClass implements Insertable<SetupPayoffRow> {
   final DateTime updatedAt;
   const SetupPayoffRow(
       {required this.id,
+      this.projectId,
       required this.setupChapterId,
       required this.setupDescription,
       this.payoffChapterId,
@@ -5209,6 +5979,9 @@ class SetupPayoffRow extends DataClass implements Insertable<SetupPayoffRow> {
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     map['id'] = Variable<String>(id);
+    if (!nullToAbsent || projectId != null) {
+      map['project_id'] = Variable<String>(projectId);
+    }
     map['setup_chapter_id'] = Variable<String>(setupChapterId);
     map['setup_description'] = Variable<String>(setupDescription);
     if (!nullToAbsent || payoffChapterId != null) {
@@ -5229,6 +6002,9 @@ class SetupPayoffRow extends DataClass implements Insertable<SetupPayoffRow> {
   SetupPayoffsCompanion toCompanion(bool nullToAbsent) {
     return SetupPayoffsCompanion(
       id: Value(id),
+      projectId: projectId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(projectId),
       setupChapterId: Value(setupChapterId),
       setupDescription: Value(setupDescription),
       payoffChapterId: payoffChapterId == null && nullToAbsent
@@ -5251,6 +6027,7 @@ class SetupPayoffRow extends DataClass implements Insertable<SetupPayoffRow> {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return SetupPayoffRow(
       id: serializer.fromJson<String>(json['id']),
+      projectId: serializer.fromJson<String?>(json['projectId']),
       setupChapterId: serializer.fromJson<String>(json['setupChapterId']),
       setupDescription: serializer.fromJson<String>(json['setupDescription']),
       payoffChapterId: serializer.fromJson<String?>(json['payoffChapterId']),
@@ -5267,6 +6044,7 @@ class SetupPayoffRow extends DataClass implements Insertable<SetupPayoffRow> {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
       'id': serializer.toJson<String>(id),
+      'projectId': serializer.toJson<String?>(projectId),
       'setupChapterId': serializer.toJson<String>(setupChapterId),
       'setupDescription': serializer.toJson<String>(setupDescription),
       'payoffChapterId': serializer.toJson<String?>(payoffChapterId),
@@ -5280,6 +6058,7 @@ class SetupPayoffRow extends DataClass implements Insertable<SetupPayoffRow> {
 
   SetupPayoffRow copyWith(
           {String? id,
+          Value<String?> projectId = const Value.absent(),
           String? setupChapterId,
           String? setupDescription,
           Value<String?> payoffChapterId = const Value.absent(),
@@ -5290,6 +6069,7 @@ class SetupPayoffRow extends DataClass implements Insertable<SetupPayoffRow> {
           DateTime? updatedAt}) =>
       SetupPayoffRow(
         id: id ?? this.id,
+        projectId: projectId.present ? projectId.value : this.projectId,
         setupChapterId: setupChapterId ?? this.setupChapterId,
         setupDescription: setupDescription ?? this.setupDescription,
         payoffChapterId: payoffChapterId.present
@@ -5306,6 +6086,7 @@ class SetupPayoffRow extends DataClass implements Insertable<SetupPayoffRow> {
   SetupPayoffRow copyWithCompanion(SetupPayoffsCompanion data) {
     return SetupPayoffRow(
       id: data.id.present ? data.id.value : this.id,
+      projectId: data.projectId.present ? data.projectId.value : this.projectId,
       setupChapterId: data.setupChapterId.present
           ? data.setupChapterId.value
           : this.setupChapterId,
@@ -5330,6 +6111,7 @@ class SetupPayoffRow extends DataClass implements Insertable<SetupPayoffRow> {
   String toString() {
     return (StringBuffer('SetupPayoffRow(')
           ..write('id: $id, ')
+          ..write('projectId: $projectId, ')
           ..write('setupChapterId: $setupChapterId, ')
           ..write('setupDescription: $setupDescription, ')
           ..write('payoffChapterId: $payoffChapterId, ')
@@ -5345,6 +6127,7 @@ class SetupPayoffRow extends DataClass implements Insertable<SetupPayoffRow> {
   @override
   int get hashCode => Object.hash(
       id,
+      projectId,
       setupChapterId,
       setupDescription,
       payoffChapterId,
@@ -5358,6 +6141,7 @@ class SetupPayoffRow extends DataClass implements Insertable<SetupPayoffRow> {
       identical(this, other) ||
       (other is SetupPayoffRow &&
           other.id == this.id &&
+          other.projectId == this.projectId &&
           other.setupChapterId == this.setupChapterId &&
           other.setupDescription == this.setupDescription &&
           other.payoffChapterId == this.payoffChapterId &&
@@ -5370,6 +6154,7 @@ class SetupPayoffRow extends DataClass implements Insertable<SetupPayoffRow> {
 
 class SetupPayoffsCompanion extends UpdateCompanion<SetupPayoffRow> {
   final Value<String> id;
+  final Value<String?> projectId;
   final Value<String> setupChapterId;
   final Value<String> setupDescription;
   final Value<String?> payoffChapterId;
@@ -5381,6 +6166,7 @@ class SetupPayoffsCompanion extends UpdateCompanion<SetupPayoffRow> {
   final Value<int> rowid;
   const SetupPayoffsCompanion({
     this.id = const Value.absent(),
+    this.projectId = const Value.absent(),
     this.setupChapterId = const Value.absent(),
     this.setupDescription = const Value.absent(),
     this.payoffChapterId = const Value.absent(),
@@ -5393,6 +6179,7 @@ class SetupPayoffsCompanion extends UpdateCompanion<SetupPayoffRow> {
   });
   SetupPayoffsCompanion.insert({
     required String id,
+    this.projectId = const Value.absent(),
     required String setupChapterId,
     required String setupDescription,
     this.payoffChapterId = const Value.absent(),
@@ -5409,6 +6196,7 @@ class SetupPayoffsCompanion extends UpdateCompanion<SetupPayoffRow> {
         updatedAt = Value(updatedAt);
   static Insertable<SetupPayoffRow> custom({
     Expression<String>? id,
+    Expression<String>? projectId,
     Expression<String>? setupChapterId,
     Expression<String>? setupDescription,
     Expression<String>? payoffChapterId,
@@ -5421,6 +6209,7 @@ class SetupPayoffsCompanion extends UpdateCompanion<SetupPayoffRow> {
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
+      if (projectId != null) 'project_id': projectId,
       if (setupChapterId != null) 'setup_chapter_id': setupChapterId,
       if (setupDescription != null) 'setup_description': setupDescription,
       if (payoffChapterId != null) 'payoff_chapter_id': payoffChapterId,
@@ -5435,6 +6224,7 @@ class SetupPayoffsCompanion extends UpdateCompanion<SetupPayoffRow> {
 
   SetupPayoffsCompanion copyWith(
       {Value<String>? id,
+      Value<String?>? projectId,
       Value<String>? setupChapterId,
       Value<String>? setupDescription,
       Value<String?>? payoffChapterId,
@@ -5446,6 +6236,7 @@ class SetupPayoffsCompanion extends UpdateCompanion<SetupPayoffRow> {
       Value<int>? rowid}) {
     return SetupPayoffsCompanion(
       id: id ?? this.id,
+      projectId: projectId ?? this.projectId,
       setupChapterId: setupChapterId ?? this.setupChapterId,
       setupDescription: setupDescription ?? this.setupDescription,
       payoffChapterId: payoffChapterId ?? this.payoffChapterId,
@@ -5463,6 +6254,9 @@ class SetupPayoffsCompanion extends UpdateCompanion<SetupPayoffRow> {
     final map = <String, Expression>{};
     if (id.present) {
       map['id'] = Variable<String>(id.value);
+    }
+    if (projectId.present) {
+      map['project_id'] = Variable<String>(projectId.value);
     }
     if (setupChapterId.present) {
       map['setup_chapter_id'] = Variable<String>(setupChapterId.value);
@@ -5498,6 +6292,7 @@ class SetupPayoffsCompanion extends UpdateCompanion<SetupPayoffRow> {
   String toString() {
     return (StringBuffer('SetupPayoffsCompanion(')
           ..write('id: $id, ')
+          ..write('projectId: $projectId, ')
           ..write('setupChapterId: $setupChapterId, ')
           ..write('setupDescription: $setupDescription, ')
           ..write('payoffChapterId: $payoffChapterId, ')
@@ -5515,6 +6310,7 @@ class SetupPayoffsCompanion extends UpdateCompanion<SetupPayoffRow> {
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
+  late final $ProjectsTable projects = $ProjectsTable(this);
   late final $EntitiesTable entities = $EntitiesTable(this);
   late final $RelationshipsTable relationships = $RelationshipsTable(this);
   late final $TagsTable tags = $TagsTable(this);
@@ -5533,6 +6329,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $WorldMapsTable worldMaps = $WorldMapsTable(this);
   late final $MapPinsTable mapPins = $MapPinsTable(this);
   late final $SetupPayoffsTable setupPayoffs = $SetupPayoffsTable(this);
+  late final ProjectDao projectDao = ProjectDao(this as AppDatabase);
   late final EntityDao entityDao = EntityDao(this as AppDatabase);
   late final RelationshipDao relationshipDao =
       RelationshipDao(this as AppDatabase);
@@ -5552,6 +6349,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
   @override
   List<DatabaseSchemaEntity> get allSchemaEntities => [
+        projects,
         entities,
         relationships,
         tags,
@@ -5571,6 +6369,13 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   StreamQueryUpdateRules get streamUpdateRules => const StreamQueryUpdateRules(
         [
           WritePropagation(
+            on: TableUpdateQuery.onTableName('projects',
+                limitUpdateKind: UpdateKind.delete),
+            result: [
+              TableUpdate('entities', kind: UpdateKind.delete),
+            ],
+          ),
+          WritePropagation(
             on: TableUpdateQuery.onTableName('entities',
                 limitUpdateKind: UpdateKind.delete),
             result: [
@@ -5582,6 +6387,13 @@ abstract class _$AppDatabase extends GeneratedDatabase {
                 limitUpdateKind: UpdateKind.delete),
             result: [
               TableUpdate('relationships', kind: UpdateKind.delete),
+            ],
+          ),
+          WritePropagation(
+            on: TableUpdateQuery.onTableName('projects',
+                limitUpdateKind: UpdateKind.delete),
+            result: [
+              TableUpdate('tags', kind: UpdateKind.delete),
             ],
           ),
           WritePropagation(
@@ -5599,6 +6411,13 @@ abstract class _$AppDatabase extends GeneratedDatabase {
             ],
           ),
           WritePropagation(
+            on: TableUpdateQuery.onTableName('projects',
+                limitUpdateKind: UpdateKind.delete),
+            result: [
+              TableUpdate('timeline_entries', kind: UpdateKind.delete),
+            ],
+          ),
+          WritePropagation(
             on: TableUpdateQuery.onTableName('entities',
                 limitUpdateKind: UpdateKind.delete),
             result: [
@@ -5613,10 +6432,38 @@ abstract class _$AppDatabase extends GeneratedDatabase {
             ],
           ),
           WritePropagation(
+            on: TableUpdateQuery.onTableName('projects',
+                limitUpdateKind: UpdateKind.delete),
+            result: [
+              TableUpdate('manuscript_chapters', kind: UpdateKind.delete),
+            ],
+          ),
+          WritePropagation(
             on: TableUpdateQuery.onTableName('manuscript_chapters',
                 limitUpdateKind: UpdateKind.delete),
             result: [
               TableUpdate('chapter_snapshots', kind: UpdateKind.delete),
+            ],
+          ),
+          WritePropagation(
+            on: TableUpdateQuery.onTableName('projects',
+                limitUpdateKind: UpdateKind.delete),
+            result: [
+              TableUpdate('plot_cards', kind: UpdateKind.delete),
+            ],
+          ),
+          WritePropagation(
+            on: TableUpdateQuery.onTableName('projects',
+                limitUpdateKind: UpdateKind.delete),
+            result: [
+              TableUpdate('plot_connections', kind: UpdateKind.delete),
+            ],
+          ),
+          WritePropagation(
+            on: TableUpdateQuery.onTableName('projects',
+                limitUpdateKind: UpdateKind.delete),
+            result: [
+              TableUpdate('world_maps', kind: UpdateKind.delete),
             ],
           ),
           WritePropagation(
@@ -5633,6 +6480,13 @@ abstract class _$AppDatabase extends GeneratedDatabase {
               TableUpdate('map_pins', kind: UpdateKind.delete),
             ],
           ),
+          WritePropagation(
+            on: TableUpdateQuery.onTableName('projects',
+                limitUpdateKind: UpdateKind.delete),
+            result: [
+              TableUpdate('setup_payoffs', kind: UpdateKind.delete),
+            ],
+          ),
         ],
       );
   @override
@@ -5640,8 +6494,838 @@ abstract class _$AppDatabase extends GeneratedDatabase {
       const DriftDatabaseOptions(storeDateTimeAsText: true);
 }
 
+typedef $$ProjectsTableCreateCompanionBuilder = ProjectsCompanion Function({
+  required String id,
+  required String name,
+  Value<String?> description,
+  Value<String?> coverImagePath,
+  required DateTime lastAccessedAt,
+  required DateTime createdAt,
+  required DateTime updatedAt,
+  Value<bool> isDeleted,
+  Value<int> rowid,
+});
+typedef $$ProjectsTableUpdateCompanionBuilder = ProjectsCompanion Function({
+  Value<String> id,
+  Value<String> name,
+  Value<String?> description,
+  Value<String?> coverImagePath,
+  Value<DateTime> lastAccessedAt,
+  Value<DateTime> createdAt,
+  Value<DateTime> updatedAt,
+  Value<bool> isDeleted,
+  Value<int> rowid,
+});
+
+final class $$ProjectsTableReferences
+    extends BaseReferences<_$AppDatabase, $ProjectsTable, ProjectRow> {
+  $$ProjectsTableReferences(super.$_db, super.$_table, super.$_typedResult);
+
+  static MultiTypedResultKey<$EntitiesTable, List<EntityRow>>
+      _entitiesRefsTable(_$AppDatabase db) =>
+          MultiTypedResultKey.fromTable(db.entities,
+              aliasName:
+                  $_aliasNameGenerator(db.projects.id, db.entities.projectId));
+
+  $$EntitiesTableProcessedTableManager get entitiesRefs {
+    final manager = $$EntitiesTableTableManager($_db, $_db.entities)
+        .filter((f) => f.projectId.id.sqlEquals($_itemColumn<String>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(_entitiesRefsTable($_db));
+    return ProcessedTableManager(
+        manager.$state.copyWith(prefetchedData: cache));
+  }
+
+  static MultiTypedResultKey<$TagsTable, List<TagRow>> _tagsRefsTable(
+          _$AppDatabase db) =>
+      MultiTypedResultKey.fromTable(db.tags,
+          aliasName: $_aliasNameGenerator(db.projects.id, db.tags.projectId));
+
+  $$TagsTableProcessedTableManager get tagsRefs {
+    final manager = $$TagsTableTableManager($_db, $_db.tags)
+        .filter((f) => f.projectId.id.sqlEquals($_itemColumn<String>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(_tagsRefsTable($_db));
+    return ProcessedTableManager(
+        manager.$state.copyWith(prefetchedData: cache));
+  }
+
+  static MultiTypedResultKey<$TimelineEntriesTable, List<TimelineEntryRow>>
+      _timelineEntriesRefsTable(_$AppDatabase db) =>
+          MultiTypedResultKey.fromTable(db.timelineEntries,
+              aliasName: $_aliasNameGenerator(
+                  db.projects.id, db.timelineEntries.projectId));
+
+  $$TimelineEntriesTableProcessedTableManager get timelineEntriesRefs {
+    final manager = $$TimelineEntriesTableTableManager(
+            $_db, $_db.timelineEntries)
+        .filter((f) => f.projectId.id.sqlEquals($_itemColumn<String>('id')!));
+
+    final cache =
+        $_typedResult.readTableOrNull(_timelineEntriesRefsTable($_db));
+    return ProcessedTableManager(
+        manager.$state.copyWith(prefetchedData: cache));
+  }
+
+  static MultiTypedResultKey<$ManuscriptChaptersTable,
+      List<ManuscriptChapterRow>> _manuscriptChaptersRefsTable(
+          _$AppDatabase db) =>
+      MultiTypedResultKey.fromTable(db.manuscriptChapters,
+          aliasName: $_aliasNameGenerator(
+              db.projects.id, db.manuscriptChapters.projectId));
+
+  $$ManuscriptChaptersTableProcessedTableManager get manuscriptChaptersRefs {
+    final manager = $$ManuscriptChaptersTableTableManager(
+            $_db, $_db.manuscriptChapters)
+        .filter((f) => f.projectId.id.sqlEquals($_itemColumn<String>('id')!));
+
+    final cache =
+        $_typedResult.readTableOrNull(_manuscriptChaptersRefsTable($_db));
+    return ProcessedTableManager(
+        manager.$state.copyWith(prefetchedData: cache));
+  }
+
+  static MultiTypedResultKey<$PlotCardsTable, List<PlotCardRow>>
+      _plotCardsRefsTable(_$AppDatabase db) =>
+          MultiTypedResultKey.fromTable(db.plotCards,
+              aliasName:
+                  $_aliasNameGenerator(db.projects.id, db.plotCards.projectId));
+
+  $$PlotCardsTableProcessedTableManager get plotCardsRefs {
+    final manager = $$PlotCardsTableTableManager($_db, $_db.plotCards)
+        .filter((f) => f.projectId.id.sqlEquals($_itemColumn<String>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(_plotCardsRefsTable($_db));
+    return ProcessedTableManager(
+        manager.$state.copyWith(prefetchedData: cache));
+  }
+
+  static MultiTypedResultKey<$PlotConnectionsTable, List<PlotConnectionRow>>
+      _plotConnectionsRefsTable(_$AppDatabase db) =>
+          MultiTypedResultKey.fromTable(db.plotConnections,
+              aliasName: $_aliasNameGenerator(
+                  db.projects.id, db.plotConnections.projectId));
+
+  $$PlotConnectionsTableProcessedTableManager get plotConnectionsRefs {
+    final manager = $$PlotConnectionsTableTableManager(
+            $_db, $_db.plotConnections)
+        .filter((f) => f.projectId.id.sqlEquals($_itemColumn<String>('id')!));
+
+    final cache =
+        $_typedResult.readTableOrNull(_plotConnectionsRefsTable($_db));
+    return ProcessedTableManager(
+        manager.$state.copyWith(prefetchedData: cache));
+  }
+
+  static MultiTypedResultKey<$WorldMapsTable, List<WorldMapRow>>
+      _worldMapsRefsTable(_$AppDatabase db) =>
+          MultiTypedResultKey.fromTable(db.worldMaps,
+              aliasName:
+                  $_aliasNameGenerator(db.projects.id, db.worldMaps.projectId));
+
+  $$WorldMapsTableProcessedTableManager get worldMapsRefs {
+    final manager = $$WorldMapsTableTableManager($_db, $_db.worldMaps)
+        .filter((f) => f.projectId.id.sqlEquals($_itemColumn<String>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(_worldMapsRefsTable($_db));
+    return ProcessedTableManager(
+        manager.$state.copyWith(prefetchedData: cache));
+  }
+
+  static MultiTypedResultKey<$SetupPayoffsTable, List<SetupPayoffRow>>
+      _setupPayoffsRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
+          db.setupPayoffs,
+          aliasName:
+              $_aliasNameGenerator(db.projects.id, db.setupPayoffs.projectId));
+
+  $$SetupPayoffsTableProcessedTableManager get setupPayoffsRefs {
+    final manager = $$SetupPayoffsTableTableManager($_db, $_db.setupPayoffs)
+        .filter((f) => f.projectId.id.sqlEquals($_itemColumn<String>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(_setupPayoffsRefsTable($_db));
+    return ProcessedTableManager(
+        manager.$state.copyWith(prefetchedData: cache));
+  }
+}
+
+class $$ProjectsTableFilterComposer
+    extends Composer<_$AppDatabase, $ProjectsTable> {
+  $$ProjectsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get name => $composableBuilder(
+      column: $table.name, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get description => $composableBuilder(
+      column: $table.description, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get coverImagePath => $composableBuilder(
+      column: $table.coverImagePath,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get lastAccessedAt => $composableBuilder(
+      column: $table.lastAccessedAt,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+      column: $table.createdAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
+      column: $table.updatedAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<bool> get isDeleted => $composableBuilder(
+      column: $table.isDeleted, builder: (column) => ColumnFilters(column));
+
+  Expression<bool> entitiesRefs(
+      Expression<bool> Function($$EntitiesTableFilterComposer f) f) {
+    final $$EntitiesTableFilterComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.id,
+        referencedTable: $db.entities,
+        getReferencedColumn: (t) => t.projectId,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$EntitiesTableFilterComposer(
+              $db: $db,
+              $table: $db.entities,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return f(composer);
+  }
+
+  Expression<bool> tagsRefs(
+      Expression<bool> Function($$TagsTableFilterComposer f) f) {
+    final $$TagsTableFilterComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.id,
+        referencedTable: $db.tags,
+        getReferencedColumn: (t) => t.projectId,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$TagsTableFilterComposer(
+              $db: $db,
+              $table: $db.tags,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return f(composer);
+  }
+
+  Expression<bool> timelineEntriesRefs(
+      Expression<bool> Function($$TimelineEntriesTableFilterComposer f) f) {
+    final $$TimelineEntriesTableFilterComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.id,
+        referencedTable: $db.timelineEntries,
+        getReferencedColumn: (t) => t.projectId,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$TimelineEntriesTableFilterComposer(
+              $db: $db,
+              $table: $db.timelineEntries,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return f(composer);
+  }
+
+  Expression<bool> manuscriptChaptersRefs(
+      Expression<bool> Function($$ManuscriptChaptersTableFilterComposer f) f) {
+    final $$ManuscriptChaptersTableFilterComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.id,
+        referencedTable: $db.manuscriptChapters,
+        getReferencedColumn: (t) => t.projectId,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$ManuscriptChaptersTableFilterComposer(
+              $db: $db,
+              $table: $db.manuscriptChapters,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return f(composer);
+  }
+
+  Expression<bool> plotCardsRefs(
+      Expression<bool> Function($$PlotCardsTableFilterComposer f) f) {
+    final $$PlotCardsTableFilterComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.id,
+        referencedTable: $db.plotCards,
+        getReferencedColumn: (t) => t.projectId,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$PlotCardsTableFilterComposer(
+              $db: $db,
+              $table: $db.plotCards,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return f(composer);
+  }
+
+  Expression<bool> plotConnectionsRefs(
+      Expression<bool> Function($$PlotConnectionsTableFilterComposer f) f) {
+    final $$PlotConnectionsTableFilterComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.id,
+        referencedTable: $db.plotConnections,
+        getReferencedColumn: (t) => t.projectId,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$PlotConnectionsTableFilterComposer(
+              $db: $db,
+              $table: $db.plotConnections,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return f(composer);
+  }
+
+  Expression<bool> worldMapsRefs(
+      Expression<bool> Function($$WorldMapsTableFilterComposer f) f) {
+    final $$WorldMapsTableFilterComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.id,
+        referencedTable: $db.worldMaps,
+        getReferencedColumn: (t) => t.projectId,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$WorldMapsTableFilterComposer(
+              $db: $db,
+              $table: $db.worldMaps,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return f(composer);
+  }
+
+  Expression<bool> setupPayoffsRefs(
+      Expression<bool> Function($$SetupPayoffsTableFilterComposer f) f) {
+    final $$SetupPayoffsTableFilterComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.id,
+        referencedTable: $db.setupPayoffs,
+        getReferencedColumn: (t) => t.projectId,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$SetupPayoffsTableFilterComposer(
+              $db: $db,
+              $table: $db.setupPayoffs,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return f(composer);
+  }
+}
+
+class $$ProjectsTableOrderingComposer
+    extends Composer<_$AppDatabase, $ProjectsTable> {
+  $$ProjectsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get name => $composableBuilder(
+      column: $table.name, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get description => $composableBuilder(
+      column: $table.description, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get coverImagePath => $composableBuilder(
+      column: $table.coverImagePath,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get lastAccessedAt => $composableBuilder(
+      column: $table.lastAccessedAt,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+      column: $table.createdAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
+      column: $table.updatedAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<bool> get isDeleted => $composableBuilder(
+      column: $table.isDeleted, builder: (column) => ColumnOrderings(column));
+}
+
+class $$ProjectsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $ProjectsTable> {
+  $$ProjectsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get name =>
+      $composableBuilder(column: $table.name, builder: (column) => column);
+
+  GeneratedColumn<String> get description => $composableBuilder(
+      column: $table.description, builder: (column) => column);
+
+  GeneratedColumn<String> get coverImagePath => $composableBuilder(
+      column: $table.coverImagePath, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get lastAccessedAt => $composableBuilder(
+      column: $table.lastAccessedAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  GeneratedColumn<bool> get isDeleted =>
+      $composableBuilder(column: $table.isDeleted, builder: (column) => column);
+
+  Expression<T> entitiesRefs<T extends Object>(
+      Expression<T> Function($$EntitiesTableAnnotationComposer a) f) {
+    final $$EntitiesTableAnnotationComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.id,
+        referencedTable: $db.entities,
+        getReferencedColumn: (t) => t.projectId,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$EntitiesTableAnnotationComposer(
+              $db: $db,
+              $table: $db.entities,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return f(composer);
+  }
+
+  Expression<T> tagsRefs<T extends Object>(
+      Expression<T> Function($$TagsTableAnnotationComposer a) f) {
+    final $$TagsTableAnnotationComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.id,
+        referencedTable: $db.tags,
+        getReferencedColumn: (t) => t.projectId,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$TagsTableAnnotationComposer(
+              $db: $db,
+              $table: $db.tags,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return f(composer);
+  }
+
+  Expression<T> timelineEntriesRefs<T extends Object>(
+      Expression<T> Function($$TimelineEntriesTableAnnotationComposer a) f) {
+    final $$TimelineEntriesTableAnnotationComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.id,
+        referencedTable: $db.timelineEntries,
+        getReferencedColumn: (t) => t.projectId,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$TimelineEntriesTableAnnotationComposer(
+              $db: $db,
+              $table: $db.timelineEntries,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return f(composer);
+  }
+
+  Expression<T> manuscriptChaptersRefs<T extends Object>(
+      Expression<T> Function($$ManuscriptChaptersTableAnnotationComposer a) f) {
+    final $$ManuscriptChaptersTableAnnotationComposer composer =
+        $composerBuilder(
+            composer: this,
+            getCurrentColumn: (t) => t.id,
+            referencedTable: $db.manuscriptChapters,
+            getReferencedColumn: (t) => t.projectId,
+            builder: (joinBuilder,
+                    {$addJoinBuilderToRootComposer,
+                    $removeJoinBuilderFromRootComposer}) =>
+                $$ManuscriptChaptersTableAnnotationComposer(
+                  $db: $db,
+                  $table: $db.manuscriptChapters,
+                  $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                  joinBuilder: joinBuilder,
+                  $removeJoinBuilderFromRootComposer:
+                      $removeJoinBuilderFromRootComposer,
+                ));
+    return f(composer);
+  }
+
+  Expression<T> plotCardsRefs<T extends Object>(
+      Expression<T> Function($$PlotCardsTableAnnotationComposer a) f) {
+    final $$PlotCardsTableAnnotationComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.id,
+        referencedTable: $db.plotCards,
+        getReferencedColumn: (t) => t.projectId,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$PlotCardsTableAnnotationComposer(
+              $db: $db,
+              $table: $db.plotCards,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return f(composer);
+  }
+
+  Expression<T> plotConnectionsRefs<T extends Object>(
+      Expression<T> Function($$PlotConnectionsTableAnnotationComposer a) f) {
+    final $$PlotConnectionsTableAnnotationComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.id,
+        referencedTable: $db.plotConnections,
+        getReferencedColumn: (t) => t.projectId,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$PlotConnectionsTableAnnotationComposer(
+              $db: $db,
+              $table: $db.plotConnections,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return f(composer);
+  }
+
+  Expression<T> worldMapsRefs<T extends Object>(
+      Expression<T> Function($$WorldMapsTableAnnotationComposer a) f) {
+    final $$WorldMapsTableAnnotationComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.id,
+        referencedTable: $db.worldMaps,
+        getReferencedColumn: (t) => t.projectId,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$WorldMapsTableAnnotationComposer(
+              $db: $db,
+              $table: $db.worldMaps,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return f(composer);
+  }
+
+  Expression<T> setupPayoffsRefs<T extends Object>(
+      Expression<T> Function($$SetupPayoffsTableAnnotationComposer a) f) {
+    final $$SetupPayoffsTableAnnotationComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.id,
+        referencedTable: $db.setupPayoffs,
+        getReferencedColumn: (t) => t.projectId,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$SetupPayoffsTableAnnotationComposer(
+              $db: $db,
+              $table: $db.setupPayoffs,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return f(composer);
+  }
+}
+
+class $$ProjectsTableTableManager extends RootTableManager<
+    _$AppDatabase,
+    $ProjectsTable,
+    ProjectRow,
+    $$ProjectsTableFilterComposer,
+    $$ProjectsTableOrderingComposer,
+    $$ProjectsTableAnnotationComposer,
+    $$ProjectsTableCreateCompanionBuilder,
+    $$ProjectsTableUpdateCompanionBuilder,
+    (ProjectRow, $$ProjectsTableReferences),
+    ProjectRow,
+    PrefetchHooks Function(
+        {bool entitiesRefs,
+        bool tagsRefs,
+        bool timelineEntriesRefs,
+        bool manuscriptChaptersRefs,
+        bool plotCardsRefs,
+        bool plotConnectionsRefs,
+        bool worldMapsRefs,
+        bool setupPayoffsRefs})> {
+  $$ProjectsTableTableManager(_$AppDatabase db, $ProjectsTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$ProjectsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$ProjectsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$ProjectsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<String> id = const Value.absent(),
+            Value<String> name = const Value.absent(),
+            Value<String?> description = const Value.absent(),
+            Value<String?> coverImagePath = const Value.absent(),
+            Value<DateTime> lastAccessedAt = const Value.absent(),
+            Value<DateTime> createdAt = const Value.absent(),
+            Value<DateTime> updatedAt = const Value.absent(),
+            Value<bool> isDeleted = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              ProjectsCompanion(
+            id: id,
+            name: name,
+            description: description,
+            coverImagePath: coverImagePath,
+            lastAccessedAt: lastAccessedAt,
+            createdAt: createdAt,
+            updatedAt: updatedAt,
+            isDeleted: isDeleted,
+            rowid: rowid,
+          ),
+          createCompanionCallback: ({
+            required String id,
+            required String name,
+            Value<String?> description = const Value.absent(),
+            Value<String?> coverImagePath = const Value.absent(),
+            required DateTime lastAccessedAt,
+            required DateTime createdAt,
+            required DateTime updatedAt,
+            Value<bool> isDeleted = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              ProjectsCompanion.insert(
+            id: id,
+            name: name,
+            description: description,
+            coverImagePath: coverImagePath,
+            lastAccessedAt: lastAccessedAt,
+            createdAt: createdAt,
+            updatedAt: updatedAt,
+            isDeleted: isDeleted,
+            rowid: rowid,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) =>
+                  (e.readTable(table), $$ProjectsTableReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: (
+              {entitiesRefs = false,
+              tagsRefs = false,
+              timelineEntriesRefs = false,
+              manuscriptChaptersRefs = false,
+              plotCardsRefs = false,
+              plotConnectionsRefs = false,
+              worldMapsRefs = false,
+              setupPayoffsRefs = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [
+                if (entitiesRefs) db.entities,
+                if (tagsRefs) db.tags,
+                if (timelineEntriesRefs) db.timelineEntries,
+                if (manuscriptChaptersRefs) db.manuscriptChapters,
+                if (plotCardsRefs) db.plotCards,
+                if (plotConnectionsRefs) db.plotConnections,
+                if (worldMapsRefs) db.worldMaps,
+                if (setupPayoffsRefs) db.setupPayoffs
+              ],
+              addJoins: null,
+              getPrefetchedDataCallback: (items) async {
+                return [
+                  if (entitiesRefs)
+                    await $_getPrefetchedData<ProjectRow, $ProjectsTable,
+                            EntityRow>(
+                        currentTable: table,
+                        referencedTable:
+                            $$ProjectsTableReferences._entitiesRefsTable(db),
+                        managerFromTypedResult: (p0) =>
+                            $$ProjectsTableReferences(db, table, p0)
+                                .entitiesRefs,
+                        referencedItemsForCurrentItem:
+                            (item, referencedItems) => referencedItems
+                                .where((e) => e.projectId == item.id),
+                        typedResults: items),
+                  if (tagsRefs)
+                    await $_getPrefetchedData<ProjectRow, $ProjectsTable,
+                            TagRow>(
+                        currentTable: table,
+                        referencedTable:
+                            $$ProjectsTableReferences._tagsRefsTable(db),
+                        managerFromTypedResult: (p0) =>
+                            $$ProjectsTableReferences(db, table, p0).tagsRefs,
+                        referencedItemsForCurrentItem:
+                            (item, referencedItems) => referencedItems
+                                .where((e) => e.projectId == item.id),
+                        typedResults: items),
+                  if (timelineEntriesRefs)
+                    await $_getPrefetchedData<ProjectRow, $ProjectsTable,
+                            TimelineEntryRow>(
+                        currentTable: table,
+                        referencedTable: $$ProjectsTableReferences
+                            ._timelineEntriesRefsTable(db),
+                        managerFromTypedResult: (p0) =>
+                            $$ProjectsTableReferences(db, table, p0)
+                                .timelineEntriesRefs,
+                        referencedItemsForCurrentItem:
+                            (item, referencedItems) => referencedItems
+                                .where((e) => e.projectId == item.id),
+                        typedResults: items),
+                  if (manuscriptChaptersRefs)
+                    await $_getPrefetchedData<ProjectRow, $ProjectsTable,
+                            ManuscriptChapterRow>(
+                        currentTable: table,
+                        referencedTable: $$ProjectsTableReferences
+                            ._manuscriptChaptersRefsTable(db),
+                        managerFromTypedResult: (p0) =>
+                            $$ProjectsTableReferences(db, table, p0)
+                                .manuscriptChaptersRefs,
+                        referencedItemsForCurrentItem:
+                            (item, referencedItems) => referencedItems
+                                .where((e) => e.projectId == item.id),
+                        typedResults: items),
+                  if (plotCardsRefs)
+                    await $_getPrefetchedData<ProjectRow, $ProjectsTable,
+                            PlotCardRow>(
+                        currentTable: table,
+                        referencedTable:
+                            $$ProjectsTableReferences._plotCardsRefsTable(db),
+                        managerFromTypedResult: (p0) =>
+                            $$ProjectsTableReferences(db, table, p0)
+                                .plotCardsRefs,
+                        referencedItemsForCurrentItem:
+                            (item, referencedItems) => referencedItems
+                                .where((e) => e.projectId == item.id),
+                        typedResults: items),
+                  if (plotConnectionsRefs)
+                    await $_getPrefetchedData<ProjectRow, $ProjectsTable,
+                            PlotConnectionRow>(
+                        currentTable: table,
+                        referencedTable: $$ProjectsTableReferences
+                            ._plotConnectionsRefsTable(db),
+                        managerFromTypedResult: (p0) =>
+                            $$ProjectsTableReferences(db, table, p0)
+                                .plotConnectionsRefs,
+                        referencedItemsForCurrentItem:
+                            (item, referencedItems) => referencedItems
+                                .where((e) => e.projectId == item.id),
+                        typedResults: items),
+                  if (worldMapsRefs)
+                    await $_getPrefetchedData<ProjectRow, $ProjectsTable,
+                            WorldMapRow>(
+                        currentTable: table,
+                        referencedTable:
+                            $$ProjectsTableReferences._worldMapsRefsTable(db),
+                        managerFromTypedResult: (p0) =>
+                            $$ProjectsTableReferences(db, table, p0)
+                                .worldMapsRefs,
+                        referencedItemsForCurrentItem:
+                            (item, referencedItems) => referencedItems
+                                .where((e) => e.projectId == item.id),
+                        typedResults: items),
+                  if (setupPayoffsRefs)
+                    await $_getPrefetchedData<ProjectRow, $ProjectsTable,
+                            SetupPayoffRow>(
+                        currentTable: table,
+                        referencedTable: $$ProjectsTableReferences
+                            ._setupPayoffsRefsTable(db),
+                        managerFromTypedResult: (p0) =>
+                            $$ProjectsTableReferences(db, table, p0)
+                                .setupPayoffsRefs,
+                        referencedItemsForCurrentItem:
+                            (item, referencedItems) => referencedItems
+                                .where((e) => e.projectId == item.id),
+                        typedResults: items)
+                ];
+              },
+            );
+          },
+        ));
+}
+
+typedef $$ProjectsTableProcessedTableManager = ProcessedTableManager<
+    _$AppDatabase,
+    $ProjectsTable,
+    ProjectRow,
+    $$ProjectsTableFilterComposer,
+    $$ProjectsTableOrderingComposer,
+    $$ProjectsTableAnnotationComposer,
+    $$ProjectsTableCreateCompanionBuilder,
+    $$ProjectsTableUpdateCompanionBuilder,
+    (ProjectRow, $$ProjectsTableReferences),
+    ProjectRow,
+    PrefetchHooks Function(
+        {bool entitiesRefs,
+        bool tagsRefs,
+        bool timelineEntriesRefs,
+        bool manuscriptChaptersRefs,
+        bool plotCardsRefs,
+        bool plotConnectionsRefs,
+        bool worldMapsRefs,
+        bool setupPayoffsRefs})>;
 typedef $$EntitiesTableCreateCompanionBuilder = EntitiesCompanion Function({
   required String id,
+  Value<String?> projectId,
   required String name,
   required String entityType,
   Value<String> status,
@@ -5655,6 +7339,7 @@ typedef $$EntitiesTableCreateCompanionBuilder = EntitiesCompanion Function({
 });
 typedef $$EntitiesTableUpdateCompanionBuilder = EntitiesCompanion Function({
   Value<String> id,
+  Value<String?> projectId,
   Value<String> name,
   Value<String> entityType,
   Value<String> status,
@@ -5670,6 +7355,20 @@ typedef $$EntitiesTableUpdateCompanionBuilder = EntitiesCompanion Function({
 final class $$EntitiesTableReferences
     extends BaseReferences<_$AppDatabase, $EntitiesTable, EntityRow> {
   $$EntitiesTableReferences(super.$_db, super.$_table, super.$_typedResult);
+
+  static $ProjectsTable _projectIdTable(_$AppDatabase db) => db.projects
+      .createAlias($_aliasNameGenerator(db.entities.projectId, db.projects.id));
+
+  $$ProjectsTableProcessedTableManager? get projectId {
+    final $_column = $_itemColumn<String>('project_id');
+    if ($_column == null) return null;
+    final manager = $$ProjectsTableTableManager($_db, $_db.projects)
+        .filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_projectIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+        manager.$state.copyWith(prefetchedData: [item]));
+  }
 
   static MultiTypedResultKey<$RelationshipsTable, List<RelationshipRow>>
       _sourceRelationshipsTable(_$AppDatabase db) =>
@@ -5803,6 +7502,26 @@ class $$EntitiesTableFilterComposer
 
   ColumnFilters<DateTime> get updatedAt => $composableBuilder(
       column: $table.updatedAt, builder: (column) => ColumnFilters(column));
+
+  $$ProjectsTableFilterComposer get projectId {
+    final $$ProjectsTableFilterComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.projectId,
+        referencedTable: $db.projects,
+        getReferencedColumn: (t) => t.id,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$ProjectsTableFilterComposer(
+              $db: $db,
+              $table: $db.projects,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return composer;
+  }
 
   Expression<bool> sourceRelationships(
       Expression<bool> Function($$RelationshipsTableFilterComposer f) f) {
@@ -5970,6 +7689,26 @@ class $$EntitiesTableOrderingComposer
 
   ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
       column: $table.updatedAt, builder: (column) => ColumnOrderings(column));
+
+  $$ProjectsTableOrderingComposer get projectId {
+    final $$ProjectsTableOrderingComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.projectId,
+        referencedTable: $db.projects,
+        getReferencedColumn: (t) => t.id,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$ProjectsTableOrderingComposer(
+              $db: $db,
+              $table: $db.projects,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return composer;
+  }
 }
 
 class $$EntitiesTableAnnotationComposer
@@ -6010,6 +7749,26 @@ class $$EntitiesTableAnnotationComposer
 
   GeneratedColumn<DateTime> get updatedAt =>
       $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  $$ProjectsTableAnnotationComposer get projectId {
+    final $$ProjectsTableAnnotationComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.projectId,
+        referencedTable: $db.projects,
+        getReferencedColumn: (t) => t.id,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$ProjectsTableAnnotationComposer(
+              $db: $db,
+              $table: $db.projects,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return composer;
+  }
 
   Expression<T> sourceRelationships<T extends Object>(
       Expression<T> Function($$RelationshipsTableAnnotationComposer a) f) {
@@ -6150,7 +7909,8 @@ class $$EntitiesTableTableManager extends RootTableManager<
     (EntityRow, $$EntitiesTableReferences),
     EntityRow,
     PrefetchHooks Function(
-        {bool sourceRelationships,
+        {bool projectId,
+        bool sourceRelationships,
         bool targetRelationships,
         bool entityTagsRefs,
         bool timelineEntriesRefs,
@@ -6168,6 +7928,7 @@ class $$EntitiesTableTableManager extends RootTableManager<
               $$EntitiesTableAnnotationComposer($db: db, $table: table),
           updateCompanionCallback: ({
             Value<String> id = const Value.absent(),
+            Value<String?> projectId = const Value.absent(),
             Value<String> name = const Value.absent(),
             Value<String> entityType = const Value.absent(),
             Value<String> status = const Value.absent(),
@@ -6181,6 +7942,7 @@ class $$EntitiesTableTableManager extends RootTableManager<
           }) =>
               EntitiesCompanion(
             id: id,
+            projectId: projectId,
             name: name,
             entityType: entityType,
             status: status,
@@ -6194,6 +7956,7 @@ class $$EntitiesTableTableManager extends RootTableManager<
           ),
           createCompanionCallback: ({
             required String id,
+            Value<String?> projectId = const Value.absent(),
             required String name,
             required String entityType,
             Value<String> status = const Value.absent(),
@@ -6207,6 +7970,7 @@ class $$EntitiesTableTableManager extends RootTableManager<
           }) =>
               EntitiesCompanion.insert(
             id: id,
+            projectId: projectId,
             name: name,
             entityType: entityType,
             status: status,
@@ -6223,7 +7987,8 @@ class $$EntitiesTableTableManager extends RootTableManager<
                   (e.readTable(table), $$EntitiesTableReferences(db, table, e)))
               .toList(),
           prefetchHooksCallback: (
-              {sourceRelationships = false,
+              {projectId = false,
+              sourceRelationships = false,
               targetRelationships = false,
               entityTagsRefs = false,
               timelineEntriesRefs = false,
@@ -6239,7 +8004,32 @@ class $$EntitiesTableTableManager extends RootTableManager<
                 if (entityVersionsRefs) db.entityVersions,
                 if (mapPinsRefs) db.mapPins
               ],
-              addJoins: null,
+              addJoins: <
+                  T extends TableManagerState<
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic>>(state) {
+                if (projectId) {
+                  state = state.withJoin(
+                    currentTable: table,
+                    currentColumn: table.projectId,
+                    referencedTable:
+                        $$EntitiesTableReferences._projectIdTable(db),
+                    referencedColumn:
+                        $$EntitiesTableReferences._projectIdTable(db).id,
+                  ) as T;
+                }
+
+                return state;
+              },
               getPrefetchedDataCallback: (items) async {
                 return [
                   if (sourceRelationships)
@@ -6339,7 +8129,8 @@ typedef $$EntitiesTableProcessedTableManager = ProcessedTableManager<
     (EntityRow, $$EntitiesTableReferences),
     EntityRow,
     PrefetchHooks Function(
-        {bool sourceRelationships,
+        {bool projectId,
+        bool sourceRelationships,
         bool targetRelationships,
         bool entityTagsRefs,
         bool timelineEntriesRefs,
@@ -6759,12 +8550,14 @@ typedef $$RelationshipsTableProcessedTableManager = ProcessedTableManager<
     PrefetchHooks Function({bool sourceId, bool targetId})>;
 typedef $$TagsTableCreateCompanionBuilder = TagsCompanion Function({
   required String id,
+  Value<String?> projectId,
   required String name,
   required int color,
   Value<int> rowid,
 });
 typedef $$TagsTableUpdateCompanionBuilder = TagsCompanion Function({
   Value<String> id,
+  Value<String?> projectId,
   Value<String> name,
   Value<int> color,
   Value<int> rowid,
@@ -6773,6 +8566,20 @@ typedef $$TagsTableUpdateCompanionBuilder = TagsCompanion Function({
 final class $$TagsTableReferences
     extends BaseReferences<_$AppDatabase, $TagsTable, TagRow> {
   $$TagsTableReferences(super.$_db, super.$_table, super.$_typedResult);
+
+  static $ProjectsTable _projectIdTable(_$AppDatabase db) => db.projects
+      .createAlias($_aliasNameGenerator(db.tags.projectId, db.projects.id));
+
+  $$ProjectsTableProcessedTableManager? get projectId {
+    final $_column = $_itemColumn<String>('project_id');
+    if ($_column == null) return null;
+    final manager = $$ProjectsTableTableManager($_db, $_db.projects)
+        .filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_projectIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+        manager.$state.copyWith(prefetchedData: [item]));
+  }
 
   static MultiTypedResultKey<$EntityTagsTable, List<EntityTagRow>>
       _entityTagsRefsTable(_$AppDatabase db) =>
@@ -6805,6 +8612,26 @@ class $$TagsTableFilterComposer extends Composer<_$AppDatabase, $TagsTable> {
 
   ColumnFilters<int> get color => $composableBuilder(
       column: $table.color, builder: (column) => ColumnFilters(column));
+
+  $$ProjectsTableFilterComposer get projectId {
+    final $$ProjectsTableFilterComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.projectId,
+        referencedTable: $db.projects,
+        getReferencedColumn: (t) => t.id,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$ProjectsTableFilterComposer(
+              $db: $db,
+              $table: $db.projects,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return composer;
+  }
 
   Expression<bool> entityTagsRefs(
       Expression<bool> Function($$EntityTagsTableFilterComposer f) f) {
@@ -6844,6 +8671,26 @@ class $$TagsTableOrderingComposer extends Composer<_$AppDatabase, $TagsTable> {
 
   ColumnOrderings<int> get color => $composableBuilder(
       column: $table.color, builder: (column) => ColumnOrderings(column));
+
+  $$ProjectsTableOrderingComposer get projectId {
+    final $$ProjectsTableOrderingComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.projectId,
+        referencedTable: $db.projects,
+        getReferencedColumn: (t) => t.id,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$ProjectsTableOrderingComposer(
+              $db: $db,
+              $table: $db.projects,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return composer;
+  }
 }
 
 class $$TagsTableAnnotationComposer
@@ -6863,6 +8710,26 @@ class $$TagsTableAnnotationComposer
 
   GeneratedColumn<int> get color =>
       $composableBuilder(column: $table.color, builder: (column) => column);
+
+  $$ProjectsTableAnnotationComposer get projectId {
+    final $$ProjectsTableAnnotationComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.projectId,
+        referencedTable: $db.projects,
+        getReferencedColumn: (t) => t.id,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$ProjectsTableAnnotationComposer(
+              $db: $db,
+              $table: $db.projects,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return composer;
+  }
 
   Expression<T> entityTagsRefs<T extends Object>(
       Expression<T> Function($$EntityTagsTableAnnotationComposer a) f) {
@@ -6897,7 +8764,7 @@ class $$TagsTableTableManager extends RootTableManager<
     $$TagsTableUpdateCompanionBuilder,
     (TagRow, $$TagsTableReferences),
     TagRow,
-    PrefetchHooks Function({bool entityTagsRefs})> {
+    PrefetchHooks Function({bool projectId, bool entityTagsRefs})> {
   $$TagsTableTableManager(_$AppDatabase db, $TagsTable table)
       : super(TableManagerState(
           db: db,
@@ -6910,24 +8777,28 @@ class $$TagsTableTableManager extends RootTableManager<
               $$TagsTableAnnotationComposer($db: db, $table: table),
           updateCompanionCallback: ({
             Value<String> id = const Value.absent(),
+            Value<String?> projectId = const Value.absent(),
             Value<String> name = const Value.absent(),
             Value<int> color = const Value.absent(),
             Value<int> rowid = const Value.absent(),
           }) =>
               TagsCompanion(
             id: id,
+            projectId: projectId,
             name: name,
             color: color,
             rowid: rowid,
           ),
           createCompanionCallback: ({
             required String id,
+            Value<String?> projectId = const Value.absent(),
             required String name,
             required int color,
             Value<int> rowid = const Value.absent(),
           }) =>
               TagsCompanion.insert(
             id: id,
+            projectId: projectId,
             name: name,
             color: color,
             rowid: rowid,
@@ -6936,11 +8807,35 @@ class $$TagsTableTableManager extends RootTableManager<
               .map((e) =>
                   (e.readTable(table), $$TagsTableReferences(db, table, e)))
               .toList(),
-          prefetchHooksCallback: ({entityTagsRefs = false}) {
+          prefetchHooksCallback: ({projectId = false, entityTagsRefs = false}) {
             return PrefetchHooks(
               db: db,
               explicitlyWatchedTables: [if (entityTagsRefs) db.entityTags],
-              addJoins: null,
+              addJoins: <
+                  T extends TableManagerState<
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic>>(state) {
+                if (projectId) {
+                  state = state.withJoin(
+                    currentTable: table,
+                    currentColumn: table.projectId,
+                    referencedTable: $$TagsTableReferences._projectIdTable(db),
+                    referencedColumn:
+                        $$TagsTableReferences._projectIdTable(db).id,
+                  ) as T;
+                }
+
+                return state;
+              },
               getPrefetchedDataCallback: (items) async {
                 return [
                   if (entityTagsRefs)
@@ -6972,7 +8867,7 @@ typedef $$TagsTableProcessedTableManager = ProcessedTableManager<
     $$TagsTableUpdateCompanionBuilder,
     (TagRow, $$TagsTableReferences),
     TagRow,
-    PrefetchHooks Function({bool entityTagsRefs})>;
+    PrefetchHooks Function({bool projectId, bool entityTagsRefs})>;
 typedef $$EntityTagsTableCreateCompanionBuilder = EntityTagsCompanion Function({
   required String entityId,
   required String tagId,
@@ -7279,6 +9174,7 @@ typedef $$EntityTagsTableProcessedTableManager = ProcessedTableManager<
 typedef $$TimelineEntriesTableCreateCompanionBuilder = TimelineEntriesCompanion
     Function({
   required String id,
+  Value<String?> projectId,
   required String title,
   Value<String?> description,
   Value<String?> dateLabel,
@@ -7293,6 +9189,7 @@ typedef $$TimelineEntriesTableCreateCompanionBuilder = TimelineEntriesCompanion
 typedef $$TimelineEntriesTableUpdateCompanionBuilder = TimelineEntriesCompanion
     Function({
   Value<String> id,
+  Value<String?> projectId,
   Value<String> title,
   Value<String?> description,
   Value<String?> dateLabel,
@@ -7309,6 +9206,21 @@ final class $$TimelineEntriesTableReferences extends BaseReferences<
     _$AppDatabase, $TimelineEntriesTable, TimelineEntryRow> {
   $$TimelineEntriesTableReferences(
       super.$_db, super.$_table, super.$_typedResult);
+
+  static $ProjectsTable _projectIdTable(_$AppDatabase db) =>
+      db.projects.createAlias(
+          $_aliasNameGenerator(db.timelineEntries.projectId, db.projects.id));
+
+  $$ProjectsTableProcessedTableManager? get projectId {
+    final $_column = $_itemColumn<String>('project_id');
+    if ($_column == null) return null;
+    final manager = $$ProjectsTableTableManager($_db, $_db.projects)
+        .filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_projectIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+        manager.$state.copyWith(prefetchedData: [item]));
+  }
 
   static $EntitiesTable _entityIdTable(_$AppDatabase db) =>
       db.entities.createAlias(
@@ -7361,6 +9273,26 @@ class $$TimelineEntriesTableFilterComposer
 
   ColumnFilters<DateTime> get updatedAt => $composableBuilder(
       column: $table.updatedAt, builder: (column) => ColumnFilters(column));
+
+  $$ProjectsTableFilterComposer get projectId {
+    final $$ProjectsTableFilterComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.projectId,
+        referencedTable: $db.projects,
+        getReferencedColumn: (t) => t.id,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$ProjectsTableFilterComposer(
+              $db: $db,
+              $table: $db.projects,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return composer;
+  }
 
   $$EntitiesTableFilterComposer get entityId {
     final $$EntitiesTableFilterComposer composer = $composerBuilder(
@@ -7419,6 +9351,26 @@ class $$TimelineEntriesTableOrderingComposer
   ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
       column: $table.updatedAt, builder: (column) => ColumnOrderings(column));
 
+  $$ProjectsTableOrderingComposer get projectId {
+    final $$ProjectsTableOrderingComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.projectId,
+        referencedTable: $db.projects,
+        getReferencedColumn: (t) => t.id,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$ProjectsTableOrderingComposer(
+              $db: $db,
+              $table: $db.projects,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return composer;
+  }
+
   $$EntitiesTableOrderingComposer get entityId {
     final $$EntitiesTableOrderingComposer composer = $composerBuilder(
         composer: this,
@@ -7476,6 +9428,26 @@ class $$TimelineEntriesTableAnnotationComposer
   GeneratedColumn<DateTime> get updatedAt =>
       $composableBuilder(column: $table.updatedAt, builder: (column) => column);
 
+  $$ProjectsTableAnnotationComposer get projectId {
+    final $$ProjectsTableAnnotationComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.projectId,
+        referencedTable: $db.projects,
+        getReferencedColumn: (t) => t.id,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$ProjectsTableAnnotationComposer(
+              $db: $db,
+              $table: $db.projects,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return composer;
+  }
+
   $$EntitiesTableAnnotationComposer get entityId {
     final $$EntitiesTableAnnotationComposer composer = $composerBuilder(
         composer: this,
@@ -7508,7 +9480,7 @@ class $$TimelineEntriesTableTableManager extends RootTableManager<
     $$TimelineEntriesTableUpdateCompanionBuilder,
     (TimelineEntryRow, $$TimelineEntriesTableReferences),
     TimelineEntryRow,
-    PrefetchHooks Function({bool entityId})> {
+    PrefetchHooks Function({bool projectId, bool entityId})> {
   $$TimelineEntriesTableTableManager(
       _$AppDatabase db, $TimelineEntriesTable table)
       : super(TableManagerState(
@@ -7522,6 +9494,7 @@ class $$TimelineEntriesTableTableManager extends RootTableManager<
               $$TimelineEntriesTableAnnotationComposer($db: db, $table: table),
           updateCompanionCallback: ({
             Value<String> id = const Value.absent(),
+            Value<String?> projectId = const Value.absent(),
             Value<String> title = const Value.absent(),
             Value<String?> description = const Value.absent(),
             Value<String?> dateLabel = const Value.absent(),
@@ -7535,6 +9508,7 @@ class $$TimelineEntriesTableTableManager extends RootTableManager<
           }) =>
               TimelineEntriesCompanion(
             id: id,
+            projectId: projectId,
             title: title,
             description: description,
             dateLabel: dateLabel,
@@ -7548,6 +9522,7 @@ class $$TimelineEntriesTableTableManager extends RootTableManager<
           ),
           createCompanionCallback: ({
             required String id,
+            Value<String?> projectId = const Value.absent(),
             required String title,
             Value<String?> description = const Value.absent(),
             Value<String?> dateLabel = const Value.absent(),
@@ -7561,6 +9536,7 @@ class $$TimelineEntriesTableTableManager extends RootTableManager<
           }) =>
               TimelineEntriesCompanion.insert(
             id: id,
+            projectId: projectId,
             title: title,
             description: description,
             dateLabel: dateLabel,
@@ -7578,7 +9554,7 @@ class $$TimelineEntriesTableTableManager extends RootTableManager<
                     $$TimelineEntriesTableReferences(db, table, e)
                   ))
               .toList(),
-          prefetchHooksCallback: ({entityId = false}) {
+          prefetchHooksCallback: ({projectId = false, entityId = false}) {
             return PrefetchHooks(
               db: db,
               explicitlyWatchedTables: [],
@@ -7595,6 +9571,16 @@ class $$TimelineEntriesTableTableManager extends RootTableManager<
                       dynamic,
                       dynamic,
                       dynamic>>(state) {
+                if (projectId) {
+                  state = state.withJoin(
+                    currentTable: table,
+                    currentColumn: table.projectId,
+                    referencedTable:
+                        $$TimelineEntriesTableReferences._projectIdTable(db),
+                    referencedColumn:
+                        $$TimelineEntriesTableReferences._projectIdTable(db).id,
+                  ) as T;
+                }
                 if (entityId) {
                   state = state.withJoin(
                     currentTable: table,
@@ -7627,7 +9613,7 @@ typedef $$TimelineEntriesTableProcessedTableManager = ProcessedTableManager<
     $$TimelineEntriesTableUpdateCompanionBuilder,
     (TimelineEntryRow, $$TimelineEntriesTableReferences),
     TimelineEntryRow,
-    PrefetchHooks Function({bool entityId})>;
+    PrefetchHooks Function({bool projectId, bool entityId})>;
 typedef $$EntityVersionsTableCreateCompanionBuilder = EntityVersionsCompanion
     Function({
   required String id,
@@ -8106,6 +10092,7 @@ typedef $$TemplatesTableProcessedTableManager = ProcessedTableManager<
 typedef $$ManuscriptChaptersTableCreateCompanionBuilder
     = ManuscriptChaptersCompanion Function({
   required String id,
+  Value<String?> projectId,
   required String title,
   Value<String> content,
   Value<int> sortOrder,
@@ -8123,6 +10110,7 @@ typedef $$ManuscriptChaptersTableCreateCompanionBuilder
 typedef $$ManuscriptChaptersTableUpdateCompanionBuilder
     = ManuscriptChaptersCompanion Function({
   Value<String> id,
+  Value<String?> projectId,
   Value<String> title,
   Value<String> content,
   Value<int> sortOrder,
@@ -8142,6 +10130,21 @@ final class $$ManuscriptChaptersTableReferences extends BaseReferences<
     _$AppDatabase, $ManuscriptChaptersTable, ManuscriptChapterRow> {
   $$ManuscriptChaptersTableReferences(
       super.$_db, super.$_table, super.$_typedResult);
+
+  static $ProjectsTable _projectIdTable(_$AppDatabase db) =>
+      db.projects.createAlias($_aliasNameGenerator(
+          db.manuscriptChapters.projectId, db.projects.id));
+
+  $$ProjectsTableProcessedTableManager? get projectId {
+    final $_column = $_itemColumn<String>('project_id');
+    if ($_column == null) return null;
+    final manager = $$ProjectsTableTableManager($_db, $_db.projects)
+        .filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_projectIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+        manager.$state.copyWith(prefetchedData: [item]));
+  }
 
   static MultiTypedResultKey<$ChapterSnapshotsTable, List<ChapterSnapshotRow>>
       _chapterSnapshotsRefsTable(_$AppDatabase db) =>
@@ -8209,6 +10212,26 @@ class $$ManuscriptChaptersTableFilterComposer
 
   ColumnFilters<DateTime> get updatedAt => $composableBuilder(
       column: $table.updatedAt, builder: (column) => ColumnFilters(column));
+
+  $$ProjectsTableFilterComposer get projectId {
+    final $$ProjectsTableFilterComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.projectId,
+        referencedTable: $db.projects,
+        getReferencedColumn: (t) => t.id,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$ProjectsTableFilterComposer(
+              $db: $db,
+              $table: $db.projects,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return composer;
+  }
 
   Expression<bool> chapterSnapshotsRefs(
       Expression<bool> Function($$ChapterSnapshotsTableFilterComposer f) f) {
@@ -8280,6 +10303,26 @@ class $$ManuscriptChaptersTableOrderingComposer
 
   ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
       column: $table.updatedAt, builder: (column) => ColumnOrderings(column));
+
+  $$ProjectsTableOrderingComposer get projectId {
+    final $$ProjectsTableOrderingComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.projectId,
+        referencedTable: $db.projects,
+        getReferencedColumn: (t) => t.id,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$ProjectsTableOrderingComposer(
+              $db: $db,
+              $table: $db.projects,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return composer;
+  }
 }
 
 class $$ManuscriptChaptersTableAnnotationComposer
@@ -8330,6 +10373,26 @@ class $$ManuscriptChaptersTableAnnotationComposer
   GeneratedColumn<DateTime> get updatedAt =>
       $composableBuilder(column: $table.updatedAt, builder: (column) => column);
 
+  $$ProjectsTableAnnotationComposer get projectId {
+    final $$ProjectsTableAnnotationComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.projectId,
+        referencedTable: $db.projects,
+        getReferencedColumn: (t) => t.id,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$ProjectsTableAnnotationComposer(
+              $db: $db,
+              $table: $db.projects,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return composer;
+  }
+
   Expression<T> chapterSnapshotsRefs<T extends Object>(
       Expression<T> Function($$ChapterSnapshotsTableAnnotationComposer a) f) {
     final $$ChapterSnapshotsTableAnnotationComposer composer = $composerBuilder(
@@ -8363,7 +10426,7 @@ class $$ManuscriptChaptersTableTableManager extends RootTableManager<
     $$ManuscriptChaptersTableUpdateCompanionBuilder,
     (ManuscriptChapterRow, $$ManuscriptChaptersTableReferences),
     ManuscriptChapterRow,
-    PrefetchHooks Function({bool chapterSnapshotsRefs})> {
+    PrefetchHooks Function({bool projectId, bool chapterSnapshotsRefs})> {
   $$ManuscriptChaptersTableTableManager(
       _$AppDatabase db, $ManuscriptChaptersTable table)
       : super(TableManagerState(
@@ -8378,6 +10441,7 @@ class $$ManuscriptChaptersTableTableManager extends RootTableManager<
                   $db: db, $table: table),
           updateCompanionCallback: ({
             Value<String> id = const Value.absent(),
+            Value<String?> projectId = const Value.absent(),
             Value<String> title = const Value.absent(),
             Value<String> content = const Value.absent(),
             Value<int> sortOrder = const Value.absent(),
@@ -8394,6 +10458,7 @@ class $$ManuscriptChaptersTableTableManager extends RootTableManager<
           }) =>
               ManuscriptChaptersCompanion(
             id: id,
+            projectId: projectId,
             title: title,
             content: content,
             sortOrder: sortOrder,
@@ -8410,6 +10475,7 @@ class $$ManuscriptChaptersTableTableManager extends RootTableManager<
           ),
           createCompanionCallback: ({
             required String id,
+            Value<String?> projectId = const Value.absent(),
             required String title,
             Value<String> content = const Value.absent(),
             Value<int> sortOrder = const Value.absent(),
@@ -8426,6 +10492,7 @@ class $$ManuscriptChaptersTableTableManager extends RootTableManager<
           }) =>
               ManuscriptChaptersCompanion.insert(
             id: id,
+            projectId: projectId,
             title: title,
             content: content,
             sortOrder: sortOrder,
@@ -8446,13 +10513,40 @@ class $$ManuscriptChaptersTableTableManager extends RootTableManager<
                     $$ManuscriptChaptersTableReferences(db, table, e)
                   ))
               .toList(),
-          prefetchHooksCallback: ({chapterSnapshotsRefs = false}) {
+          prefetchHooksCallback: (
+              {projectId = false, chapterSnapshotsRefs = false}) {
             return PrefetchHooks(
               db: db,
               explicitlyWatchedTables: [
                 if (chapterSnapshotsRefs) db.chapterSnapshots
               ],
-              addJoins: null,
+              addJoins: <
+                  T extends TableManagerState<
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic>>(state) {
+                if (projectId) {
+                  state = state.withJoin(
+                    currentTable: table,
+                    currentColumn: table.projectId,
+                    referencedTable:
+                        $$ManuscriptChaptersTableReferences._projectIdTable(db),
+                    referencedColumn: $$ManuscriptChaptersTableReferences
+                        ._projectIdTable(db)
+                        .id,
+                  ) as T;
+                }
+
+                return state;
+              },
               getPrefetchedDataCallback: (items) async {
                 return [
                   if (chapterSnapshotsRefs)
@@ -8486,7 +10580,7 @@ typedef $$ManuscriptChaptersTableProcessedTableManager = ProcessedTableManager<
     $$ManuscriptChaptersTableUpdateCompanionBuilder,
     (ManuscriptChapterRow, $$ManuscriptChaptersTableReferences),
     ManuscriptChapterRow,
-    PrefetchHooks Function({bool chapterSnapshotsRefs})>;
+    PrefetchHooks Function({bool projectId, bool chapterSnapshotsRefs})>;
 typedef $$ChapterSnapshotsTableCreateCompanionBuilder
     = ChapterSnapshotsCompanion Function({
   required String id,
@@ -8754,6 +10848,7 @@ typedef $$ChapterSnapshotsTableProcessedTableManager = ProcessedTableManager<
     PrefetchHooks Function({bool chapterId})>;
 typedef $$PlotCardsTableCreateCompanionBuilder = PlotCardsCompanion Function({
   required String id,
+  Value<String?> projectId,
   required String title,
   Value<String?> summary,
   required double xPosition,
@@ -8766,6 +10861,7 @@ typedef $$PlotCardsTableCreateCompanionBuilder = PlotCardsCompanion Function({
 });
 typedef $$PlotCardsTableUpdateCompanionBuilder = PlotCardsCompanion Function({
   Value<String> id,
+  Value<String?> projectId,
   Value<String> title,
   Value<String?> summary,
   Value<double> xPosition,
@@ -8776,6 +10872,26 @@ typedef $$PlotCardsTableUpdateCompanionBuilder = PlotCardsCompanion Function({
   Value<DateTime> updatedAt,
   Value<int> rowid,
 });
+
+final class $$PlotCardsTableReferences
+    extends BaseReferences<_$AppDatabase, $PlotCardsTable, PlotCardRow> {
+  $$PlotCardsTableReferences(super.$_db, super.$_table, super.$_typedResult);
+
+  static $ProjectsTable _projectIdTable(_$AppDatabase db) =>
+      db.projects.createAlias(
+          $_aliasNameGenerator(db.plotCards.projectId, db.projects.id));
+
+  $$ProjectsTableProcessedTableManager? get projectId {
+    final $_column = $_itemColumn<String>('project_id');
+    if ($_column == null) return null;
+    final manager = $$ProjectsTableTableManager($_db, $_db.projects)
+        .filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_projectIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+        manager.$state.copyWith(prefetchedData: [item]));
+  }
+}
 
 class $$PlotCardsTableFilterComposer
     extends Composer<_$AppDatabase, $PlotCardsTable> {
@@ -8812,6 +10928,26 @@ class $$PlotCardsTableFilterComposer
 
   ColumnFilters<DateTime> get updatedAt => $composableBuilder(
       column: $table.updatedAt, builder: (column) => ColumnFilters(column));
+
+  $$ProjectsTableFilterComposer get projectId {
+    final $$ProjectsTableFilterComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.projectId,
+        referencedTable: $db.projects,
+        getReferencedColumn: (t) => t.id,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$ProjectsTableFilterComposer(
+              $db: $db,
+              $table: $db.projects,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return composer;
+  }
 }
 
 class $$PlotCardsTableOrderingComposer
@@ -8849,6 +10985,26 @@ class $$PlotCardsTableOrderingComposer
 
   ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
       column: $table.updatedAt, builder: (column) => ColumnOrderings(column));
+
+  $$ProjectsTableOrderingComposer get projectId {
+    final $$ProjectsTableOrderingComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.projectId,
+        referencedTable: $db.projects,
+        getReferencedColumn: (t) => t.id,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$ProjectsTableOrderingComposer(
+              $db: $db,
+              $table: $db.projects,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return composer;
+  }
 }
 
 class $$PlotCardsTableAnnotationComposer
@@ -8886,6 +11042,26 @@ class $$PlotCardsTableAnnotationComposer
 
   GeneratedColumn<DateTime> get updatedAt =>
       $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  $$ProjectsTableAnnotationComposer get projectId {
+    final $$ProjectsTableAnnotationComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.projectId,
+        referencedTable: $db.projects,
+        getReferencedColumn: (t) => t.id,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$ProjectsTableAnnotationComposer(
+              $db: $db,
+              $table: $db.projects,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return composer;
+  }
 }
 
 class $$PlotCardsTableTableManager extends RootTableManager<
@@ -8897,9 +11073,9 @@ class $$PlotCardsTableTableManager extends RootTableManager<
     $$PlotCardsTableAnnotationComposer,
     $$PlotCardsTableCreateCompanionBuilder,
     $$PlotCardsTableUpdateCompanionBuilder,
-    (PlotCardRow, BaseReferences<_$AppDatabase, $PlotCardsTable, PlotCardRow>),
+    (PlotCardRow, $$PlotCardsTableReferences),
     PlotCardRow,
-    PrefetchHooks Function()> {
+    PrefetchHooks Function({bool projectId})> {
   $$PlotCardsTableTableManager(_$AppDatabase db, $PlotCardsTable table)
       : super(TableManagerState(
           db: db,
@@ -8912,6 +11088,7 @@ class $$PlotCardsTableTableManager extends RootTableManager<
               $$PlotCardsTableAnnotationComposer($db: db, $table: table),
           updateCompanionCallback: ({
             Value<String> id = const Value.absent(),
+            Value<String?> projectId = const Value.absent(),
             Value<String> title = const Value.absent(),
             Value<String?> summary = const Value.absent(),
             Value<double> xPosition = const Value.absent(),
@@ -8924,6 +11101,7 @@ class $$PlotCardsTableTableManager extends RootTableManager<
           }) =>
               PlotCardsCompanion(
             id: id,
+            projectId: projectId,
             title: title,
             summary: summary,
             xPosition: xPosition,
@@ -8936,6 +11114,7 @@ class $$PlotCardsTableTableManager extends RootTableManager<
           ),
           createCompanionCallback: ({
             required String id,
+            Value<String?> projectId = const Value.absent(),
             required String title,
             Value<String?> summary = const Value.absent(),
             required double xPosition,
@@ -8948,6 +11127,7 @@ class $$PlotCardsTableTableManager extends RootTableManager<
           }) =>
               PlotCardsCompanion.insert(
             id: id,
+            projectId: projectId,
             title: title,
             summary: summary,
             xPosition: xPosition,
@@ -8959,9 +11139,46 @@ class $$PlotCardsTableTableManager extends RootTableManager<
             rowid: rowid,
           ),
           withReferenceMapper: (p0) => p0
-              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .map((e) => (
+                    e.readTable(table),
+                    $$PlotCardsTableReferences(db, table, e)
+                  ))
               .toList(),
-          prefetchHooksCallback: null,
+          prefetchHooksCallback: ({projectId = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [],
+              addJoins: <
+                  T extends TableManagerState<
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic>>(state) {
+                if (projectId) {
+                  state = state.withJoin(
+                    currentTable: table,
+                    currentColumn: table.projectId,
+                    referencedTable:
+                        $$PlotCardsTableReferences._projectIdTable(db),
+                    referencedColumn:
+                        $$PlotCardsTableReferences._projectIdTable(db).id,
+                  ) as T;
+                }
+
+                return state;
+              },
+              getPrefetchedDataCallback: (items) async {
+                return [];
+              },
+            );
+          },
         ));
 }
 
@@ -8974,12 +11191,13 @@ typedef $$PlotCardsTableProcessedTableManager = ProcessedTableManager<
     $$PlotCardsTableAnnotationComposer,
     $$PlotCardsTableCreateCompanionBuilder,
     $$PlotCardsTableUpdateCompanionBuilder,
-    (PlotCardRow, BaseReferences<_$AppDatabase, $PlotCardsTable, PlotCardRow>),
+    (PlotCardRow, $$PlotCardsTableReferences),
     PlotCardRow,
-    PrefetchHooks Function()>;
+    PrefetchHooks Function({bool projectId})>;
 typedef $$PlotConnectionsTableCreateCompanionBuilder = PlotConnectionsCompanion
     Function({
   required String id,
+  Value<String?> projectId,
   required String sourceId,
   required String targetId,
   Value<String?> label,
@@ -8990,6 +11208,7 @@ typedef $$PlotConnectionsTableCreateCompanionBuilder = PlotConnectionsCompanion
 typedef $$PlotConnectionsTableUpdateCompanionBuilder = PlotConnectionsCompanion
     Function({
   Value<String> id,
+  Value<String?> projectId,
   Value<String> sourceId,
   Value<String> targetId,
   Value<String?> label,
@@ -8997,6 +11216,27 @@ typedef $$PlotConnectionsTableUpdateCompanionBuilder = PlotConnectionsCompanion
   Value<DateTime> createdAt,
   Value<int> rowid,
 });
+
+final class $$PlotConnectionsTableReferences extends BaseReferences<
+    _$AppDatabase, $PlotConnectionsTable, PlotConnectionRow> {
+  $$PlotConnectionsTableReferences(
+      super.$_db, super.$_table, super.$_typedResult);
+
+  static $ProjectsTable _projectIdTable(_$AppDatabase db) =>
+      db.projects.createAlias(
+          $_aliasNameGenerator(db.plotConnections.projectId, db.projects.id));
+
+  $$ProjectsTableProcessedTableManager? get projectId {
+    final $_column = $_itemColumn<String>('project_id');
+    if ($_column == null) return null;
+    final manager = $$ProjectsTableTableManager($_db, $_db.projects)
+        .filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_projectIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+        manager.$state.copyWith(prefetchedData: [item]));
+  }
+}
 
 class $$PlotConnectionsTableFilterComposer
     extends Composer<_$AppDatabase, $PlotConnectionsTable> {
@@ -9024,6 +11264,26 @@ class $$PlotConnectionsTableFilterComposer
 
   ColumnFilters<DateTime> get createdAt => $composableBuilder(
       column: $table.createdAt, builder: (column) => ColumnFilters(column));
+
+  $$ProjectsTableFilterComposer get projectId {
+    final $$ProjectsTableFilterComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.projectId,
+        referencedTable: $db.projects,
+        getReferencedColumn: (t) => t.id,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$ProjectsTableFilterComposer(
+              $db: $db,
+              $table: $db.projects,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return composer;
+  }
 }
 
 class $$PlotConnectionsTableOrderingComposer
@@ -9052,6 +11312,26 @@ class $$PlotConnectionsTableOrderingComposer
 
   ColumnOrderings<DateTime> get createdAt => $composableBuilder(
       column: $table.createdAt, builder: (column) => ColumnOrderings(column));
+
+  $$ProjectsTableOrderingComposer get projectId {
+    final $$ProjectsTableOrderingComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.projectId,
+        referencedTable: $db.projects,
+        getReferencedColumn: (t) => t.id,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$ProjectsTableOrderingComposer(
+              $db: $db,
+              $table: $db.projects,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return composer;
+  }
 }
 
 class $$PlotConnectionsTableAnnotationComposer
@@ -9080,6 +11360,26 @@ class $$PlotConnectionsTableAnnotationComposer
 
   GeneratedColumn<DateTime> get createdAt =>
       $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  $$ProjectsTableAnnotationComposer get projectId {
+    final $$ProjectsTableAnnotationComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.projectId,
+        referencedTable: $db.projects,
+        getReferencedColumn: (t) => t.id,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$ProjectsTableAnnotationComposer(
+              $db: $db,
+              $table: $db.projects,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return composer;
+  }
 }
 
 class $$PlotConnectionsTableTableManager extends RootTableManager<
@@ -9091,12 +11391,9 @@ class $$PlotConnectionsTableTableManager extends RootTableManager<
     $$PlotConnectionsTableAnnotationComposer,
     $$PlotConnectionsTableCreateCompanionBuilder,
     $$PlotConnectionsTableUpdateCompanionBuilder,
-    (
-      PlotConnectionRow,
-      BaseReferences<_$AppDatabase, $PlotConnectionsTable, PlotConnectionRow>
-    ),
+    (PlotConnectionRow, $$PlotConnectionsTableReferences),
     PlotConnectionRow,
-    PrefetchHooks Function()> {
+    PrefetchHooks Function({bool projectId})> {
   $$PlotConnectionsTableTableManager(
       _$AppDatabase db, $PlotConnectionsTable table)
       : super(TableManagerState(
@@ -9110,6 +11407,7 @@ class $$PlotConnectionsTableTableManager extends RootTableManager<
               $$PlotConnectionsTableAnnotationComposer($db: db, $table: table),
           updateCompanionCallback: ({
             Value<String> id = const Value.absent(),
+            Value<String?> projectId = const Value.absent(),
             Value<String> sourceId = const Value.absent(),
             Value<String> targetId = const Value.absent(),
             Value<String?> label = const Value.absent(),
@@ -9119,6 +11417,7 @@ class $$PlotConnectionsTableTableManager extends RootTableManager<
           }) =>
               PlotConnectionsCompanion(
             id: id,
+            projectId: projectId,
             sourceId: sourceId,
             targetId: targetId,
             label: label,
@@ -9128,6 +11427,7 @@ class $$PlotConnectionsTableTableManager extends RootTableManager<
           ),
           createCompanionCallback: ({
             required String id,
+            Value<String?> projectId = const Value.absent(),
             required String sourceId,
             required String targetId,
             Value<String?> label = const Value.absent(),
@@ -9137,6 +11437,7 @@ class $$PlotConnectionsTableTableManager extends RootTableManager<
           }) =>
               PlotConnectionsCompanion.insert(
             id: id,
+            projectId: projectId,
             sourceId: sourceId,
             targetId: targetId,
             label: label,
@@ -9145,9 +11446,46 @@ class $$PlotConnectionsTableTableManager extends RootTableManager<
             rowid: rowid,
           ),
           withReferenceMapper: (p0) => p0
-              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .map((e) => (
+                    e.readTable(table),
+                    $$PlotConnectionsTableReferences(db, table, e)
+                  ))
               .toList(),
-          prefetchHooksCallback: null,
+          prefetchHooksCallback: ({projectId = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [],
+              addJoins: <
+                  T extends TableManagerState<
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic>>(state) {
+                if (projectId) {
+                  state = state.withJoin(
+                    currentTable: table,
+                    currentColumn: table.projectId,
+                    referencedTable:
+                        $$PlotConnectionsTableReferences._projectIdTable(db),
+                    referencedColumn:
+                        $$PlotConnectionsTableReferences._projectIdTable(db).id,
+                  ) as T;
+                }
+
+                return state;
+              },
+              getPrefetchedDataCallback: (items) async {
+                return [];
+              },
+            );
+          },
         ));
 }
 
@@ -9160,20 +11498,19 @@ typedef $$PlotConnectionsTableProcessedTableManager = ProcessedTableManager<
     $$PlotConnectionsTableAnnotationComposer,
     $$PlotConnectionsTableCreateCompanionBuilder,
     $$PlotConnectionsTableUpdateCompanionBuilder,
-    (
-      PlotConnectionRow,
-      BaseReferences<_$AppDatabase, $PlotConnectionsTable, PlotConnectionRow>
-    ),
+    (PlotConnectionRow, $$PlotConnectionsTableReferences),
     PlotConnectionRow,
-    PrefetchHooks Function()>;
+    PrefetchHooks Function({bool projectId})>;
 typedef $$WorldMapsTableCreateCompanionBuilder = WorldMapsCompanion Function({
   required String id,
+  Value<String?> projectId,
   required String name,
   required String imagePath,
   Value<int> rowid,
 });
 typedef $$WorldMapsTableUpdateCompanionBuilder = WorldMapsCompanion Function({
   Value<String> id,
+  Value<String?> projectId,
   Value<String> name,
   Value<String> imagePath,
   Value<int> rowid,
@@ -9182,6 +11519,21 @@ typedef $$WorldMapsTableUpdateCompanionBuilder = WorldMapsCompanion Function({
 final class $$WorldMapsTableReferences
     extends BaseReferences<_$AppDatabase, $WorldMapsTable, WorldMapRow> {
   $$WorldMapsTableReferences(super.$_db, super.$_table, super.$_typedResult);
+
+  static $ProjectsTable _projectIdTable(_$AppDatabase db) =>
+      db.projects.createAlias(
+          $_aliasNameGenerator(db.worldMaps.projectId, db.projects.id));
+
+  $$ProjectsTableProcessedTableManager? get projectId {
+    final $_column = $_itemColumn<String>('project_id');
+    if ($_column == null) return null;
+    final manager = $$ProjectsTableTableManager($_db, $_db.projects)
+        .filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_projectIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+        manager.$state.copyWith(prefetchedData: [item]));
+  }
 
   static MultiTypedResultKey<$MapPinsTable, List<MapPinRow>> _mapPinsRefsTable(
           _$AppDatabase db) =>
@@ -9215,6 +11567,26 @@ class $$WorldMapsTableFilterComposer
 
   ColumnFilters<String> get imagePath => $composableBuilder(
       column: $table.imagePath, builder: (column) => ColumnFilters(column));
+
+  $$ProjectsTableFilterComposer get projectId {
+    final $$ProjectsTableFilterComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.projectId,
+        referencedTable: $db.projects,
+        getReferencedColumn: (t) => t.id,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$ProjectsTableFilterComposer(
+              $db: $db,
+              $table: $db.projects,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return composer;
+  }
 
   Expression<bool> mapPinsRefs(
       Expression<bool> Function($$MapPinsTableFilterComposer f) f) {
@@ -9255,6 +11627,26 @@ class $$WorldMapsTableOrderingComposer
 
   ColumnOrderings<String> get imagePath => $composableBuilder(
       column: $table.imagePath, builder: (column) => ColumnOrderings(column));
+
+  $$ProjectsTableOrderingComposer get projectId {
+    final $$ProjectsTableOrderingComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.projectId,
+        referencedTable: $db.projects,
+        getReferencedColumn: (t) => t.id,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$ProjectsTableOrderingComposer(
+              $db: $db,
+              $table: $db.projects,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return composer;
+  }
 }
 
 class $$WorldMapsTableAnnotationComposer
@@ -9274,6 +11666,26 @@ class $$WorldMapsTableAnnotationComposer
 
   GeneratedColumn<String> get imagePath =>
       $composableBuilder(column: $table.imagePath, builder: (column) => column);
+
+  $$ProjectsTableAnnotationComposer get projectId {
+    final $$ProjectsTableAnnotationComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.projectId,
+        referencedTable: $db.projects,
+        getReferencedColumn: (t) => t.id,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$ProjectsTableAnnotationComposer(
+              $db: $db,
+              $table: $db.projects,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return composer;
+  }
 
   Expression<T> mapPinsRefs<T extends Object>(
       Expression<T> Function($$MapPinsTableAnnotationComposer a) f) {
@@ -9308,7 +11720,7 @@ class $$WorldMapsTableTableManager extends RootTableManager<
     $$WorldMapsTableUpdateCompanionBuilder,
     (WorldMapRow, $$WorldMapsTableReferences),
     WorldMapRow,
-    PrefetchHooks Function({bool mapPinsRefs})> {
+    PrefetchHooks Function({bool projectId, bool mapPinsRefs})> {
   $$WorldMapsTableTableManager(_$AppDatabase db, $WorldMapsTable table)
       : super(TableManagerState(
           db: db,
@@ -9321,24 +11733,28 @@ class $$WorldMapsTableTableManager extends RootTableManager<
               $$WorldMapsTableAnnotationComposer($db: db, $table: table),
           updateCompanionCallback: ({
             Value<String> id = const Value.absent(),
+            Value<String?> projectId = const Value.absent(),
             Value<String> name = const Value.absent(),
             Value<String> imagePath = const Value.absent(),
             Value<int> rowid = const Value.absent(),
           }) =>
               WorldMapsCompanion(
             id: id,
+            projectId: projectId,
             name: name,
             imagePath: imagePath,
             rowid: rowid,
           ),
           createCompanionCallback: ({
             required String id,
+            Value<String?> projectId = const Value.absent(),
             required String name,
             required String imagePath,
             Value<int> rowid = const Value.absent(),
           }) =>
               WorldMapsCompanion.insert(
             id: id,
+            projectId: projectId,
             name: name,
             imagePath: imagePath,
             rowid: rowid,
@@ -9349,11 +11765,36 @@ class $$WorldMapsTableTableManager extends RootTableManager<
                     $$WorldMapsTableReferences(db, table, e)
                   ))
               .toList(),
-          prefetchHooksCallback: ({mapPinsRefs = false}) {
+          prefetchHooksCallback: ({projectId = false, mapPinsRefs = false}) {
             return PrefetchHooks(
               db: db,
               explicitlyWatchedTables: [if (mapPinsRefs) db.mapPins],
-              addJoins: null,
+              addJoins: <
+                  T extends TableManagerState<
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic>>(state) {
+                if (projectId) {
+                  state = state.withJoin(
+                    currentTable: table,
+                    currentColumn: table.projectId,
+                    referencedTable:
+                        $$WorldMapsTableReferences._projectIdTable(db),
+                    referencedColumn:
+                        $$WorldMapsTableReferences._projectIdTable(db).id,
+                  ) as T;
+                }
+
+                return state;
+              },
               getPrefetchedDataCallback: (items) async {
                 return [
                   if (mapPinsRefs)
@@ -9387,7 +11828,7 @@ typedef $$WorldMapsTableProcessedTableManager = ProcessedTableManager<
     $$WorldMapsTableUpdateCompanionBuilder,
     (WorldMapRow, $$WorldMapsTableReferences),
     WorldMapRow,
-    PrefetchHooks Function({bool mapPinsRefs})>;
+    PrefetchHooks Function({bool projectId, bool mapPinsRefs})>;
 typedef $$MapPinsTableCreateCompanionBuilder = MapPinsCompanion Function({
   required String id,
   required String mapId,
@@ -9750,6 +12191,7 @@ typedef $$MapPinsTableProcessedTableManager = ProcessedTableManager<
 typedef $$SetupPayoffsTableCreateCompanionBuilder = SetupPayoffsCompanion
     Function({
   required String id,
+  Value<String?> projectId,
   required String setupChapterId,
   required String setupDescription,
   Value<String?> payoffChapterId,
@@ -9763,6 +12205,7 @@ typedef $$SetupPayoffsTableCreateCompanionBuilder = SetupPayoffsCompanion
 typedef $$SetupPayoffsTableUpdateCompanionBuilder = SetupPayoffsCompanion
     Function({
   Value<String> id,
+  Value<String?> projectId,
   Value<String> setupChapterId,
   Value<String> setupDescription,
   Value<String?> payoffChapterId,
@@ -9773,6 +12216,26 @@ typedef $$SetupPayoffsTableUpdateCompanionBuilder = SetupPayoffsCompanion
   Value<DateTime> updatedAt,
   Value<int> rowid,
 });
+
+final class $$SetupPayoffsTableReferences
+    extends BaseReferences<_$AppDatabase, $SetupPayoffsTable, SetupPayoffRow> {
+  $$SetupPayoffsTableReferences(super.$_db, super.$_table, super.$_typedResult);
+
+  static $ProjectsTable _projectIdTable(_$AppDatabase db) =>
+      db.projects.createAlias(
+          $_aliasNameGenerator(db.setupPayoffs.projectId, db.projects.id));
+
+  $$ProjectsTableProcessedTableManager? get projectId {
+    final $_column = $_itemColumn<String>('project_id');
+    if ($_column == null) return null;
+    final manager = $$ProjectsTableTableManager($_db, $_db.projects)
+        .filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_projectIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+        manager.$state.copyWith(prefetchedData: [item]));
+  }
+}
 
 class $$SetupPayoffsTableFilterComposer
     extends Composer<_$AppDatabase, $SetupPayoffsTable> {
@@ -9813,6 +12276,26 @@ class $$SetupPayoffsTableFilterComposer
 
   ColumnFilters<DateTime> get updatedAt => $composableBuilder(
       column: $table.updatedAt, builder: (column) => ColumnFilters(column));
+
+  $$ProjectsTableFilterComposer get projectId {
+    final $$ProjectsTableFilterComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.projectId,
+        referencedTable: $db.projects,
+        getReferencedColumn: (t) => t.id,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$ProjectsTableFilterComposer(
+              $db: $db,
+              $table: $db.projects,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return composer;
+  }
 }
 
 class $$SetupPayoffsTableOrderingComposer
@@ -9854,6 +12337,26 @@ class $$SetupPayoffsTableOrderingComposer
 
   ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
       column: $table.updatedAt, builder: (column) => ColumnOrderings(column));
+
+  $$ProjectsTableOrderingComposer get projectId {
+    final $$ProjectsTableOrderingComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.projectId,
+        referencedTable: $db.projects,
+        getReferencedColumn: (t) => t.id,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$ProjectsTableOrderingComposer(
+              $db: $db,
+              $table: $db.projects,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return composer;
+  }
 }
 
 class $$SetupPayoffsTableAnnotationComposer
@@ -9891,6 +12394,26 @@ class $$SetupPayoffsTableAnnotationComposer
 
   GeneratedColumn<DateTime> get updatedAt =>
       $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  $$ProjectsTableAnnotationComposer get projectId {
+    final $$ProjectsTableAnnotationComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.projectId,
+        referencedTable: $db.projects,
+        getReferencedColumn: (t) => t.id,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$ProjectsTableAnnotationComposer(
+              $db: $db,
+              $table: $db.projects,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return composer;
+  }
 }
 
 class $$SetupPayoffsTableTableManager extends RootTableManager<
@@ -9902,12 +12425,9 @@ class $$SetupPayoffsTableTableManager extends RootTableManager<
     $$SetupPayoffsTableAnnotationComposer,
     $$SetupPayoffsTableCreateCompanionBuilder,
     $$SetupPayoffsTableUpdateCompanionBuilder,
-    (
-      SetupPayoffRow,
-      BaseReferences<_$AppDatabase, $SetupPayoffsTable, SetupPayoffRow>
-    ),
+    (SetupPayoffRow, $$SetupPayoffsTableReferences),
     SetupPayoffRow,
-    PrefetchHooks Function()> {
+    PrefetchHooks Function({bool projectId})> {
   $$SetupPayoffsTableTableManager(_$AppDatabase db, $SetupPayoffsTable table)
       : super(TableManagerState(
           db: db,
@@ -9920,6 +12440,7 @@ class $$SetupPayoffsTableTableManager extends RootTableManager<
               $$SetupPayoffsTableAnnotationComposer($db: db, $table: table),
           updateCompanionCallback: ({
             Value<String> id = const Value.absent(),
+            Value<String?> projectId = const Value.absent(),
             Value<String> setupChapterId = const Value.absent(),
             Value<String> setupDescription = const Value.absent(),
             Value<String?> payoffChapterId = const Value.absent(),
@@ -9932,6 +12453,7 @@ class $$SetupPayoffsTableTableManager extends RootTableManager<
           }) =>
               SetupPayoffsCompanion(
             id: id,
+            projectId: projectId,
             setupChapterId: setupChapterId,
             setupDescription: setupDescription,
             payoffChapterId: payoffChapterId,
@@ -9944,6 +12466,7 @@ class $$SetupPayoffsTableTableManager extends RootTableManager<
           ),
           createCompanionCallback: ({
             required String id,
+            Value<String?> projectId = const Value.absent(),
             required String setupChapterId,
             required String setupDescription,
             Value<String?> payoffChapterId = const Value.absent(),
@@ -9956,6 +12479,7 @@ class $$SetupPayoffsTableTableManager extends RootTableManager<
           }) =>
               SetupPayoffsCompanion.insert(
             id: id,
+            projectId: projectId,
             setupChapterId: setupChapterId,
             setupDescription: setupDescription,
             payoffChapterId: payoffChapterId,
@@ -9967,9 +12491,46 @@ class $$SetupPayoffsTableTableManager extends RootTableManager<
             rowid: rowid,
           ),
           withReferenceMapper: (p0) => p0
-              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .map((e) => (
+                    e.readTable(table),
+                    $$SetupPayoffsTableReferences(db, table, e)
+                  ))
               .toList(),
-          prefetchHooksCallback: null,
+          prefetchHooksCallback: ({projectId = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [],
+              addJoins: <
+                  T extends TableManagerState<
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic>>(state) {
+                if (projectId) {
+                  state = state.withJoin(
+                    currentTable: table,
+                    currentColumn: table.projectId,
+                    referencedTable:
+                        $$SetupPayoffsTableReferences._projectIdTable(db),
+                    referencedColumn:
+                        $$SetupPayoffsTableReferences._projectIdTable(db).id,
+                  ) as T;
+                }
+
+                return state;
+              },
+              getPrefetchedDataCallback: (items) async {
+                return [];
+              },
+            );
+          },
         ));
 }
 
@@ -9982,16 +12543,15 @@ typedef $$SetupPayoffsTableProcessedTableManager = ProcessedTableManager<
     $$SetupPayoffsTableAnnotationComposer,
     $$SetupPayoffsTableCreateCompanionBuilder,
     $$SetupPayoffsTableUpdateCompanionBuilder,
-    (
-      SetupPayoffRow,
-      BaseReferences<_$AppDatabase, $SetupPayoffsTable, SetupPayoffRow>
-    ),
+    (SetupPayoffRow, $$SetupPayoffsTableReferences),
     SetupPayoffRow,
-    PrefetchHooks Function()>;
+    PrefetchHooks Function({bool projectId})>;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
   $AppDatabaseManager(this._db);
+  $$ProjectsTableTableManager get projects =>
+      $$ProjectsTableTableManager(_db, _db.projects);
   $$EntitiesTableTableManager get entities =>
       $$EntitiesTableTableManager(_db, _db.entities);
   $$RelationshipsTableTableManager get relationships =>
